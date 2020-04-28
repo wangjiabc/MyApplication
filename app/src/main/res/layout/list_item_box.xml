@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="120dp"
+    android:orientation="vertical"
+    >
+
+
+    <ImageButton
+        android:id="@+id/list_item_imageButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        />
+
+    <TextView
+
+        android:textSize="18dp"
+        android:id="@+id/list_item_textView"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="90dp"
+        android:inputType="textPersonName"
+        android:gravity="center"
+        tools:text="Name" />
+
+</RelativeLayout>

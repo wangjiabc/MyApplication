@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">My Application</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_out">退出</string>
+
+    <string name="time_picker">TimePicker</string>
+    <string name="send_report">发送</string>
+    <string name="date_confirm">确定</string>
+    <string name="show_subtitle">Show </string>
+    <string name="hide_subtitle">Hide </string>
+    <string name="page_null">没有记录可以显示</string>
+    <string name="page_new">新建记录</string>
+    <string name="cancel">CANCEL</string>
+    <string name="ok">OK</string>
+    <string name="action_settings" />
+</resources>

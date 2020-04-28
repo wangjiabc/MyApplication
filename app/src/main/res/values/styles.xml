@@ -1,0 +1,99 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="BoxButton" parent="android:style/Widget.Holo.Button">
+        <item name="android:background">@drawable/button_box</item>
+    </style>
+
+    <style name="AnimActivityTheme">
+        <item name="android:windowAnimationStyle">@style/FeelyouWindowAnimTheme</item>
+    </style>
+
+    <style name="FeelyouWindowAnimTheme" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/in_from_left</item>
+        <item name="android:activityOpenExitAnimation">@anim/out_from_right</item>
+        <item name="android:activityCloseEnterAnimation">@anim/in_from_right</item>
+        <item name="android:activityCloseExitAnimation">@anim/out_from_left</item>
+    </style>
+
+    <style name="SwipeBackLayout">
+        <item name="shadow_left">@drawable/shadow_left</item>
+        <item name="shadow_right">@drawable/shadow_right</item>
+        <item name="shadow_bottom">@drawable/shadow_bottom</item>
+    </style>
+
+    <style name="dialog_wrapper_style_63">
+        <item name="android:paddingLeft">63dp</item>
+        <item name="android:paddingRight">63dp</item>
+    </style>
+
+    <style name="DialogTheme2TitleStyle" parent="QMUI.Dialog.Title">
+        <item name="android:textColor">?attr/qmui_config_color_gray_1</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">28dp</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="DialogTheme2ActionContainerStyle">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="qmui_dialog_action_container_justify_content">stretch</item>
+        <item name="qmui_dialog_action_height">56dp</item>
+        <item name="qmui_dialog_action_space">8dp</item>
+        <item name="qmui_topDividerColor">?attr/qmui_config_color_separator</item>
+        <item name="qmui_topDividerHeight">1px</item>
+    </style>
+
+    <style name="DialogTheme2ActionStyle">
+        <item name="android:textColor">?attr/qmui_config_color_blue</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">64dp</item>
+        <item name="android:background">@null</item>
+        <item name="qmui_dialog_action_button_padding_horizontal">12dp</item>
+        <item name="qmui_dialog_action_icon_space">6dp</item>
+        <item name="qmui_dialog_positive_action_text_color">?attr/qmui_config_color_blue</item>
+        <item name="qmui_dialog_negative_action_text_color">?attr/qmui_config_color_red</item>
+    </style>
+
+    <style name="DialogTheme2MessageContentStyle" parent="QMUI.Dialog.MessageContent">
+        <item name="android:textColor">?attr/qmui_config_color_gray_4</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">13dp</item>
+        <item name="android:paddingBottom">27dp</item>
+        <item name="android:lineSpacingExtra">5dp</item>
+        <item name="qmui_paddingTopWhenNotTitle">27dp</item>
+    </style>
+
+    <style name="DialogTheme2" parent="QMUI.Dialog">
+        <item name="qmui_dialog_wrapper_style">@style/dialog_wrapper_style_63</item>
+        <item name="qmui_dialog_title_style">@style/DialogTheme2TitleStyle</item>
+        <item name="qmui_dialog_action_container_style">@style/DialogTheme2ActionContainerStyle</item>
+        <item name="qmui_dialog_action_style">@style/DialogTheme2ActionStyle</item>
+        <item name="qmui_dialog_message_content_style">@style/DialogTheme2MessageContentStyle</item>
+    </style>
+
+    <style name="ReleaseDialogTheme"></style>
+
+</resources>

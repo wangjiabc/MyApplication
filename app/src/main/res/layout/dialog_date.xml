@@ -1,0 +1,26 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:duration="300"
+    android:fromXDelta="0"  android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+    android:toXDelta="100%"
+    >
+
+<DatePicker xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_date_date_picker"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:calendarViewShown="false"
+    android:layout_weight="0.55" />
+
+    <Button
+        android:id="@+id/dialog_data_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="200dp"
+        android:text="@string/date_confirm" />
+
+
+
+</LinearLayout>
