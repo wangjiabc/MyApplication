@@ -29,7 +29,7 @@ public class AssetListActivity extends AppCompatActivity {
         QMUIStatusBarHelper.translucent(this);
 
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
-        mListView_contact=view.findViewById(R.id.listview_contact);
+//        mListView_contact=view.findViewById(R.id.listview_contact);
         //ButterKnife.bind(this, root);
         //初始化状态栏
         //initTopBar();

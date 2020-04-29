@@ -1,19 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.qmuiteam.qmui.widget.QMUIWindowInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    tools:context=".Asset.AssetListActivity">
-
-    <ListView
+    android:background="@color/qmui_config_color_white">
+    <!--<ListView
         android:id="@+id/listview_contact"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/qmui_config_color_white"
         android:divider="@null"
         android:dividerHeight="0dp"/>
+        -->
 
-</LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+        <com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout
+            android:id="@+id/pull_to_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout
+                android:id="@+id/section_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout>
+    </FrameLayout>
+
+    <com.qmuiteam.qmui.widget.QMUITopBarLayout
+        android:id="@+id/topbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"/>
+
+</com.qmuiteam.qmui.widget.QMUIWindowInsetLayout>
