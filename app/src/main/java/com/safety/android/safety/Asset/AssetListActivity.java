@@ -11,6 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.qmuiteam.qmui.layout.QMUIPriorityLinearLayout;
+import com.qmuiteam.qmui.widget.QMUIFloatLayout;
 import com.qmuiteam.qmui.widget.QMUITopBarLayout;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
@@ -156,10 +158,14 @@ public class AssetListActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                            ArrayList<SectionItem> list = new ArrayList<>();
+                            ArrayList<SectionItem> contents = new ArrayList<>();
                            int i=0;
                             for (i = 0; i < 10; i++) {
-                                list.add(new SectionItem("load more item hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" + i));
-                                Log.d("aaaa", "createSection: "+i);
+                               // list.add(new SectionItem("load more item hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" + i));
+                              //  contents.add(new SectionItem("item " + i));
+                                QMUIPriorityLinearLayout qmuiPriorityLinearLayout=new QMUIPriorityLinearLayout(getApplicationContext());
+                                QMUIFloatLayout qmuiFloatLayout=new QMUIFloatLayout(getApplicationContext());
+                                list.add(new SectionItem("qmuiFloatLayout"));
                             }
                             mAdapter.finishLoadMore(section, list, loadMoreBefore, true);
 
@@ -186,7 +192,12 @@ public class AssetListActivity extends AppCompatActivity {
 
         ArrayList<SectionItem> contents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            contents.add(new SectionItem("item " + i));
+            QMUIPriorityLinearLayout qmuiPriorityLinearLayout=new QMUIPriorityLinearLayout(getApplicationContext());
+            QMUIFloatLayout qmuiFloatLayout=new QMUIFloatLayout(getApplicationContext());
+            TextView textView=new TextView(getApplicationContext());
+            textView.setText("aaaaaaaaaaaaaaaa");
+            qmuiFloatLayout.addView(textView);
+            contents.add(new SectionItem(i+"qmuiFloatLayout"));
             Log.d("aaaa", "createSection: "+i);
         }
         SectionHeader header = new SectionHeader("1");
@@ -203,7 +214,7 @@ public class AssetListActivity extends AppCompatActivity {
         SectionHeader header = new SectionHeader(headerText);
         ArrayList<SectionItem> contents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            contents.add(new SectionItem("item " + i*n));
+            //contents.add(new SectionItem("item " + i*n));
             Log.d("aaaa", "createSection: "+i);
         }
         QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, isFold);

@@ -59,7 +59,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
     @Override
     protected void onBindSectionItem(ViewHolder holder, int position, QMUISection<SectionHeader, SectionItem> section, int itemIndex) {
-        ((TextView) holder.itemView).setText(section.getItemAt(itemIndex).getText());
+        //((TextView) holder.itemView).setText(section.getItemAt(itemIndex).getText());
     }
 }
 
