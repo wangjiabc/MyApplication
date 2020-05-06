@@ -1,20 +1,13 @@
 package com.safety.android.qmuidemo.view;
 
-import android.content.Context;
+import android.view.View;
 
-import com.qmuiteam.qmui.layout.QMUIPriorityLinearLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 
-public class SectionItem implements QMUISection.Model<SectionItem> {
+import java.util.ArrayList;
+
+public class SectionItem extends ArrayList<View> implements QMUISection.Model<SectionItem> {
     private final String text;
-
-    private QMUIPriorityLinearLayout qmuiPriorityLinearLayout;
-
-    public SectionItem(String text, Context context){
-        this.text = text;
-        qmuiPriorityLinearLayout=new QMUIPriorityLinearLayout(context);
-
-    }
 
     public SectionItem(String text) {
         this.text=text;
@@ -28,6 +21,7 @@ public class SectionItem implements QMUISection.Model<SectionItem> {
     @Override
     public SectionItem cloneForDiff() {
         return new SectionItem(getText());
+       // return  new SectionItem();
     }
 
     @Override

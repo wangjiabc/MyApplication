@@ -2,8 +2,6 @@ package com.safety.android.qmuidemo.view;
 
 import android.content.Context;
 import android.graphics.Color;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,9 @@ import com.example.myapplication.R;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.section.QMUIDefaultStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUISection;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 
 public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<SectionHeader, SectionItem> {
@@ -59,7 +60,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
     @Override
     protected void onBindSectionItem(ViewHolder holder, int position, QMUISection<SectionHeader, SectionItem> section, int itemIndex) {
-        //((TextView) holder.itemView).setText(section.getItemAt(itemIndex).getText());
+        ((TextView) holder.itemView).setText(section.getItemAt(itemIndex).getText());
     }
 }
 

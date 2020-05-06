@@ -33,7 +33,11 @@
             android:layout_margin="20dp"
             android:orientation="horizontal"
             app:qmui_showBorderOnlyBeforeL="true">
-
+           <!-- <CheckBox
+                android:id="@+id/cbEat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="吃" />-->
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/textview_username"
                 android:layout_width="wrap_content"
@@ -43,7 +47,10 @@
                 android:id="@+id/textview_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-
+            <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/textview_gender"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
         </com.qmuiteam.qmui.layout.QMUILinearLayout>
 
     <ImageView

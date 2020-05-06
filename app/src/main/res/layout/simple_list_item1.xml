@@ -21,11 +21,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout
-                android:id="@+id/section_layout"
+            <ListView
+                android:id="@+id/listview_contact"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout>
+                android:layout_height="match_parent"
+                android:background="@color/qmui_config_color_white"
+                android:divider="@null"
+                android:dividerHeight="0dp"/>
+
         </com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout>
     </FrameLayout>
 

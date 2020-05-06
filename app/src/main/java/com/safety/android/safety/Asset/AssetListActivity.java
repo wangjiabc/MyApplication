@@ -1,18 +1,17 @@
 package com.safety.android.safety.Asset;
 
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
-import com.qmuiteam.qmui.layout.QMUIPriorityLinearLayout;
-import com.qmuiteam.qmui.widget.QMUIFloatLayout;
 import com.qmuiteam.qmui.widget.QMUITopBarLayout;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
@@ -24,13 +23,13 @@ import com.safety.android.qmuidemo.view.QDListWithDecorationSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 
+import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
 
 public class AssetListActivity extends AppCompatActivity {
 
@@ -46,8 +45,11 @@ public class AssetListActivity extends AppCompatActivity {
 
     QMUIStickySectionLayout mSectionLayout;
 
+
     private RecyclerView.LayoutManager mLayoutManager;
     protected QMUIStickySectionAdapter<SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> mAdapter;
+
+    private int page=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +59,8 @@ public class AssetListActivity extends AppCompatActivity {
         //QMUIStatusBarHelper.translucent(this);
 
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
-        //mListView_contact=view.findViewById(R.id.listview_contact);
+
+       // mListView_contact=view.findViewById(R.id.listview_contact);
         mTopBar=view.findViewById(R.id.toolbar);
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -71,11 +74,10 @@ public class AssetListActivity extends AppCompatActivity {
         initRefreshLayout();
         initStickyLayout();
         initData();
-
+      //  initListView();
         setContentView(view);
 
     }
-
 
     private void initTopBar() {
         mTopBar.addLeftBackImageButton().setOnClickListener(new View.OnClickListener() {
@@ -161,12 +163,12 @@ public class AssetListActivity extends AppCompatActivity {
                             ArrayList<SectionItem> contents = new ArrayList<>();
                            int i=0;
                             for (i = 0; i < 10; i++) {
-                               // list.add(new SectionItem("load more item hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" + i));
+                                list.add(new SectionItem("load more item hhhhhhhhhhh" + (i+page*10)));
                               //  contents.add(new SectionItem("item " + i));
-                                QMUIPriorityLinearLayout qmuiPriorityLinearLayout=new QMUIPriorityLinearLayout(getApplicationContext());
-                                QMUIFloatLayout qmuiFloatLayout=new QMUIFloatLayout(getApplicationContext());
-                                list.add(new SectionItem("qmuiFloatLayout"));
+                                //list.add(new SectionItem("qmuiFloatLayout"));
+                               // list.add(new SectionItem(qmuiPriorityLinearLayout));
                             }
+                            page++;
                             mAdapter.finishLoadMore(section, list, loadMoreBefore, true);
 
                     }
@@ -176,6 +178,17 @@ public class AssetListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
                 Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
+                try {
+                    String text = (String) ((TextView) holder.itemView).getText();
+
+                    //holder.itemView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.qmui_config_color_gray_4));
+                    final Spanned sp = Html.fromHtml("<font color='red' size='20'>" + text + "</font>", null, null);
+                    ((TextView) holder.itemView).setText(sp);
+                    Log.d("ddddddddd", "onItemClick: " + text + "  " + holder.getAdapterPosition());
+                }catch (java.lang.ClassCastException e){
+
+                    ((TextView) holder.itemView).setText("");
+                }
             }
 
             @Override
@@ -192,14 +205,11 @@ public class AssetListActivity extends AppCompatActivity {
 
         ArrayList<SectionItem> contents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            QMUIPriorityLinearLayout qmuiPriorityLinearLayout=new QMUIPriorityLinearLayout(getApplicationContext());
-            QMUIFloatLayout qmuiFloatLayout=new QMUIFloatLayout(getApplicationContext());
-            TextView textView=new TextView(getApplicationContext());
-            textView.setText("aaaaaaaaaaaaaaaa");
-            qmuiFloatLayout.addView(textView);
-            contents.add(new SectionItem(i+"qmuiFloatLayout"));
+
+            contents.add(new SectionItem("qmuiFloatLayout"+(i+page*10)));
             Log.d("aaaa", "createSection: "+i);
         }
+        page++;
         SectionHeader header = new SectionHeader("1");
         QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
         // if test load more, you can open the code
@@ -208,20 +218,6 @@ public class AssetListActivity extends AppCompatActivity {
         list.add(section);
 
         mAdapter.setData(list);
-    }
-
-    private QMUISection<SectionHeader, SectionItem> createSection(String headerText, boolean isFold,int n) {
-        SectionHeader header = new SectionHeader(headerText);
-        ArrayList<SectionItem> contents = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            //contents.add(new SectionItem("item " + i*n));
-            Log.d("aaaa", "createSection: "+i);
-        }
-        QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, isFold);
-        // if test load more, you can open the code
-        section.setExistAfterDataToLoad(true);
-//        section.setExistBeforeDataToLoad(true);
-        return section;
     }
 
 
@@ -256,7 +252,7 @@ public class AssetListActivity extends AppCompatActivity {
                                 int targetPosition = mAdapter.findPosition(new QMUIStickySectionAdapter.PositionFinder<SectionHeader, SectionItem>() {
                                     @Override
                                     public boolean find(@NonNull QMUISection<SectionHeader, SectionItem> section, @Nullable SectionItem item) {
-                                        return "header 4".equals(section.getHeader().getText()) && (item != null && "item 13".equals(item.getText()));
+                                       return "header 4".equals(section.getHeader().getText()) && (item != null && "item 13".equals(item.getText()));
                                     }
                                 }, true);
                                 if (targetPosition != RecyclerView.NO_POSITION) {
