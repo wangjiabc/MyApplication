@@ -136,13 +136,17 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                         page++;*/
 
                         boolean existMoreData=true;
-                        if(Integer.parseInt(total)>(page*10)) {
+                        /*if(Integer.parseInt(total)>(page*10)) {
                             existMoreData=false;
-                        }
-
-                       mAdapter.finishLoadMore(section, list, loadMoreBefore, true);
+                        }*/
 
                         new FetchItemsTask().execute();
+
+
+
+                       //mAdapter.finishLoadMore(section, list, loadMoreBefore, true);
+
+
 
                     }
                 }, 1000);
@@ -198,6 +202,10 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
             try {
 
                 System.out.println("json="+json);
+
+                if(json==null||json.equals("")){
+
+                }
 
                 JSONObject jsonObject = new JSONObject(json);
                 String success = jsonObject.optString("success", null);

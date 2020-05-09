@@ -63,8 +63,7 @@ public class OKHttpFetch {
                 Intent intent=new Intent(context, login.class);
                 context.startActivity(intent);
             }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
-                Intent intent=new Intent(context, login.class);
-                context.startActivity(intent);
+                startUserActivity(context,login.class);
             }else {
                // System.out.print("response=" + jsonObject.get("rows") + "\n");
 
@@ -123,8 +122,7 @@ public class OKHttpFetch {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
-            Intent intent=new Intent(context, login.class);
-            context.startActivity(intent);
+            startUserActivity(context,login.class);
             e.printStackTrace();
         }
 
@@ -179,6 +177,13 @@ public class OKHttpFetch {
 
         return result;
 
+    }
+
+    public static void startUserActivity(Context context , Class cls){
+        Intent intent = new Intent();
+        intent.setClass(context, cls);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+        context.startActivity(intent);
     }
 
 
