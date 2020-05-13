@@ -23,9 +23,12 @@ import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,6 +46,10 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
     private int page=1;
 
+    private int total=0;
+
+    private BlockingQueue<ArrayList<SectionItem>> queue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -56,6 +63,8 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
         initRefreshLayout();
         initStickyLayout();
         initData();
+
+        queue=new ArrayBlockingQueue<>(3);
 
         setContentView(view);
 
@@ -71,7 +80,10 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
             @Override
             public void onMoveRefreshView(int offset) {
-
+                    mLayoutManager = createLayoutManager();
+                    mSectionLayout.setLayoutManager(mLayoutManager);
+                    page=1;
+                    total=0;
             }
 
             @Override
@@ -124,25 +136,60 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 mSectionLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                       /* ArrayList<SectionItem> list = new ArrayList<>();
-                        ArrayList<SectionItem> contents = new ArrayList<>();
-                        int i=0;
-                        for (i = 0; i < 10; i++) {
-                            list.add(new SectionItem("load more item hhhhhhhhhhh" + (i+page*10)));
-                            //  contents.add(new SectionItem("item " + i));
-                            //list.add(new SectionItem("qmuiFloatLayout"));
-                            // list.add(new SectionItem(qmuiPriorityLinearLayout));
+
+                       new Thread(new Runnable(){
+
+                           @Override
+                           public void run() {
+
+                               ArrayList<SectionItem> contents = new ArrayList<>();
+                               String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize=10");
+
+                               try {
+                                   JSONObject jsonObject = new JSONObject(json);
+                                   String success = jsonObject.optString("success", null);
+
+                                   if (success.equals("true")) {
+
+                                       JSONObject result = (JSONObject) jsonObject.get("result");
+
+                                       JSONArray records = result.getJSONArray("records");
+
+                                       for (int i = 0; i < records.length(); i++) {
+
+                                           JSONObject jsonObject1 = (JSONObject) records.get(i);
+                                           String name = jsonObject1.getString("name");
+                                           contents.add(new SectionItem(name));
+                                       }
+                                   }
+                                   queue.put(contents);
+                               } catch (JSONException | InterruptedException e) {
+                                   e.printStackTrace();
+                               }
+
+                           }
+
+                       }).start();
+
+                       ArrayList<SectionItem> list= new ArrayList<>();
+
+                       int i=0;
+                        ArrayList<SectionItem> contents = null;
+                        try {
+                            contents =queue.take();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-                        page++;*/
 
                         boolean existMoreData=true;
-                        if(Integer.parseInt(total)>(page*10)) {
+                        System.out.println("total="+total+"   page="+page);
+                        if(total<(page*10)) {
                             existMoreData=false;
                         }
 
-                       mAdapter.finishLoadMore(section, list, loadMoreBefore, true);
+                        page++;
 
-                        new FetchItemsTask().execute();
+                        mAdapter.finishLoadMore(section, contents, loadMoreBefore, existMoreData);
 
                     }
                 }, 1000);
@@ -197,8 +244,6 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
             try {
 
-                System.out.println("json="+json);
-
                 JSONObject jsonObject = new JSONObject(json);
                 String success = jsonObject.optString("success", null);
 
@@ -208,39 +253,26 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
                     JSONArray records = result.getJSONArray("records");
 
+                    total=result.getInt("total");
+
                     for (int i = 0; i < records.length(); i++) {
 
                         JSONObject jsonObject1= (JSONObject) records.get(i);
                         String name=jsonObject1.getString("name");
                         contents.add(new SectionItem(name));
-                        Log.d("aaaa", "createSection: "+i);
                     }
 
                     String total=result.getString("total");
 
                     SectionHeader header = new SectionHeader("共"+total+"条");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
-                    // if test load more, you can open the code
 
                     list.add(section);
-
-                   /* if(Integer.parseInt(total)>(page*10)) {
-                        section.setExistAfterDataToLoad(true);
-                    }else{
-                        section.setExistAfterDataToLoad(false);
-                    }*/
 
                     section.setExistAfterDataToLoad(true);
                     System.out.println("page="+page);
 
-                    if(page==1) {
-                        mAdapter.setData(list);
-                    }else {
-
-
-                        System.out.println("Integer.parseInt(total)>(page*10)="+(Integer.parseInt(total)>(page*10)));
-
-                    }
+                    mAdapter.setData(list);
 
                     page++;
 
