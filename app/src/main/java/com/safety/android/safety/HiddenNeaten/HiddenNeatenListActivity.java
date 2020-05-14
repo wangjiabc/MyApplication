@@ -2,12 +2,11 @@ package com.safety.android.safety.HiddenNeaten;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +30,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,12 +50,16 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
     private BlockingQueue<ArrayList<SectionItem>> queue;
 
+    private View view;
+
+    private SearchView mSearchView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+       view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -68,6 +72,30 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
         setContentView(view);
 
+/*
+        mSearchView = (SearchView) findViewById(R.id.search);
+        mSearchView.setIconifiedByDefault(true);
+        mSearchView.setFocusable(false);
+        mSearchView.clearFocus();
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String queryText) {
+
+                System.out.println("onQueryTextChange:"+queryText);
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String queryText) {
+
+                System.out.println("onQueryTextSubmit:"+queryText);
+
+                return true;
+            }
+        });
+*/
     }
 
 
@@ -80,20 +108,24 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
             @Override
             public void onMoveRefreshView(int offset) {
-                    mLayoutManager = createLayoutManager();
-                    mSectionLayout.setLayoutManager(mLayoutManager);
-                    page=1;
-                    total=0;
+
             }
 
             @Override
             public void onRefresh() {
+
                 mPullRefreshLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         mPullRefreshLayout.finishRefresh();
+
+                        page=1;
+                        total=0;
+
+                        initData();
+
                     }
-                }, 2000);
+                }, 1000);
             }
         });
     }
@@ -182,29 +214,19 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                         }
 
                         boolean existMoreData=true;
-<<<<<<< HEAD
+
                         System.out.println("total="+total+"   page="+page);
                         if(total<(page*10)) {
                             existMoreData=false;
                         }
 
                         page++;
-=======
-                        /*if(Integer.parseInt(total)>(page*10)) {
-                            existMoreData=false;
-                        }*/
->>>>>>> origin/master
 
                         mAdapter.finishLoadMore(section, contents, loadMoreBefore, existMoreData);
 
 
-
-                       //mAdapter.finishLoadMore(section, list, loadMoreBefore, true);
-
-
-
                     }
-                }, 1000);
+                }, 300);
             }
 
             @Override
@@ -213,13 +235,11 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 try {
                     String text = (String) ((TextView) holder.itemView).getText();
 
-                    //holder.itemView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.qmui_config_color_gray_4));
-                    final Spanned sp = Html.fromHtml("<font color='red' size='20'>" + text + "</font>", null, null);
-                    ((TextView) holder.itemView).setText(sp);
+                    holder.itemView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.qmui_config_color_gray_4));
+
                     Log.d("ddddddddd", "onItemClick: " + text + "  " + holder.getAdapterPosition());
                 }catch (java.lang.ClassCastException e){
 
-                    ((TextView) holder.itemView).setText("");
                 }
             }
 
@@ -256,15 +276,6 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
             try {
 
-<<<<<<< HEAD
-=======
-                System.out.println("json="+json);
-
-                if(json==null||json.equals("")){
-
-                }
-
->>>>>>> origin/master
                 JSONObject jsonObject = new JSONObject(json);
                 String success = jsonObject.optString("success", null);
 
