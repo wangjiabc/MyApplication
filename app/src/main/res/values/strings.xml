@@ -19,4 +19,5 @@
     <string name="sticky_section_decoration_list_footer" />
     <string name="sticky_section_decoration_section_top_tip" />
     <string name="sticky_section_decoration_section_bottom_tip" />
+    <string name="app_upgrade_tip_title" />
 </resources>
