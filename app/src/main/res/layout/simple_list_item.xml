@@ -2,16 +2,31 @@
 <com.qmuiteam.qmui.widget.QMUIWindowInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/qmui_config_color_white">
-    <!--<ListView
-        android:id="@+id/listview_contact"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/qmui_config_color_white"
-        android:divider="@null"
-        android:dividerHeight="0dp"/>
-        -->
-
+        android:divider="?android:attr/dividerVertical"
+        android:showDividers="middle"
+        android:orientation="vertical">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:fitsSystemWindows="true">
+            <android.widget.SearchView
+                android:id="@+id/search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="10dp"
+                android:layout_centerInParent="true"
+                app:iconifiedByDefault="false"
+                app:showAsAction="ifRoom|collapseActionView"
+                app:queryHint="搜索组织"/>
+        </FrameLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -28,11 +43,7 @@
             </com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout>
         </com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout>
     </FrameLayout>
+    </LinearLayout>
 
-    <com.qmuiteam.qmui.widget.QMUITopBarLayout
-        android:id="@+id/topbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"/>
 
 </com.qmuiteam.qmui.widget.QMUIWindowInsetLayout>

@@ -3,8 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.myapplication.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:id="@+id/menu_item_add"
+        android:icon="@drawable/ic_menu_add"
+        android:title="New"
+        app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:orderInCategory="100"
+        android:icon="@mipmap/ic_launcher"
+        app:showAsAction="never"/>
 </menu>

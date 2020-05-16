@@ -5,6 +5,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
-import com.qmuiteam.qmui.widget.QMUITopBarLayout;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
@@ -38,9 +38,6 @@ public class AssetListActivity extends AppCompatActivity {
     //@BindView(R.id.listview_contact)
     ListView mListView_contact;
 
-
-    QMUITopBarLayout mTopBar;
-
     QMUIPullRefreshLayout mPullRefreshLayout;
 
     QMUIStickySectionLayout mSectionLayout;
@@ -61,7 +58,6 @@ public class AssetListActivity extends AppCompatActivity {
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
 
        // mListView_contact=view.findViewById(R.id.listview_contact);
-        mTopBar=view.findViewById(R.id.toolbar);
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
         //ButterKnife.bind(this, root);
@@ -70,7 +66,6 @@ public class AssetListActivity extends AppCompatActivity {
         //初始化列表
        // initListView();
 
-//        initTopBar();
         initRefreshLayout();
         initStickyLayout();
         initData();
@@ -79,23 +74,12 @@ public class AssetListActivity extends AppCompatActivity {
 
     }
 
-    private void initTopBar() {
-        mTopBar.addLeftBackImageButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-
-        mTopBar.addRightImageButton(R.mipmap.icon_topbar_overflow, R.id.topbar_right_change_button)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        showBottomSheet();
-                    }
-                });
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
+
 
     private void initRefreshLayout() {
         mPullRefreshLayout.setOnPullListener(new QMUIPullRefreshLayout.OnPullListener() {

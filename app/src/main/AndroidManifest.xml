@@ -50,7 +50,7 @@
             android:parentActivityName="com.example.myapplication.MainActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.safety.HiddenNeaten.HiddenNeatenListActivity2"
+            android:name="com.safety.android.safety.HiddenNeaten.HiddenNeatenListActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.example.myapplication.MainActivity" >
         </activity>

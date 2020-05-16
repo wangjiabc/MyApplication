@@ -2,6 +2,7 @@ package com.safety.android.qmuidemo.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -25,6 +26,8 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
         tv.setBackgroundColor(ContextCompat.getColor(context, R.color.qmui_config_color_gray_9));
         tv.setTextColor(Color.DKGRAY);
         tv.setPadding(paddingHor, paddingVer, paddingHor, paddingVer);
+        tv.setGravity(Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
+        tv.setTextAppearance(0);
         return new QMUIStickySectionAdapter.ViewHolder(tv);
     }
 }

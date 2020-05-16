@@ -2,7 +2,6 @@ package com.safety.android.safety.Camera;
 
 import android.Manifest;
 import android.app.Activity;
-import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,9 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -32,11 +28,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-
 import com.example.myapplication.R;
 import com.safety.android.safety.SQLite3.SafeInfo;
 import com.safety.android.safety.SQLite3.SafeLab;
-import com.safety.android.util.DatePickerFragment;
 import com.safety.android.util.TimePackerFragment;
 import com.safety.android.util.phone;
 
@@ -46,6 +40,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class CameraFragment extends Fragment {
 
@@ -247,9 +246,15 @@ public class CameraFragment extends Fragment {
 
             @Override
             public void onClick(View view) {
-
-                startActivityForResult(captureImage , REQUEST_PHOTO);
-                updatePhotoView();
+                captureImage.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
+                    startActivityForResult(captureImage, REQUEST_PHOTO);
+                    updatePhotoView();
+                }else{
+                    startActivityForResult(captureImage, REQUEST_PHOTO);
+                    updatePhotoView();
+                }
             }
         });
 

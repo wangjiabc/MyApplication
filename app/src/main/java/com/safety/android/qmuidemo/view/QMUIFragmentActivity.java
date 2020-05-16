@@ -327,6 +327,7 @@ public abstract class QMUIFragmentActivity extends InnerBaseActivity {
                                   @Nullable Bundle fragmentArgs) {
         Intent intent = new Intent(context, targetActivity);
         FirstFragmentFinder finder = FirstFragmentFinders.getInstance().get(targetActivity);
+        Log.d("ssssssssssssss===============", String.valueOf(finder.getIdByFragmentClass(firstFragment)));
         int dstId = FirstFragmentFinder.NO_ID;
         if (finder != null) {
             dstId = finder.getIdByFragmentClass(firstFragment);

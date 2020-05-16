@@ -2,11 +2,14 @@ package com.safety.android.qmuidemo.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.section.QMUIDefaultStickySectionAdapter;
@@ -60,7 +63,13 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
     @Override
     protected void onBindSectionItem(ViewHolder holder, int position, QMUISection<SectionHeader, SectionItem> section, int itemIndex) {
-        ((TextView) holder.itemView).setText(section.getItemAt(itemIndex).getText());
+        String s=section.getItemAt(itemIndex).getText();
+        //final Spanned sp = Html.fromHtml(String.valueOf(s),Html.FROM_HTML_SEPARATOR_LINE_BREAK_BLOCKQUOTE);
+        Drawable defaultDrawable = MainActivity.ma.getResources().getDrawable(R.drawable.stub);
+        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, "/Android/data/com.example.myapplication/files/", null);
+
+
+        ((TextView) holder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
     }
 }
 
