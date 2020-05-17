@@ -1,7 +1,7 @@
 package com.safety.android.http;
 
 
-import com.example.myapplication.MainActivity;
+import com.safety.android.MainActivity;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

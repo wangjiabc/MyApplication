@@ -10,10 +10,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.myapplication.MainActivity;
+import com.safety.android.MainActivity;
 import com.example.myapplication.R;
-import com.safety.android.safety.SQLite3.UserInfo;
-import com.safety.android.safety.SQLite3.UserLab;
+import com.safety.android.SQLite3.UserInfo;
+import com.safety.android.SQLite3.UserLab;
 
 import org.json.JSONException;
 import org.json.JSONObject;

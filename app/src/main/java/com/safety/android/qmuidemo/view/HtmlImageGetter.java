@@ -4,10 +4,11 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.text.Html.ImageGetter;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.safety.android.MainActivity;
 
 import java.io.InputStream;
 public class HtmlImageGetter implements ImageGetter{
@@ -23,8 +24,7 @@ public class HtmlImageGetter implements ImageGetter{
     @Override
     public Drawable getDrawable(String imgUrl) {
         String imgKey = String.valueOf(imgUrl.hashCode());
-        String path = Environment.getExternalStorageDirectory() + _imgPath;
-        FileUtil.createPath(path);
+        String path = MainActivity.dataUrl + _imgPath;
         String[] ss = imgUrl.split("\\.");
         String imgX = ss[ss.length-1];
         imgKey = path+"/" + imgKey+"."+imgX;
@@ -77,7 +77,7 @@ public class HtmlImageGetter implements ImageGetter{
         }
         @Override
         public void draw(Canvas canvas) {
-            drawable.draw(canvas);
+
         }
     }
 }

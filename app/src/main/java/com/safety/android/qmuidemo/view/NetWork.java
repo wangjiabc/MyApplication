@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.safety.android.safety.MyTestUtil;
+import com.safety.android.tools.MyTestUtil;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
