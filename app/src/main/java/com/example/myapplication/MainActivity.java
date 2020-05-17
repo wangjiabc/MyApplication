@@ -1,9 +1,11 @@
 package com.example.myapplication;
 
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,10 +41,14 @@ public class MainActivity extends AppCompatActivity
 
     public static String token="";
 
+    public static String dataUrl="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dataUrl=getDiskCacheDir(getApplicationContext());
 
         getSupportFragmentManager().beginTransaction()              //添加fragment
                 .add(R.id.activity_container_main, SafeBoxFragment.newInstance())
@@ -68,6 +74,17 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+    }
+
+    private String getDiskCacheDir(Context context) {
+        String cachePath = null;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()) {
+            cachePath = context.getExternalCacheDir().getPath();
+        } else {
+            cachePath = context.getCacheDir().getPath();
+        }
+        return cachePath;
     }
 
     @Override

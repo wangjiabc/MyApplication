@@ -7,10 +7,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 public class FileUtil {
     private static int FILE_SIZE = 4*1024;
     private static String TAG = "FileUtil";
@@ -33,38 +30,7 @@ public class FileUtil {
     public static boolean exists(String file){
         return new File(file).exists();
     }
-    public static File saveFile(String file, InputStream inputStream){
-        File f = null;
-        OutputStream outSm = null;
-        try{
-            f = new File(file);
-            String path = f.getParent();
-            if(!createPath(path)){
-                Log.e(TAG, "can't create dir:"+path);
-                return null;
-            }
-            if(!f.exists()){
-                f.createNewFile();
-            }
-            outSm = new FileOutputStream(f);
-            byte[] buffer = new byte[FILE_SIZE];
-            while((inputStream.read(buffer)) != -1){
-                outSm.write(buffer);
-            }
-            outSm.flush();
-        }catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }finally{
-            try{
-                if(outSm != null) outSm.close();
-            }catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        Log.v(TAG,"[FileUtil]save file:"+file+":"+Boolean.toString(f.exists()));
-        return f;
-    }
+
     public static Drawable getImageDrawable(String file){
         if(!exists(file)) return null;
         try{

@@ -50,9 +50,8 @@ public class HtmlImageGetter implements ImageGetter{
         @Override
         protected Drawable doInBackground(String... strings) {
             imgKey = strings[0];
-            InputStream inps = NetWork.getInputStream(strings[1]);
+            InputStream inps = NetWork.getInputStream(strings[1],imgKey);
             if(inps == null) return _drawable;
-            FileUtil.saveFile(imgKey, inps);
             Drawable drawable = Drawable.createFromPath(imgKey);
             return drawable;
         }

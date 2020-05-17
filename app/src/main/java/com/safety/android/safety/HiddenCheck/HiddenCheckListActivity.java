@@ -67,17 +67,17 @@ public class HiddenCheckListActivity extends AppCompatActivity {
         mPullRefreshLayout.setOnPullListener(new QMUIPullRefreshLayout.OnPullListener() {
             @Override
             public void onMoveTarget(int offset) {
-                Log.d("aaa","ddddddddddddddddd");
+
             }
 
             @Override
             public void onMoveRefreshView(int offset) {
-                Log.d("TAG", "onMoveRefreshView: ");
+
             }
 
             @Override
             public void onRefresh() {
-                Log.d("dddddddddddddd","bbbbbbbbbbbbbbbbb");
+
                 mPullRefreshLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {

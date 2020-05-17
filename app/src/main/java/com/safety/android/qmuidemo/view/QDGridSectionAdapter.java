@@ -65,11 +65,15 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
     protected void onBindSectionItem(ViewHolder holder, int position, QMUISection<SectionHeader, SectionItem> section, int itemIndex) {
         String s=section.getItemAt(itemIndex).getText();
         //final Spanned sp = Html.fromHtml(String.valueOf(s),Html.FROM_HTML_SEPARATOR_LINE_BREAK_BLOCKQUOTE);
-        Drawable defaultDrawable = MainActivity.ma.getResources().getDrawable(R.drawable.stub);
-        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, "/Android/data/com.example.myapplication/files/", null);
+
+        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
+        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, MainActivity.dataUrl, defaultDrawable);
 
 
         ((TextView) holder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
     }
+
+
+
 }
 

@@ -4,11 +4,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.safety.android.safety.MyTestUtil;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -152,7 +157,7 @@ public class NetWork {
      * @param urlStr
      * @return
      */
-    public static InputStream getInputStream(String urlStr) {
+    public static InputStream getInputStream(String urlStr,String file) {
         Log.d(TAG, "get http input:" + urlStr);
         InputStream inpStream = null;
         try {
@@ -161,6 +166,8 @@ public class NetWork {
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 InputStream in = connection.getInputStream();
+                System.out.println("in======");
+                MyTestUtil.print(in);
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                     throw new IOException(connection.getResponseMessage() +
                             ": with " +
@@ -168,9 +175,25 @@ public class NetWork {
                 }
                 int bytesRead = 0;
                 byte[] buffer = new byte[1024];
+                File f = null;
+                f = new File(file);
+                String path = f.getParent();
+                if(!createPath(path)){
+                    Log.e(TAG, "can't create dir:"+path);
+                    return null;
+                }
+                if(!f.exists()){
+                    f.createNewFile();
+                }
+                OutputStream outSm = new FileOutputStream(f);
                 while ((bytesRead = in.read(buffer)) > 0) {
                     out.write(buffer, 0, bytesRead);
+                    outSm.write(buffer);
+                    System.out.println("byteread="+bytesRead);
                 }
+
+                outSm.flush();
+                outSm.close();
                 out.close();
                 //获取数据流
                 inpStream = in;
@@ -192,6 +215,17 @@ public class NetWork {
             e.printStackTrace();
         }
         return inpStream;
+    }
+
+
+    public static boolean createPath(String path){
+        File f = new File(path);
+        if(!f.exists()){
+            Boolean o = f.mkdirs();
+            Log.i(TAG, "create dir:"+path+":"+o.toString());
+            return o;
+        }
+        return true;
     }
 
 }

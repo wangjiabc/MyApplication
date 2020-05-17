@@ -1,11 +1,12 @@
 package com.safety.android.safety.HiddenNeaten;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
@@ -22,10 +24,11 @@ import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
+import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.safety.MyTestUtil;
+import com.safety.android.qmuidemo.view.getGradientDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +41,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -305,7 +307,12 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                         s=StringToHtml(jsonObject);
                         selectMap.remove(holder.getAdapterPosition());
                     }
-                    final Spanned sp = Html.fromHtml(s,Html.FROM_HTML_OPTION_USE_CSS_COLORS);
+
+                    Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
+                    final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, MainActivity.dataUrl, defaultDrawable);
+
+
+                    final Spanned sp = Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null);
                     ((TextView) holder.itemView).setText(sp);
 
                 }catch (ClassCastException | JSONException e){
