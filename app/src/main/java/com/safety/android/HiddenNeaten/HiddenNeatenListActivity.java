@@ -2,21 +2,17 @@ package com.safety.android.HiddenNeaten;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,14 +23,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
-import com.qiniu.android.http.ResponseInfo;
-import com.qiniu.android.storage.UpCompletionHandler;
-import com.qiniu.android.storage.UploadManager;
+import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.MainActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
@@ -44,20 +37,20 @@ import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 import com.safety.android.tools.TakePictures;
+import com.safety.android.tools.UpFileToQiniu;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -164,11 +157,21 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 Toast.makeText(this, "删除菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case Menu.FIRST + 2:
-                UUID uuid=UUID.randomUUID();
+               /* UUID uuid=UUID.randomUUID();
                 imagePath=MainActivity.dataUrl+"/image/"+uuid+".jpg";
                 File file=new File(MainActivity.dataUrl+"/image/",uuid+".jpg");
                 Uri uri=getImageContentUri(file);
-                Intent captureImage=TakePictures.getCaptureImage(uri);
+                Intent captureImage=TakePictures.getCaptureImage(uri);*/
+                int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
+                        Manifest.permission.CAMERA);
+                if (hasCameraPermission == PackageManager.PERMISSION_GRANTED) {
+                    //有权限。
+                } else {
+                    //没有权限，申请权限。
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},100);
+                }
+                TakePictures takePictures=new TakePictures(getApplication());
+                Intent captureImage=takePictures.getCaptureImage();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
                     startActivityForResult(captureImage, REQUEST_PHOTO);
@@ -348,6 +351,15 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                     final Spanned sp = Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null);
                     ((TextView) holder.itemView).setText(sp);
 
+                    new QMUIBottomSheet.BottomGridSheetBuilder(HiddenNeatenListActivity.this)
+                            .addItem(R.mipmap.ic_launcher, "分享到微信", 1, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
+                            .addItem(R.mipmap.ic_launcher, "分享到朋友圈", 2, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
+                            .addItem(R.mipmap.ic_launcher, "分享到微博", 3, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
+                            .addItem(R.mipmap.ic_launcher, "分享到私信", 4, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
+                            .addItem(R.mipmap.ic_launcher, "保存到本地", 5, QMUIBottomSheet.BottomGridSheetBuilder.SECOND_LINE)
+                            .build().show();
+
+
                 }catch (ClassCastException | JSONException e){
                     e.printStackTrace();
                     ((TextView) holder.itemView).setText("");
@@ -376,38 +388,10 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
             return;
         }else if(requestCode==REQUEST_PHOTO){
             System.out.println("REQUEST_PHOTO");
-            Bitmap bitmap=TakePictures.getScaledBitmap(imagePath,null,null);
+            Bitmap bitmap=TakePictures.getScaledBitmap(null,null);
             MyTestUtil.print(bitmap);
 
-            String json=new OKHttpFetch(getApplicationContext()).get("http://203.0.104.65:8080/a/test/token.do");
-
-            String token="";
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                token=jsonObject.getString("token");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            UploadManager uploadManager=new UploadManager();
-
-            File file=new File(imagePath);
-
-            String key=UUID.randomUUID().toString()+".jpg";
-            System.out.println("key========="+key+ "     token"+token);
-            uploadManager.put(file, key, token,
-                    new UpCompletionHandler() {
-                        @Override
-                        public void complete(String key, ResponseInfo info, JSONObject res) {
-                            //res包含hash、key等信息，具体字段取决于上传策略的设置
-                            if(info.isOK()) {
-                                Log.i("qiniu", "Upload Success");
-                            } else {
-                                Log.i("qiniu", "Upload Fail");
-                                //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
-                            }
-                            Log.i("qiniu", key + ",\r\n " + info + ",\r\n " + res);
-                        }
-                    }, null);
+            new UpFileToQiniu();
 
         }
 
@@ -508,29 +492,5 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
     }
 
 
-    public Uri getImageContentUri(File imageFile) {
-        String filePath = imageFile.getAbsolutePath();
-        Cursor cursor = getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Images.Media._ID },
-                MediaStore.Images.Media.DATA + "=? ",
-                new String[] { filePath }, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            int id = cursor.getInt(cursor
-                    .getColumnIndex(MediaStore.MediaColumns._ID));
-            Uri baseUri = Uri.parse("content://media/external/images/media");
-            return Uri.withAppendedPath(baseUri, "" + id);
-        } else {
-            if (imageFile.exists()) {
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.DATA, filePath);
-                return getContentResolver().insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            } else {
-                return null;
-            }
-        }
-    }
 
 }
