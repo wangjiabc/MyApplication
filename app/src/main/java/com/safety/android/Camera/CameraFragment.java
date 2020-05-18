@@ -293,6 +293,7 @@ public class CameraFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
+        System.out.println("requestCode===="+requestCode+"         resultCode==="+resultCode);
         if(resultCode!= Activity.RESULT_OK){
             return;
         }

@@ -8,21 +8,26 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.qiniu.android.http.ResponseInfo;
+import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UploadManager;
+
+import org.json.JSONObject;
+
 import java.io.File;
 
 public class TakePictures {
 
     public static final int REQUEST_PHOTO=2;
 
-    public static Intent getCaptureImage(String path,String fileName){
+    public static Intent getCaptureImage(Uri uri){
 
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
         builder.detectFileUriExposure();
 
         final Intent captureImage=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File file=new File(path,fileName);
-        Uri uri=Uri.fromFile(file);
+
         captureImage.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         Log.d("tag uri camera = ",uri.toString());
 
@@ -61,5 +66,6 @@ public class TakePictures {
 
         return BitmapFactory.decodeFile(path,options);
     }
+
 
 }

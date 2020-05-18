@@ -66,7 +66,7 @@ public class FlickrFetchr {
         List<GalleryItem> items = new ArrayList<>();
 
         try {
-            String url = Uri.parse("http://220.166.104.133/a/test/getRecent.do")
+            String url = Uri.parse("http://203.0.104.65:8080/a/test/getRecent.do")
                     .buildUpon()
                     .build().toString();
             String jsonString = getUrlString(url);
@@ -94,11 +94,7 @@ public class FlickrFetchr {
             item.setId(photoJsonObject.getString("id"));
             item.setCaption(photoJsonObject.getString("title"));
 
-            if (!photoJsonObject.has("url_s")) {
-                continue;
-            }
-            
-            item.setUrl(photoJsonObject.getString("url_s")+"/"+photoJsonObject.getString("title"));
+            item.setUrl("http://qiniu.lzxlzc.com/"+photoJsonObject.getString("title"));
             items.add(item);
         }
     }
