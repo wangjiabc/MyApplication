@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/AppThemeQmui"
     android:background="@color/qmui_config_color_white">
 
     <LinearLayout
@@ -25,7 +26,7 @@
                 android:layout_centerInParent="true"
                 app:iconifiedByDefault="false"
                 app:showAsAction="ifRoom|collapseActionView"
-                app:queryHint="搜索组织"/>
+                app:queryHint="输入商品名称搜索"/>
         </FrameLayout>
     <FrameLayout
         android:layout_width="match_parent"

@@ -2,6 +2,7 @@ package com.safety.android.HiddenNeaten;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,12 +25,10 @@ import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
-import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.Camera.CameraFragment;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
@@ -49,16 +48,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -187,7 +184,25 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 Toast.makeText(this, "保存菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case Menu.FIRST + 3:
-                Toast.makeText(this, "帮助菜单被点击了", Toast.LENGTH_LONG).show();
+                new AlertDialog.Builder(this)
+                        .setTitle("默认对话框标题")
+                        .setMessage("这是默认对话框的内容")
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(HiddenNeatenListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(HiddenNeatenListActivity.this, "点击了确定按钮", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create()
+                        .show();
                 break;
             case Menu.FIRST + 4:
                 Toast.makeText(this, "添加菜单被点击了", Toast.LENGTH_LONG).show();
@@ -334,35 +349,37 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
                 Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
-                try {
+                if(position!=0) {
+                    try {
 
-                    JSONObject jsonObject=null;
+                        JSONObject jsonObject = null;
 
-                    String s="";
+                        String s = "";
 
-                    jsonObject=selectMap.get(holder.getAdapterPosition());
-                    if(jsonObject==null){
-                        jsonObject=itemMap.get(holder.getAdapterPosition());
-                        s=StringToHtml2(jsonObject);
-                        selectMap.put(holder.getAdapterPosition(),jsonObject);
-                    }else{
-                        s=StringToHtml(jsonObject);
-                        selectMap.remove(holder.getAdapterPosition());
+                        jsonObject = selectMap.get(holder.getAdapterPosition());
+                        if (jsonObject == null) {
+                            jsonObject = itemMap.get(holder.getAdapterPosition());
+                            s = StringToHtml2(jsonObject);
+                            selectMap.put(holder.getAdapterPosition(), jsonObject);
+                        } else {
+                            s = StringToHtml(jsonObject);
+                            selectMap.remove(holder.getAdapterPosition());
+                        }
+
+                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
+                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
+
+
+                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
+                        ((TextView) holder.itemView).setText(sp);
+
+                        Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
+                        startActivity(intent);
+
+                    } catch (ClassCastException | JSONException e) {
+                        e.printStackTrace();
+                        ((TextView) holder.itemView).setText("");
                     }
-
-                    Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
-                    final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
-
-
-                    final Spanned sp = Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null);
-                    ((TextView) holder.itemView).setText(sp);
-
-                    Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
-                    startActivity(intent);
-
-                }catch (ClassCastException | JSONException e){
-                    e.printStackTrace();
-                    ((TextView) holder.itemView).setText("");
                 }
             }
 
