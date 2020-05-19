@@ -84,6 +84,11 @@
             android:label="@string/app_name"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
+        <activity
+            android:name="com.safety.android.HiddenNeaten.FoodActivity"
+            android:label="@string/app_name"
+            android:parentActivityName="com.safety.android.HiddenNeaten.HiddenNeatenListActivity" >
+        </activity>
     </application>
 
 

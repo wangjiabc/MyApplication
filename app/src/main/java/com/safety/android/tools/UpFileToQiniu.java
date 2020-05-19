@@ -40,7 +40,6 @@ public class UpFileToQiniu {
                 UploadManager uploadManager=new UploadManager();
 
 
-
                 String key= UUID.randomUUID().toString()+".jpg";
                 System.out.println("key========="+key+ "     token"+token);
 
@@ -60,6 +59,27 @@ public class UpFileToQiniu {
                                 Log.i("qiniu", key + ",\r\n " + info + ",\r\n " + res);
                             }
                         }, null);
+
+                try {
+                    new PictureCompressUtil().compressByQuality(file.getPath(),file.getPath()+"compress",30);
+                    uploadManager.put(file.getPath()+"compress", "compress/"+key, token,
+                            new UpCompletionHandler() {
+                                @Override
+                                public void complete(String key, ResponseInfo info, JSONObject res) {
+                                    //res包含hash、key等信息，具体字段取决于上传策略的设置
+                                    if(info.isOK()) {
+                                        Log.i("qiniu", "Upload Success");
+                                    } else {
+                                        Log.i("qiniu", "Upload Fail");
+                                        //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
+                                    }
+                                    Log.i("qiniu", key + ",\r\n " + info + ",\r\n " + res);
+                                }
+                            }, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         }).start();
     }

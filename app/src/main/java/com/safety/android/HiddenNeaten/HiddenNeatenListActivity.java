@@ -24,14 +24,17 @@ import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
+import com.safety.android.Camera.CameraFragment;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
+import com.safety.android.qmuidemo.view.QDListWithDecorationSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
@@ -46,11 +49,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -81,8 +89,6 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
     private Map<Integer,JSONObject> selectMap=new HashMap();
-
-    private String imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,14 +357,8 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                     final Spanned sp = Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null);
                     ((TextView) holder.itemView).setText(sp);
 
-                    new QMUIBottomSheet.BottomGridSheetBuilder(HiddenNeatenListActivity.this)
-                            .addItem(R.mipmap.ic_launcher, "分享到微信", 1, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
-                            .addItem(R.mipmap.ic_launcher, "分享到朋友圈", 2, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
-                            .addItem(R.mipmap.ic_launcher, "分享到微博", 3, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
-                            .addItem(R.mipmap.ic_launcher, "分享到私信", 4, QMUIBottomSheet.BottomGridSheetBuilder.FIRST_LINE)
-                            .addItem(R.mipmap.ic_launcher, "保存到本地", 5, QMUIBottomSheet.BottomGridSheetBuilder.SECOND_LINE)
-                            .build().show();
-
+                    Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
+                    startActivity(intent);
 
                 }catch (ClassCastException | JSONException e){
                     e.printStackTrace();
@@ -491,6 +491,69 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
         return s;
     }
 
+    private void showBottomSheet() {
+        new QMUIBottomSheet.BottomListSheetBuilder(HiddenNeatenListActivity.this)
+                .addItem("test scroll to section header")
+                .addItem("test scroll to section item")
+                .addItem("test find position")
+                .addItem("test find custom position")
+                .setOnSheetItemClickListener(new QMUIBottomSheet.BottomListSheetBuilder.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(QMUIBottomSheet dialog, View itemView, int position, String tag) {
+                        switch (position) {
+                            case 0: {
+                                QMUISection<SectionHeader, SectionItem> section = mAdapter.getSectionDirectly(3);
+                                if (section != null) {
+                                    mAdapter.scrollToSectionHeader(section, true);
+                                }
+                                break;
+                            }
+                            case 1: {
+                                QMUISection<SectionHeader, SectionItem> section = mAdapter.getSectionDirectly(3);
+                                if (section != null) {
+                                    SectionItem item = section.getItemAt(10);
+                                    if (item != null) {
+                                        mAdapter.scrollToSectionItem(section, item, true);
+                                    }
+                                }
+                                break;
+                            }
+                            case 2: {
+                                int targetPosition = mAdapter.findPosition(new QMUIStickySectionAdapter.PositionFinder<SectionHeader, SectionItem>() {
+                                    @Override
+                                    public boolean find(@NonNull QMUISection<SectionHeader, SectionItem> section, @Nullable SectionItem item) {
+                                        return "header 4".equals(section.getHeader().getText()) && (item != null && "item 13".equals(item.getText()));
+                                    }
+                                }, true);
+                                if (targetPosition != RecyclerView.NO_POSITION) {
+                                    Toast.makeText(HiddenNeatenListActivity.this, "find position: " + targetPosition, Toast.LENGTH_SHORT).show();
+                                    QMUISection<SectionHeader, SectionItem> section = mAdapter.getSection(targetPosition);
+                                    SectionItem item = mAdapter.getSectionItem(targetPosition);
+                                    if (item != null) {
+                                        mAdapter.scrollToSectionItem(section, item, true);
+                                    } else if (section != null) {
+                                        mAdapter.scrollToSectionHeader(section, true);
+                                    } else {
+                                        mLayoutManager.scrollToPosition(targetPosition);
+                                    }
 
+                                } else {
+                                    Toast.makeText(HiddenNeatenListActivity.this, "failed to find position", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            }
+                            case 3: {
+                                int targetPosition = mAdapter.findCustomPosition(QMUISection.SECTION_INDEX_UNKNOWN, QDListWithDecorationSectionAdapter.ITEM_INDEX_LIST_FOOTER, false);
+                                if (targetPosition != RecyclerView.NO_POSITION) {
+                                    Toast.makeText(HiddenNeatenListActivity.this, "find position: " + targetPosition, Toast.LENGTH_SHORT).show();
+                                    mLayoutManager.scrollToPosition(targetPosition);
+                                }
+                            }
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .build().show();
+    }
 
 }

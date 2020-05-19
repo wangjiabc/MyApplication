@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+
+
     }
 
     private String getDiskCacheDir(Context context) {

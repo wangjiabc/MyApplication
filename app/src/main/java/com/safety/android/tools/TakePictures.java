@@ -52,11 +52,13 @@ public class TakePictures {
             File photoFile = null;
             Uri photoUri = null;
 
-            if (isAndroidQ) {
+          /*  if (isAndroidQ) {
                 // 适配android 10
                 photoUri = createImageUri();
+                System.out.println("photoUri=============");
+                MyTestUtil.print(photoUri);
                 mCameraUri=photoUri;
-            } else {
+            } else {*/
                 try {
                     photoFile = createImageFile();
                     mCameraImagePath=photoFile.getPath();
@@ -73,7 +75,7 @@ public class TakePictures {
                         photoUri = Uri.fromFile(photoFile);
                     }
                 }
-            }
+           // }
 
             mCameraUri = photoUri;
             if (photoUri != null) {
