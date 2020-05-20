@@ -1,4 +1,4 @@
-package com.safety.android.HiddenNeaten;
+package com.safety.android.Food;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import com.example.myapplication.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class FoodActivity extends AppCompatActivity {
+public class FoodDetailActivity extends AppCompatActivity {
 
     private View view;
 
@@ -39,20 +39,23 @@ public class FoodActivity extends AppCompatActivity {
 
         Intent intent=getIntent();
 
-        if(intent!=null){
-            String jsonString=intent.getStringExtra("jsonString");
+        String jsonString=intent.getStringExtra("jsonString");
+
+        if(jsonString!=null&&!jsonString.equals("")){
 
             try {
 
                 JSONObject jsonObject = new JSONObject(jsonString);
 
                 String name = jsonObject.getString("name");
-                Integer storage = jsonObject.getInt("storage");
-                Integer cost = jsonObject.getInt("cost");
+                Double storage = jsonObject.getDouble("storage");
+                Double cost = jsonObject.getDouble("cost");
+                Double retailprice = jsonObject.getDouble("retailprice");
 
                 editText1.setText(name);
                 editText2.setText(String.valueOf(storage));
                 editText3.setText(String.valueOf(cost));
+                editText4.setText(String.valueOf(retailprice));
 
             } catch (JSONException e) {
                 e.printStackTrace();

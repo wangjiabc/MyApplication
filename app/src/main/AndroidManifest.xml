@@ -60,7 +60,7 @@
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.HiddenNeaten.HiddenNeatenListActivity"
+            android:name="com.safety.android.Food.FoodListActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
@@ -85,9 +85,9 @@
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.HiddenNeaten.FoodActivity"
+            android:name="com.safety.android.Food.FoodDetailActivity"
             android:label="@string/app_name"
-            android:parentActivityName="com.safety.android.HiddenNeaten.HiddenNeatenListActivity" >
+            android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
     </application>
 

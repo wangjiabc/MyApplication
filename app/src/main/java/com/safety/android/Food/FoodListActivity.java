@@ -1,4 +1,4 @@
-package com.safety.android.HiddenNeaten;
+package com.safety.android.Food;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
-import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
@@ -33,7 +32,6 @@ import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
-import com.safety.android.qmuidemo.view.QDListWithDecorationSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
@@ -45,15 +43,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -63,7 +58,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import static com.safety.android.MainActivity.dataUrl;
 import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
 
-public class HiddenNeatenListActivity extends AppCompatActivity {
+public class FoodListActivity extends AppCompatActivity {
 
     QMUIPullRefreshLayout mPullRefreshLayout;
 
@@ -197,7 +192,7 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 Toast.makeText(this, "发送菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case R.id.menu_item_add:
-                Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
+                Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
                 startActivity(intent);
                 //Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
                 break;
@@ -339,35 +334,28 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
                         JSONObject jsonObject = null;
 
-                        //String s = "";
-
                         final int n=holder.getAdapterPosition();
 
                         jsonObject = selectMap.get(holder.getAdapterPosition());
                         if (jsonObject == null) {
                             jsonObject = itemMap.get(holder.getAdapterPosition());
-                            //s = StringToHtml2(jsonObject);
-                           // selectMap.put(holder.getAdapterPosition(), jsonObject);
-                        }// else {
-                           // s = StringToHtml(jsonObject);
-                           // selectMap.remove(holder.getAdapterPosition());
-                        //}
+                        }
 
                         final JSONObject finalJsonObject = jsonObject;
-                        new AlertDialog.Builder(HiddenNeatenListActivity.this)
-                                .setTitle("默认对话框标题")
-                                .setMessage("这是默认对话框的内容")
+                        new AlertDialog.Builder(FoodListActivity.this)
+                                .setTitle(finalJsonObject.getString("name"))
+                                .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
                                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(HiddenNeatenListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(FoodListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
                                         dialogInterface.dismiss();
                                     }
                                 })
                                 .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
+                                        Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
                                         final JSONObject json=itemMap.get(n);
                                         intent.putExtra("jsonString", json.toString());
                                         startActivity(intent);
@@ -410,7 +398,7 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
 
 
-                    } catch (ClassCastException  e) {
+                    } catch (ClassCastException | JSONException e) {
                         e.printStackTrace();
                         ((TextView) holder.itemView).setText("");
                     }
@@ -526,85 +514,39 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
 
     private String StringToHtml(JSONObject jsonObject) throws JSONException {
         Integer order=jsonObject.getInt("order");
+        String first="";
+        if(order<10)
+            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
+        else if(10<order&&order<100)
+            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
+        else
+            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
         String name = jsonObject.getString("name");
         Integer storage = jsonObject.getInt("storage");
-        Integer cost = jsonObject.getInt("cost");
-        String s = "<span>"+order+"<img src='http://pic004.cnblogs.com/news/201211/20121108_091749_1.jpg'/></span>&nbsp;&nbsp;<span display='inline-block' width='60px'><font color='red' size='20'>" + name + "</font></span>&nbsp;&nbsp;<span>" + storage + "</span>&nbsp;&nbsp;<span>" + cost + "</span>";
+        Double cost = jsonObject.getDouble("cost");
+        Double retailprice=jsonObject.getDouble("retailprice");
+        String s = "<p>"+first+"<img src='http://pic004.cnblogs.com/news/201211/20121108_091749_10.jpg'/></span>&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;<span>成本:" + cost + "</span>"+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
         return s;
     }
 
     private String StringToHtml2(JSONObject jsonObject) throws JSONException {
         Integer order=jsonObject.getInt("order");
+        String first="";
+        if(order<10)
+            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
+        else if(10<order&&order<100)
+            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
+        else
+            first="<span><font color='red'　size='30'>"+order+"</font></span>";
         String name = jsonObject.getString("name");
         Integer storage = jsonObject.getInt("storage");
-        Integer cost = jsonObject.getInt("cost");
-        String s = "<span>"+order+"<img src='http://pic004.cnblogs.com/news/201211/20121108_091749_1.jpg'/></span>&nbsp;&nbsp;<span><font color='red' size='20'>" + name + "</font></span>&nbsp;&nbsp;<span><font color='red' size='20'>" + storage + "</font></span>&nbsp;&nbsp;<span><font color='red' size='20'>" + cost + "</font></span>";
+        Double cost = jsonObject.getDouble("cost");
+        Double retailprice=jsonObject.getDouble("retailprice");
+        String s ="<p>"+first+"<img src='http://pic004.cnblogs.com/news/201211/20121108_091749_1.jpg'/></span>&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;</span>&nbsp;&nbsp;<span><font color='red' size='20'>库存:" + storage + "</font><span><font color='red' size='20'>成本:" + cost + "</font></span>"+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
         return s;
     }
 
-    private void showBottomSheet() {
-        new QMUIBottomSheet.BottomListSheetBuilder(HiddenNeatenListActivity.this)
-                .addItem("test scroll to section header")
-                .addItem("test scroll to section item")
-                .addItem("test find position")
-                .addItem("test find custom position")
-                .setOnSheetItemClickListener(new QMUIBottomSheet.BottomListSheetBuilder.OnSheetItemClickListener() {
-                    @Override
-                    public void onClick(QMUIBottomSheet dialog, View itemView, int position, String tag) {
-                        switch (position) {
-                            case 0: {
-                                QMUISection<SectionHeader, SectionItem> section = mAdapter.getSectionDirectly(3);
-                                if (section != null) {
-                                    mAdapter.scrollToSectionHeader(section, true);
-                                }
-                                break;
-                            }
-                            case 1: {
-                                QMUISection<SectionHeader, SectionItem> section = mAdapter.getSectionDirectly(3);
-                                if (section != null) {
-                                    SectionItem item = section.getItemAt(10);
-                                    if (item != null) {
-                                        mAdapter.scrollToSectionItem(section, item, true);
-                                    }
-                                }
-                                break;
-                            }
-                            case 2: {
-                                int targetPosition = mAdapter.findPosition(new QMUIStickySectionAdapter.PositionFinder<SectionHeader, SectionItem>() {
-                                    @Override
-                                    public boolean find(@NonNull QMUISection<SectionHeader, SectionItem> section, @Nullable SectionItem item) {
-                                        return "header 4".equals(section.getHeader().getText()) && (item != null && "item 13".equals(item.getText()));
-                                    }
-                                }, true);
-                                if (targetPosition != RecyclerView.NO_POSITION) {
-                                    Toast.makeText(HiddenNeatenListActivity.this, "find position: " + targetPosition, Toast.LENGTH_SHORT).show();
-                                    QMUISection<SectionHeader, SectionItem> section = mAdapter.getSection(targetPosition);
-                                    SectionItem item = mAdapter.getSectionItem(targetPosition);
-                                    if (item != null) {
-                                        mAdapter.scrollToSectionItem(section, item, true);
-                                    } else if (section != null) {
-                                        mAdapter.scrollToSectionHeader(section, true);
-                                    } else {
-                                        mLayoutManager.scrollToPosition(targetPosition);
-                                    }
-
-                                } else {
-                                    Toast.makeText(HiddenNeatenListActivity.this, "failed to find position", Toast.LENGTH_SHORT).show();
-                                }
-                                break;
-                            }
-                            case 3: {
-                                int targetPosition = mAdapter.findCustomPosition(QMUISection.SECTION_INDEX_UNKNOWN, QDListWithDecorationSectionAdapter.ITEM_INDEX_LIST_FOOTER, false);
-                                if (targetPosition != RecyclerView.NO_POSITION) {
-                                    Toast.makeText(HiddenNeatenListActivity.this, "find position: " + targetPosition, Toast.LENGTH_SHORT).show();
-                                    mLayoutManager.scrollToPosition(targetPosition);
-                                }
-                            }
-                        }
-                        dialog.dismiss();
-                    }
-                })
-                .build().show();
-    }
 
 }
