@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -184,25 +185,7 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 Toast.makeText(this, "保存菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case Menu.FIRST + 3:
-                new AlertDialog.Builder(this)
-                        .setTitle("默认对话框标题")
-                        .setMessage("这是默认对话框的内容")
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Toast.makeText(HiddenNeatenListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
-                                dialogInterface.dismiss();
-                            }
-                        })
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Toast.makeText(HiddenNeatenListActivity.this, "点击了确定按钮", Toast.LENGTH_SHORT).show();
-                                dialogInterface.dismiss();
-                            }
-                        })
-                        .create()
-                        .show();
+
                 break;
             case Menu.FIRST + 4:
                 Toast.makeText(this, "添加菜单被点击了", Toast.LENGTH_LONG).show();
@@ -214,7 +197,9 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
                 Toast.makeText(this, "发送菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case R.id.menu_item_add:
-                Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
+                startActivity(intent);
+                //Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
                 break;
         }
 
@@ -347,36 +332,85 @@ public class HiddenNeatenListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onItemClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
+            public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, int position) {
                 Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
                 if(position!=0) {
                     try {
 
                         JSONObject jsonObject = null;
 
-                        String s = "";
+                        //String s = "";
+
+                        final int n=holder.getAdapterPosition();
 
                         jsonObject = selectMap.get(holder.getAdapterPosition());
                         if (jsonObject == null) {
                             jsonObject = itemMap.get(holder.getAdapterPosition());
-                            s = StringToHtml2(jsonObject);
-                            selectMap.put(holder.getAdapterPosition(), jsonObject);
-                        } else {
-                            s = StringToHtml(jsonObject);
-                            selectMap.remove(holder.getAdapterPosition());
-                        }
+                            //s = StringToHtml2(jsonObject);
+                           // selectMap.put(holder.getAdapterPosition(), jsonObject);
+                        }// else {
+                           // s = StringToHtml(jsonObject);
+                           // selectMap.remove(holder.getAdapterPosition());
+                        //}
 
-                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
+                        final JSONObject finalJsonObject = jsonObject;
+                        new AlertDialog.Builder(HiddenNeatenListActivity.this)
+                                .setTitle("默认对话框标题")
+                                .setMessage("这是默认对话框的内容")
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Toast.makeText(HiddenNeatenListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
+                                        final JSONObject json=itemMap.get(n);
+                                        intent.putExtra("jsonString", json.toString());
+                                        startActivity(intent);
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        JSONObject jsonObject = null;
+                                        jsonObject = selectMap.get(n);
+                                        String s = "";
+                                        if (jsonObject == null) {
+                                            jsonObject = itemMap.get(n);
+                                            try {
+                                                s = StringToHtml2(jsonObject);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            selectMap.put(n, jsonObject);
+                                        } else {
+                                            try {
+                                                s = StringToHtml(jsonObject);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            selectMap.remove(n);
+                                        }
+                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
+                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
 
 
-                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                        ((TextView) holder.itemView).setText(sp);
+                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
+                                        ((TextView) holder.itemView).setText(sp);
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
 
-                        Intent intent = new Intent(getApplicationContext(), FoodActivity.class);
-                        startActivity(intent);
 
-                    } catch (ClassCastException | JSONException e) {
+
+                    } catch (ClassCastException  e) {
                         e.printStackTrace();
                         ((TextView) holder.itemView).setText("");
                     }
