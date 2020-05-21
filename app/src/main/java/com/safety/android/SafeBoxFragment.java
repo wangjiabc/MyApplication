@@ -28,6 +28,7 @@ import com.safety.android.SafeList.SafeListActivity;
 import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.util.phone;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,11 +42,12 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 
 public class SafeBoxFragment extends Fragment {
-    private SafeBox mBeatBox;
     private AlertDialog dialog;
 
     private  static final int REQUEST_CONTACT=1;
     private static final int REQUEST_DATE=0;
+
+    private List<SafeInfo> mSafeInfos=new ArrayList<>();
 
     public static SafeBoxFragment newInstance(){
         return new SafeBoxFragment();
@@ -56,7 +58,14 @@ public class SafeBoxFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        mBeatBox=new SafeBox(getActivity());
+        for (int i=0;i<5;i++){
+            String name="name"+(i+1);
+            SafeInfo mSafeInfo = new SafeInfo();
+            mSafeInfo.setmName(name);
+            mSafeInfo.setId(i);
+            mSafeInfos.add(mSafeInfo);
+
+        }
 
     }
 
@@ -68,7 +77,7 @@ public class SafeBoxFragment extends Fragment {
         RecyclerView recycleListView= (RecyclerView) view
                 .findViewById(R.id.fragment_safe_box_recycler_view);
         recycleListView.setLayoutManager(new GridLayoutManager(null,3));
-        recycleListView.setAdapter(new SafeAdapter(mBeatBox.getmSafe()));
+        recycleListView.setAdapter(new SafeAdapter(mSafeInfos));
 
         return view;
     }

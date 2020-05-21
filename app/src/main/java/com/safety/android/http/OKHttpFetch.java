@@ -8,8 +8,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import okhttp3.FormBody;
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -64,10 +64,8 @@ public class OKHttpFetch {
                 context.startActivity(intent);
             }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
                 startUserActivity(context,login.class);
-            }else {
-               // System.out.print("response=" + jsonObject.get("rows") + "\n");
-
             }
+            
             result=s;
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,10 +112,8 @@ public class OKHttpFetch {
             }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
                 Intent intent=new Intent(context, login.class);
                 context.startActivity(intent);
-            }else{
-                System.out.print("response=" + jsonObject.get("rows") + "\n");
-
             }
+
             result=s;
         } catch (IOException e) {
             e.printStackTrace();
@@ -130,14 +126,32 @@ public class OKHttpFetch {
 
     }
 
-    public String post(FormBody formBody,String site) {
+    public String post(String site,JSONObject object,String type) {
 
         Response response = null;
 
-        Request request = new Request.Builder()
-                .url(URL+site)
-                .post(formBody)
-                .build();
+        Request request=null;
+
+        final MediaType FORM_CONTENT_TYPE= MediaType.parse("application/json;charset=utf-8");
+
+        RequestBody body=RequestBody.create(FORM_CONTENT_TYPE,object.toString());
+
+        if(type.equals("post")) {
+            request = new Request.Builder()
+                    .url(URL + site)
+                    .post(body)
+                    .build();
+        }else if(type.equals("put")) {
+            request = new Request.Builder()
+                    .url(URL + site)
+                    .put(body)
+                    .build();
+        }else if(type.equals("delete")) {
+            request = new Request.Builder()
+                    .url(URL + site)
+                    .delete(body)
+                    .build();
+        }
 
         String result = "";
 
@@ -162,10 +176,8 @@ public class OKHttpFetch {
             }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
                 Intent intent=new Intent(context, login.class);
                 context.startActivity(intent);
-            }else {
-                System.out.print("response=" + jsonObject.get("rows") + "\n");
-
             }
+
             result=s;
         } catch (IOException e) {
             e.printStackTrace();

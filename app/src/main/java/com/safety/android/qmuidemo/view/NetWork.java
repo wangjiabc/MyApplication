@@ -163,48 +163,50 @@ public class NetWork {
         try {
             URL url = new URL(urlStr);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                InputStream in = connection.getInputStream();
-                System.out.println("in======");
-                MyTestUtil.print(in);
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IOException(connection.getResponseMessage() +
-                            ": with " +
-                            urlStr);
-                }
-                int bytesRead = 0;
-                byte[] buffer = new byte[1024];
-                File f = null;
-                f = new File(file);
-                String path = f.getParent();
-                if(!createPath(path)){
-                    Log.e(TAG, "can't create dir:"+path);
-                    return null;
-                }
-                if(!f.exists()){
-                    f.createNewFile();
-                }
-                OutputStream outSm = new FileOutputStream(f);
-                while ((bytesRead = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, bytesRead);
-                    outSm.write(buffer);
-                    System.out.println("byteread="+bytesRead);
-                }
+            if(connection.getResponseCode()==200) {
+                try {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    InputStream in = connection.getInputStream();
+                    System.out.println("in======");
+                    MyTestUtil.print(in);
+                    if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        throw new IOException(connection.getResponseMessage() +
+                                ": with " +
+                                urlStr);
+                    }
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[1024];
+                    File f = null;
+                    f = new File(file);
+                    String path = f.getParent();
+                    if (!createPath(path)) {
+                        Log.e(TAG, "can't create dir:" + path);
+                        return null;
+                    }
+                    if (!f.exists()) {
+                        f.createNewFile();
+                    }
+                    OutputStream outSm = new FileOutputStream(f);
+                    while ((bytesRead = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, bytesRead);
+                        outSm.write(buffer);
+                        System.out.println("byteread=" + bytesRead);
+                    }
 
-                outSm.flush();
-                outSm.close();
-                out.close();
-                //获取数据流
-                inpStream = in;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } finally {
-                if (inpStream != null) {
-                    try {
-                        inpStream.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    outSm.flush();
+                    outSm.close();
+                    out.close();
+                    //获取数据流
+                    inpStream = in;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    if (inpStream != null) {
+                        try {
+                            inpStream.close();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             }

@@ -1,17 +1,27 @@
 package com.safety.android.Food;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.safety.android.http.FlickrFetch;
+import com.safety.android.http.OKHttpFetch;
+import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
+import okhttp3.FormBody;
 
 public class FoodDetailActivity extends AppCompatActivity {
 
@@ -25,6 +35,8 @@ public class FoodDetailActivity extends AppCompatActivity {
 
     private EditText editText4;
 
+    private Button foodButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -36,6 +48,8 @@ public class FoodDetailActivity extends AppCompatActivity {
         editText2=view.findViewById(R.id.food2);
         editText3=view.findViewById(R.id.food3);
         editText4=view.findViewById(R.id.food4);
+
+        foodButton=view.findViewById(R.id.food_button);
 
         Intent intent=getIntent();
 
@@ -63,7 +77,98 @@ public class FoodDetailActivity extends AppCompatActivity {
 
         }
 
+        foodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Map map=new HashMap<String, String>();
+
+                String text1=editText1.getText().toString();
+                String text2=editText2.getText().toString();
+                String text3=editText3.getText().toString();
+                String text4=editText4.getText().toString();
+
+                map.put("name",text1);
+                map.put("retailprice",text2);
+                map.put("cost",text3);
+                map.put("remark",text4);
+
+                new FetchItemsTask().execute(map);
+
+            }
+        });
+
         setContentView(view);
 
     }
+
+    private class FetchItemsTask extends AsyncTask<Map<String,String>,Void,String> {
+
+        @Override
+        protected String doInBackground(Map<String,String>... params) {
+
+            FormBody.Builder builder = new FormBody.Builder();
+
+            JSONObject jsonObject=new JSONObject();
+
+            for(Map<String,String> map:params){
+
+                for(Map.Entry<String, String> a:map.entrySet()){
+
+                    System.out.println("键是"+a.getKey());
+
+                    System.out.println("值是"+a.getValue());
+
+                //    builder.addEncoded(a.getKey(),a.getValue());
+
+                    try {
+                        jsonObject.put(a.getKey(),a.getValue());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+            builder.add("value",jsonObject.toString());
+
+            FormBody formBody = builder.build();
+
+            String url="/food/material/add";
+
+            return new OKHttpFetch(getApplicationContext()).post(FlickrFetch.base + url,jsonObject,"post");
+
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            JSONObject jsonObject = null;
+
+            try {
+
+                jsonObject = new JSONObject(json);
+
+                String success = jsonObject.optString("success", null);
+
+                MyTestUtil.print(jsonObject);
+
+                if (success.equals("true")) {
+
+                    Toast.makeText(FoodDetailActivity.this, "新建成功", Toast.LENGTH_LONG).show();
+
+                }else{
+
+                    Toast.makeText(FoodDetailActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
 }

@@ -150,7 +150,7 @@
                     android:background="@drawable/qmui_divider_bottom_bitmap"
                     android:hint="请输入6到20位密码"
                     android:maxLength="20"
-                    android:inputType="textPassword"
+                    android:inputType="number"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
             </GridLayout>

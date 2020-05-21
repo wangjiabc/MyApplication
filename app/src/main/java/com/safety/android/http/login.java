@@ -10,8 +10,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.safety.android.MainActivity;
 import com.example.myapplication.R;
+import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 
@@ -25,7 +25,6 @@ import java.util.List;
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.Call;
 import okhttp3.Cookie;
-import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -117,11 +116,6 @@ public class login extends AppCompatActivity {
 
             System.out.println(object.toString());
             RequestBody body=RequestBody.create(FORM_CONTENT_TYPE,object.toString());
-
-            RequestBody formBody = new FormBody.Builder()
-                    .add("username:", username)
-                    .add("password", password)
-                    .build();
 
             final Request loginRequest = new Request.Builder()
                     .url(URL + "/jeecg-boot/sys/login")
