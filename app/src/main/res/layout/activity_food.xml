@@ -28,7 +28,7 @@
             android:orientation="vertical">
             <!--注册标题文字-->
             <TextView
-                android:id="@+id/textview_validateinfo"
+                android:id="@+id/food_validateinfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/qmui_group_list_section_header_footer_padding_vertical"

@@ -28,6 +28,7 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
+import com.safety.android.MainActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
@@ -69,6 +70,8 @@ public class FoodListActivity extends AppCompatActivity {
 
     private int page=1;
 
+    private int size=10;
+
     private int total=0;
 
     private BlockingQueue<ArrayList<SectionItem>> queue;
@@ -82,6 +85,8 @@ public class FoodListActivity extends AppCompatActivity {
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
     private Map<Integer,JSONObject> selectMap=new HashMap();
+
+    private QMUIStickySectionAdapter.ViewHolder viewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +198,7 @@ public class FoodListActivity extends AppCompatActivity {
                 break;
             case R.id.menu_item_add:
                 Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,1);
                 //Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
                 break;
         }
@@ -284,7 +289,7 @@ public class FoodListActivity extends AppCompatActivity {
                                String cSearch="";
                                if(search!=null&&!search.equals(""))
                                    cSearch=search;
-                               String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize=10"+cSearch);
+                               String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize="+size+cSearch);
 
                                try {
                                    JSONObject jsonObject = new JSONObject(json);
@@ -327,8 +332,9 @@ public class FoodListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, int position) {
+            public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
                 Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
+                viewHolder=holder;
                 if(position!=0) {
                     try {
 
@@ -337,11 +343,16 @@ public class FoodListActivity extends AppCompatActivity {
                         final int n=holder.getAdapterPosition();
 
                         jsonObject = selectMap.get(holder.getAdapterPosition());
+                        String buttonText;
                         if (jsonObject == null) {
                             jsonObject = itemMap.get(holder.getAdapterPosition());
+                            buttonText="选择";
+                        }else{
+                            buttonText="取消选择";
                         }
 
                         final JSONObject finalJsonObject = jsonObject;
+
                         new AlertDialog.Builder(FoodListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
@@ -357,12 +368,17 @@ public class FoodListActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
                                         final JSONObject json=itemMap.get(n);
+                                        try {
+                                            json.put("position",position);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                         intent.putExtra("jsonString", json.toString());
-                                        startActivity(intent);
+                                        startActivityForResult(intent,1);
                                         dialogInterface.dismiss();
                                     }
                                 })
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         JSONObject jsonObject = null;
@@ -425,6 +441,38 @@ public class FoodListActivity extends AppCompatActivity {
         System.out.println("requestCode===="+requestCode+"         resultCode==="+resultCode);
         if (resultCode != Activity.RESULT_OK) {
             return;
+        }else if(requestCode==1){
+
+            try {
+                JSONObject jsonObject=new JSONObject(data.getStringExtra("value"));
+                int type=jsonObject.getInt("type");
+                System.out.println("type=========="+type);
+                if(type==1) {
+                    ArrayList<SectionItem> contents = new ArrayList<>();
+                    jsonObject.put("order", String.valueOf(mAdapter.getItemCount()));
+                    String s = StringToHtml(jsonObject);
+                    contents.add(new SectionItem(s));
+                    boolean existMoreData = true;
+
+                    if (total < (page * 10)) {
+                        existMoreData = false;
+                    }
+
+                    mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, existMoreData);
+                }else {
+                    int position=jsonObject.getInt("position");
+                    jsonObject.put("order",position);
+                    Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
+                    final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
+                    String s = StringToHtml(jsonObject);
+                    ((TextView) viewHolder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+
         }else if(requestCode==REQUEST_PHOTO){
             System.out.println("REQUEST_PHOTO");
             Bitmap bitmap=TakePictures.getScaledBitmap(null,null);
@@ -443,7 +491,7 @@ public class FoodListActivity extends AppCompatActivity {
             String cSearch="";
             if(search!=null&&!search.equals(""))
                 cSearch=search;
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize=10"+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
 

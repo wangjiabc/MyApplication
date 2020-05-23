@@ -65,7 +65,7 @@ public class OKHttpFetch {
             }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
                 startUserActivity(context,login.class);
             }
-            
+
             result=s;
         } catch (IOException e) {
             e.printStackTrace();
