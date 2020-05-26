@@ -15,6 +15,7 @@ import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -194,6 +195,20 @@ public class login extends AppCompatActivity {
                             }
                         }
 
+                        String s = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/jeecg-boot/sys/permission/getUserPermissionByToken");
+
+                        JSONObject jsonObject3 =new JSONObject(s);
+
+                        String result3=jsonObject3.getString("result");
+
+                        JSONObject jsonObject4=new JSONObject(result3);
+
+                        String allAuth=jsonObject4.getString("allAuth");
+                        String menu=jsonObject4.getString("menu");
+
+                        JSONArray authArray=new JSONArray(allAuth);
+                        JSONArray menuArray=new JSONArray(menu);
+
                         Toast.makeText(login.this, "登录成功", Toast.LENGTH_SHORT).show();        //吐司界面，参数依次为提示发出Activity,提示内容,提示时长
 
                         Intent intent = new Intent(getApplication(), MainActivity.class);
@@ -220,7 +235,6 @@ public class login extends AppCompatActivity {
 
                 e.printStackTrace();
             }
-
 
         }
 

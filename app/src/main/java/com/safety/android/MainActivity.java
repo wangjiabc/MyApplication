@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.safety.android.Food.FoodDetailActivity;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 import com.safety.android.http.FlickrFetch;
@@ -105,6 +106,10 @@ public class MainActivity extends AppCompatActivity{
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        menu.add(Menu.NONE, Menu.FIRST + 1, 5, "删除").setIcon(android.R.drawable.ic_menu_delete);
+        // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
+        // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
+        menu.add(Menu.NONE, Menu.FIRST + 2, 2, "保存").setIcon(android.R.drawable.ic_menu_edit);
         return true;
     }
 
@@ -113,13 +118,16 @@ public class MainActivity extends AppCompatActivity{
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }else if(id==R.id.toolbar){
-            new FetchItemsTask();
+        System.out.println("click");
+        switch (item.getItemId()) {
+            case Menu.FIRST + 1:
+                Toast.makeText(this, "删除菜单被点击了", Toast.LENGTH_LONG).show();
+                break;
+            case Menu.FIRST + 2:
+                Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
+                startActivity(intent);
+                //Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
