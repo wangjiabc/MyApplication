@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.safety.android.MainActivity;
+import com.safety.android.SQLite3.PermissionInfo;
+import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 
@@ -170,9 +172,7 @@ public class login extends AppCompatActivity {
 
                     JSONObject jsonObject2=new JSONObject(result);
 
-                    String token=jsonObject2.getString("token");
-
-                    System.out.println("token="+token);
+                    token=jsonObject2.getString("token");
 
                     if(message.equals("登录成功")) {
 
@@ -184,6 +184,7 @@ public class login extends AppCompatActivity {
                             userInfo.setPassword(password);
                             userInfo.setDate(new Date());
                             userInfo.setToken(token);
+                            MainActivity.token=token;
 
                             try {
                                 int i = UserLab.get(getApplication()).updateUserInfo(userInfo);
@@ -195,24 +196,8 @@ public class login extends AppCompatActivity {
                             }
                         }
 
-                        String s = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/jeecg-boot/sys/permission/getUserPermissionByToken");
+                        new FetchItemsTaskPermission().execute();
 
-                        JSONObject jsonObject3 =new JSONObject(s);
-
-                        String result3=jsonObject3.getString("result");
-
-                        JSONObject jsonObject4=new JSONObject(result3);
-
-                        String allAuth=jsonObject4.getString("allAuth");
-                        String menu=jsonObject4.getString("menu");
-
-                        JSONArray authArray=new JSONArray(allAuth);
-                        JSONArray menuArray=new JSONArray(menu);
-
-                        Toast.makeText(login.this, "登录成功", Toast.LENGTH_SHORT).show();        //吐司界面，参数依次为提示发出Activity,提示内容,提示时长
-
-                        Intent intent = new Intent(getApplication(), MainActivity.class);
-                        startActivity(intent);
                     }else{
 
                         Toast.makeText(login.this,message,Toast.LENGTH_SHORT).show();
@@ -240,6 +225,87 @@ public class login extends AppCompatActivity {
 
     }
 
+
+    private class FetchItemsTaskPermission extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/sys/permission/getUserPermissionByToken?token="+token);
+            return json;
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            JSONObject jsonObject = null;
+
+            System.out.println("token=="+token);
+
+            try {
+                jsonObject = new JSONObject(json);
+                String result=jsonObject.getString("result");
+
+                JSONObject jsonObject2=new JSONObject(result);
+
+                String allAuth=jsonObject2.getString("allAuth");
+                String menu=jsonObject2.getString("menu");
+
+                JSONArray authArray=new JSONArray(allAuth);
+                JSONArray menuArray=new JSONArray(menu);
+
+                for(int i=0;i<authArray.length();i++){
+                    JSONObject jsonObject1=authArray.getJSONObject(i);
+                    PermissionInfo permissionInfo=new PermissionInfo();
+                    permissionInfo.setAction(jsonObject1.getString("action"));
+                    permissionInfo.setDescribe(jsonObject1.getString("describe"));
+                    permissionInfo.setType(jsonObject1.getInt("type"));
+                    permissionInfo.setStatus(jsonObject1.getInt("status"));
+                    PermissionLab.get(getApplicationContext()).addPermission(permissionInfo);
+                }
+
+                for(int i=0;i<menuArray.length();i++){
+                    System.out.println(menuArray.getString(i));
+                    JSONObject jsonObject1=menuArray.getJSONObject(i);
+                    if(jsonObject1.getString("children")!=null&&!jsonObject1.getString("children").equals("")) {
+                        JSONArray menuArray1=jsonObject1.getJSONArray("children");
+                        for(int j=0;j<menuArray1.length();j++) {
+                            JSONObject jsonObject3=menuArray1.getJSONObject(j);
+                            PermissionInfo permissionInfo = new PermissionInfo();
+                            permissionInfo.setPath(jsonObject3.getString("path"));
+                            permissionInfo.setComponent(jsonObject3.getString("component"));
+                            permissionInfo.setName(jsonObject3.getString("name"));
+                            permissionInfo.setId(jsonObject3.getString("id"));
+                            PermissionLab.get(getApplicationContext()).addPermission(permissionInfo);
+                        }
+                    }else{
+                        PermissionInfo permissionInfo = new PermissionInfo();
+                        permissionInfo.setPath(jsonObject1.getString("path"));
+                        permissionInfo.setComponent(jsonObject1.getString("component"));
+                        permissionInfo.setName(jsonObject1.getString("name"));
+                        permissionInfo.setId(jsonObject1.getString("id"));
+                        PermissionLab.get(getApplicationContext()).addPermission(permissionInfo);
+                    }
+
+                }
+
+                Toast.makeText(login.this, "登录成功", Toast.LENGTH_SHORT).show();        //吐司界面，参数依次为提示发出Activity,提示内容,提示时长
+
+                Intent intent = new Intent(getApplication(), MainActivity.class);
+                startActivity(intent);
+
+            } catch (JSONException e) {
+
+                Toast.makeText(login.this,"登陆失败",Toast.LENGTH_SHORT).show();
+
+                e.printStackTrace();
+
+            }
+
+
+        }
+
+    }
 
 
 }

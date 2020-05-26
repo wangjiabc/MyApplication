@@ -58,7 +58,7 @@ public class SafeBoxFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        for (int i=0;i<5;i++){
+        for (int i=0;i<9;i++){
             String name="name"+(i+1);
             SafeInfo mSafeInfo = new SafeInfo();
             mSafeInfo.setmName(name);

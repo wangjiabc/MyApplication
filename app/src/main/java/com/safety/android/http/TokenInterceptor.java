@@ -19,6 +19,12 @@ public class TokenInterceptor  implements Interceptor {
 
         String token= MainActivity.token;
 
+        if(token==null||token.equals("")){
+            token=login.token;
+        }
+
+        System.out.println("token================"+token);
+
         Request originalRequest = chain.request();
         Request updateRequest = originalRequest.newBuilder().header("X-Access-Token", token).build();
         return chain.proceed(updateRequest);

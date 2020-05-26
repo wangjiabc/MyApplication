@@ -2,7 +2,7 @@ package com.safety.android.SQLite3;
 
 public class PermissionDbSchema {
     public static final class PermissionTable{
-        public static final String NAME="Permission";
+        public static final String NAME="permission";
 
         public static final class Cols{
             public static final String UUID="uuid";
