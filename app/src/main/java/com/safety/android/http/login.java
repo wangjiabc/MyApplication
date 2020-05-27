@@ -254,6 +254,8 @@ public class login extends AppCompatActivity {
                 JSONArray authArray=new JSONArray(allAuth);
                 JSONArray menuArray=new JSONArray(menu);
 
+                //PermissionLab.get(getApplicationContext()).delPermission();
+
                 for(int i=0;i<authArray.length();i++){
                     JSONObject jsonObject1=authArray.getJSONObject(i);
                     PermissionInfo permissionInfo=new PermissionInfo();
@@ -267,7 +269,7 @@ public class login extends AppCompatActivity {
                 for(int i=0;i<menuArray.length();i++){
                     System.out.println(menuArray.getString(i));
                     JSONObject jsonObject1=menuArray.getJSONObject(i);
-                    if(jsonObject1.getString("children")!=null&&!jsonObject1.getString("children").equals("")) {
+                    try{
                         JSONArray menuArray1=jsonObject1.getJSONArray("children");
                         for(int j=0;j<menuArray1.length();j++) {
                             JSONObject jsonObject3=menuArray1.getJSONObject(j);
@@ -278,7 +280,7 @@ public class login extends AppCompatActivity {
                             permissionInfo.setId(jsonObject3.getString("id"));
                             PermissionLab.get(getApplicationContext()).addPermission(permissionInfo);
                         }
-                    }else{
+                    }catch (Exception e){
                         PermissionInfo permissionInfo = new PermissionInfo();
                         permissionInfo.setPath(jsonObject1.getString("path"));
                         permissionInfo.setComponent(jsonObject1.getString("component"));

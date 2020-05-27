@@ -22,6 +22,8 @@ import com.safety.android.Food.FoodListActivity;
 import com.safety.android.LocalFile.SdCard;
 import com.safety.android.Message.Chat2Activity;
 import com.safety.android.PhotoGallery.PhotoGalleryActivity;
+import com.safety.android.SQLite3.PermissionInfo;
+import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.SQLite3.SafeInfo;
 import com.safety.android.SQLite3.SafeLab;
 import com.safety.android.SafeList.SafeListActivity;
@@ -29,6 +31,7 @@ import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.util.phone;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +61,52 @@ public class SafeBoxFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
+        List<PermissionInfo> list= PermissionLab.get(getContext()).getPermissionInfo();
+
+        Iterator<PermissionInfo> iterator=list.iterator();
+
+        while (iterator.hasNext()){
+
+            PermissionInfo permissionInfo=iterator.next();
+
+            String action=permissionInfo.getAction();
+            String component=permissionInfo.getComponent();
+
+            if(component.equals("food/MaterialList")){
+                String name="name"+1;
+                SafeInfo mSafeInfo = new SafeInfo();
+                mSafeInfo.setmName(name);
+                mSafeInfo.setId(1);
+                mSafeInfos.add(mSafeInfo);
+            }
+
+            if(component.equals("sale/SaleList")){
+                String name="name"+2;
+                SafeInfo mSafeInfo = new SafeInfo();
+                mSafeInfo.setmName(name);
+                mSafeInfo.setId(2);
+                mSafeInfos.add(mSafeInfo);
+            }
+
+            if(component.equals("accounthead/AccountheadList")){
+                String name="name"+3;
+                SafeInfo mSafeInfo = new SafeInfo();
+                mSafeInfo.setmName(name);
+                mSafeInfo.setId(3);
+                mSafeInfos.add(mSafeInfo);
+            }
+
+            if(component.equals("storage/StorageList")){
+                String name="name"+4;
+                SafeInfo mSafeInfo = new SafeInfo();
+                mSafeInfo.setmName(name);
+                mSafeInfo.setId(4);
+                mSafeInfos.add(mSafeInfo);
+            }
+
+        }
+
+        /*
         for (int i=0;i<9;i++){
             String name="name"+(i+1);
             SafeInfo mSafeInfo = new SafeInfo();
@@ -66,7 +115,7 @@ public class SafeBoxFragment extends Fragment {
             mSafeInfos.add(mSafeInfo);
 
         }
-
+        */
     }
 
     @Override
@@ -109,14 +158,8 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*
-                        dialog = new AlertDialog.Builder(v.getContext()).setTitle("多选对话框")
-                                .setNegativeButton("取消", null).setPositiveButton("确定", null)
-                                .create();
-                        dialog.show();
-                        */
 
-                        Intent intent=new Intent(getActivity(), AssetListActivity.class);
+                        Intent intent=new Intent(getActivity(), FoodListActivity.class);
                         startActivity(intent);
 
 
@@ -144,7 +187,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent=new Intent(getActivity(), FoodListActivity.class);
+                        Intent intent=new Intent(getActivity(), AssetListActivity.class);
                         startActivity(intent);
 
                     }
