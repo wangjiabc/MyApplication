@@ -65,20 +65,18 @@ public class SafeBoxFragment extends Fragment {
 
         Iterator<PermissionInfo> iterator=list.iterator();
 
+        String name0="name"+1;
+        SafeInfo mSafeInfo0 = new SafeInfo();
+        mSafeInfo0.setmName(name0);
+        mSafeInfo0.setId(0);
+        mSafeInfos.add(mSafeInfo0);
+
         while (iterator.hasNext()){
 
             PermissionInfo permissionInfo=iterator.next();
 
             String action=permissionInfo.getAction();
             String component=permissionInfo.getComponent();
-
-            if(component.equals("food/MaterialList")){
-                String name="name"+1;
-                SafeInfo mSafeInfo = new SafeInfo();
-                mSafeInfo.setmName(name);
-                mSafeInfo.setId(1);
-                mSafeInfos.add(mSafeInfo);
-            }
 
             if(component.equals("sale/SaleList")){
                 String name="name"+2;

@@ -61,9 +61,11 @@ public class OKHttpFetch {
 
             if(jsonObject==null){
                 Intent intent=new Intent(context, login.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
                 Intent intent=new Intent(context, login.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
 
