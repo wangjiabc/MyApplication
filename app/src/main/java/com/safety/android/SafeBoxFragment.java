@@ -65,7 +65,7 @@ public class SafeBoxFragment extends Fragment {
 
         Iterator<PermissionInfo> iterator=list.iterator();
 
-        String name0="name"+1;
+        String name0="name"+0;
         SafeInfo mSafeInfo0 = new SafeInfo();
         mSafeInfo0.setmName(name0);
         mSafeInfo0.setId(0);
@@ -78,30 +78,49 @@ public class SafeBoxFragment extends Fragment {
             String action=permissionInfo.getAction();
             String component=permissionInfo.getComponent();
 
-            if(component.equals("sale/SaleList")){
-                String name="name"+2;
-                SafeInfo mSafeInfo = new SafeInfo();
-                mSafeInfo.setmName(name);
-                mSafeInfo.setId(2);
-                mSafeInfos.add(mSafeInfo);
-            }
+            if(component!=null) {
 
-            if(component.equals("accounthead/AccountheadList")){
-                String name="name"+3;
-                SafeInfo mSafeInfo = new SafeInfo();
-                mSafeInfo.setmName(name);
-                mSafeInfo.setId(3);
-                mSafeInfos.add(mSafeInfo);
-            }
+                if (component.equals("sale/SaleList")) {
+                    String name = "name" + 1;
+                    SafeInfo mSafeInfo = new SafeInfo();
+                    mSafeInfo.setmName(name);
+                    mSafeInfo.setId(1);
+                    mSafeInfos.add(mSafeInfo);
+                }
 
-            if(component.equals("storage/StorageList")){
-                String name="name"+4;
-                SafeInfo mSafeInfo = new SafeInfo();
-                mSafeInfo.setmName(name);
-                mSafeInfo.setId(4);
-                mSafeInfos.add(mSafeInfo);
-            }
+                if (component.equals("accounthead/AccountheadList")) {
+                    String name = "name" + 2;
+                    SafeInfo mSafeInfo = new SafeInfo();
+                    mSafeInfo.setmName(name);
+                    mSafeInfo.setId(2);
+                    mSafeInfos.add(mSafeInfo);
+                }
 
+                if (component.equals("storage/StorageList")) {
+                    String name = "name" + 3;
+                    SafeInfo mSafeInfo = new SafeInfo();
+                    mSafeInfo.setmName(name);
+                    mSafeInfo.setId(3);
+                    mSafeInfos.add(mSafeInfo);
+                }
+
+                if (component.equals("storageLog/StorageLogList")) {
+                    String name = "name" + 4;
+                    SafeInfo mSafeInfo = new SafeInfo();
+                    mSafeInfo.setmName(name);
+                    mSafeInfo.setId(4);
+                    mSafeInfos.add(mSafeInfo);
+                }
+
+                if (component.equals("inoutitem/InoutitemList")) {
+                    String name = "name" + 5;
+                    SafeInfo mSafeInfo = new SafeInfo();
+                    mSafeInfo.setmName(name);
+                    mSafeInfo.setId(5);
+                    mSafeInfos.add(mSafeInfo);
+                }
+
+            }
         }
 
         /*

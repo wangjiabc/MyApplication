@@ -44,9 +44,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -152,6 +154,25 @@ public class FoodListActivity extends AppCompatActivity {
         return true;
     }
 
+    /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
+     * 让菜单同时显示图标和文字
+     */
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        if (menu != null) {
+            if (menu.getClass().getSimpleName().equalsIgnoreCase("MenuBuilder")) {
+                try {
+                    Method method = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
+                    method.setAccessible(true);
+                    method.invoke(menu, true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return super.onMenuOpened(featureId, menu);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -161,27 +182,6 @@ public class FoodListActivity extends AppCompatActivity {
                 Toast.makeText(this, "删除菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case Menu.FIRST + 2:
-               /* UUID uuid=UUID.randomUUID();
-                imagePath=MainActivity.dataUrl+"/image/"+uuid+".jpg";
-                File file=new File(MainActivity.dataUrl+"/image/",uuid+".jpg");
-                Uri uri=getImageContentUri(file);
-                Intent captureImage=TakePictures.getCaptureImage(uri);*/
-                int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
-                        Manifest.permission.CAMERA);
-                if (hasCameraPermission == PackageManager.PERMISSION_GRANTED) {
-                    //有权限。
-                } else {
-                    //没有权限，申请权限。
-                    requestPermissions(new String[]{Manifest.permission.CAMERA},100);
-                }
-                TakePictures takePictures=new TakePictures(getApplication());
-                Intent captureImage=takePictures.getCaptureImage();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
-                    startActivityForResult(captureImage, REQUEST_PHOTO);
-                }else{
-                    startActivityForResult(captureImage, REQUEST_PHOTO);
-                }
                 Toast.makeText(this, "保存菜单被点击了", Toast.LENGTH_LONG).show();
                 break;
             case Menu.FIRST + 3:
@@ -471,15 +471,6 @@ public class FoodListActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-
-
-        }else if(requestCode==REQUEST_PHOTO){
-            System.out.println("REQUEST_PHOTO");
-            Bitmap bitmap=TakePictures.getScaledBitmap(null,null);
-            MyTestUtil.print(bitmap);
-
-            new UpFileToQiniu();
-
         }
 
     }
@@ -573,7 +564,10 @@ public class FoodListActivity extends AppCompatActivity {
         Integer storage = jsonObject.getInt("storage");
         Double cost = jsonObject.getDouble("cost");
         Double retailprice=jsonObject.getDouble("retailprice");
-        String s = "<p>"+first+"<img src='http://pic004.cnblogs.com/news/201211/20121108_091749_10.jpg'/></span>&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
+        String img=jsonObject.getString("img");
+        if(img!=null&&!img.equals(""))
+            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
+        String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
                 "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;<span>成本:" + cost + "</span>"+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
         return s;
     }
@@ -591,7 +585,10 @@ public class FoodListActivity extends AppCompatActivity {
         Integer storage = jsonObject.getInt("storage");
         Double cost = jsonObject.getDouble("cost");
         Double retailprice=jsonObject.getDouble("retailprice");
-        String s ="<p>"+first+"<img src='http://pic004.cnblogs.com/news/201211/20121108_091749_1.jpg'/></span>&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
+        String img=jsonObject.getString("img");
+        if(img!=null&&!img.equals(""))
+            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
+        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
                 "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;</span>&nbsp;&nbsp;<span><font color='red' size='20'>库存:" + storage + "</font><span><font color='red' size='20'>成本:" + cost + "</font></span>"+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
         return s;
     }

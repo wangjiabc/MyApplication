@@ -16,7 +16,8 @@ import java.util.UUID;
 
 public class UpFileToQiniu {
 
-    public UpFileToQiniu(){
+    public UpFileToQiniu(String key0){
+        final String key=key0;
         new Thread(new Runnable(){
 
             @Override
@@ -40,7 +41,6 @@ public class UpFileToQiniu {
                 UploadManager uploadManager=new UploadManager();
 
 
-                String key= UUID.randomUUID().toString()+".jpg";
                 System.out.println("key========="+key+ "     token"+token);
 
                 File file=TakePictures.getFile();
@@ -61,7 +61,7 @@ public class UpFileToQiniu {
                         }, null);
 
                 try {
-                    new PictureCompressUtil().compressByQuality(file.getPath(),file.getPath()+"compress",30);
+                    new PictureCompressUtil().compressByQuality(file.getPath(),file.getPath()+"compress",60);
                     uploadManager.put(file.getPath()+"compress", "compress/"+key, token,
                             new UpCompletionHandler() {
                                 @Override

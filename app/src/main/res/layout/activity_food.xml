@@ -76,6 +76,7 @@
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
                 <!--手机号-->
                 <TextView
+                    android:id="@+id/text_food2"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/qmui_list_item_height"
                     android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
@@ -168,11 +169,31 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginRight="4dp">
+                <ImageView
+                    android:id="@+id/food_photo"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/darker_gray"
+                    android:src="@drawable/ic_menu_add"
+                    android:cropToPadding="true"/>
+                <ImageButton
+                    android:id="@+id/food_camera"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_camera"/>
 
             </LinearLayout>
 
