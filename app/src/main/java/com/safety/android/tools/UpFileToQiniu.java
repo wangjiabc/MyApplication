@@ -1,22 +1,23 @@
 package com.safety.android.tools;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
-import com.safety.android.PhotoGallery.FlickrFetchr;
+import com.safety.android.http.FlickrFetch;
+import com.safety.android.http.OKHttpFetch2;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 public class UpFileToQiniu {
 
-    public UpFileToQiniu(String key0){
+    public UpFileToQiniu(String key0, final Context context){
         final String key=key0;
         new Thread(new Runnable(){
 
@@ -24,12 +25,9 @@ public class UpFileToQiniu {
             public void run() {
 
                 String json= null;
-                try {
-                    json = new FlickrFetchr().getUrlString("http://203.0.104.65:8080/a/test/token.do");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
+                    //json = new FlickrFetchr().getUrlString("http://203.0.104.65:8080/a/test/token.do");
+                json=new OKHttpFetch2(context).get(FlickrFetch.base + "/inoutitem/inoutitem/token");
 
                 String token="";
                 try {

@@ -27,6 +27,7 @@ import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.tools.TakePictures;
 import com.safety.android.tools.UpFileToQiniu;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +40,6 @@ import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
 import okhttp3.FormBody;
 
 import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
@@ -77,6 +77,8 @@ public class FoodDetailActivity extends AppCompatActivity {
     private ImageView mPhotoView;
 
     private String img=null;
+
+    private String oldImg=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,11 +161,16 @@ public class FoodDetailActivity extends AppCompatActivity {
                 Double cost = jsonObject.getDouble("cost");
                 Double retailprice = jsonObject.getDouble("retailprice");
                 String remark = jsonObject.getString("remark");
+                String thisImg=jsonObject.getString("img");
+                if(thisImg!=null)
+                    updatePhotoView("http://qiniu.lzxlzc.com/"+thisImg);
 
                 editText1.setText(name);
                 editText2.setText(String.valueOf(cost));
                 editText3.setText(String.valueOf(retailprice));
                 editText4.setText(remark);
+
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -214,7 +221,7 @@ public class FoodDetailActivity extends AppCompatActivity {
             updatePhotoView(bitmap);
             String key= UUID.randomUUID().toString()+".jpg";
             img=key;
-            new UpFileToQiniu(key);
+            new UpFileToQiniu(key,getApplicationContext());
 
         }
 
@@ -264,6 +271,14 @@ public class FoodDetailActivity extends AppCompatActivity {
             }
 
 
+            if(img!=null){
+                try {
+                    jsonObject.put("img",img);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
             return new OKHttpFetch(getApplicationContext()).post(FlickrFetch.base + url,jsonObject,type);
 
         }
@@ -301,8 +316,10 @@ public class FoodDetailActivity extends AppCompatActivity {
                     jsonObject1.put("cost",text3);
                     jsonObject1.put("remark",text4);
 
-                    if(img!=null)
-                        jsonObject1.put("img",img);
+                    if(img!=null) {
+                        jsonObject1.put("img", img);
+
+                    }
 
                     Intent intent = new Intent();
                     intent.putExtra("value", jsonObject1.toString());
@@ -319,6 +336,11 @@ public class FoodDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void updatePhotoView(String url){
+
+        Picasso.with(getApplicationContext()).load(url).into(mPhotoView);
+
+    }
 
     private void updatePhotoView(Bitmap bitmap0){
         ViewTreeObserver observer=mPhotoView.getViewTreeObserver();

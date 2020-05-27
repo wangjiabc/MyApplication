@@ -180,7 +180,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginRight="4dp">
+                android:layout_margin="10dp">
                 <ImageView
                     android:id="@+id/food_photo"
                     android:layout_width="100dp"
@@ -192,7 +192,7 @@
                 <ImageButton
                     android:id="@+id/food_camera"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:src="@android:drawable/ic_menu_camera"/>
 
             </LinearLayout>

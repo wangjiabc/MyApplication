@@ -1,15 +1,11 @@
 package com.safety.android.Food;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
@@ -36,9 +32,6 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
-import com.safety.android.tools.MyTestUtil;
-import com.safety.android.tools.TakePictures;
-import com.safety.android.tools.UpFileToQiniu;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,18 +41,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static com.safety.android.MainActivity.dataUrl;
-import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
 
 public class FoodListActivity extends AppCompatActivity {
 
@@ -289,7 +279,7 @@ public class FoodListActivity extends AppCompatActivity {
                                String cSearch="";
                                if(search!=null&&!search.equals(""))
                                    cSearch=search;
-                               String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize="+size+cSearch);
+                               String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                try {
                                    JSONObject jsonObject = new JSONObject(json);
@@ -366,15 +356,24 @@ public class FoodListActivity extends AppCompatActivity {
                                 .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
+
                                         final JSONObject json=itemMap.get(n);
+                                        int combination=0;
                                         try {
                                             json.put("position",position);
+                                            combination=json.getInt("combination");
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        intent.putExtra("jsonString", json.toString());
-                                        startActivityForResult(intent,1);
+                                        if(combination==0) {
+                                            Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
+                                            intent.putExtra("jsonString", json.toString());
+                                            startActivityForResult(intent, 1);
+                                        }else if(combination==1){
+                                            Intent intent = new Intent(getApplicationContext(), FoodCompagesActivity.class);
+                                            intent.putExtra("jsonString", json.toString());
+                                            startActivityForResult(intent, 1);
+                                        }
                                         dialogInterface.dismiss();
                                     }
                                 })
@@ -482,7 +481,7 @@ public class FoodListActivity extends AppCompatActivity {
             String cSearch="";
             if(search!=null&&!search.equals(""))
                 cSearch=search;
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?pageNo=" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
 

@@ -15,7 +15,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class OKHttpFetch {
+public class OKHttpFetch2 {
 
     final static String URL=FlickrFetch.URL;
 
@@ -23,7 +23,7 @@ public class OKHttpFetch {
 
     private static OkHttpClient client;
 
-    public OKHttpFetch(Context context){
+    public OKHttpFetch2(Context context){
         this.context=context;
         client=new AsynHttp().getOkHttpClient(context,URL);
     }
@@ -61,10 +61,6 @@ public class OKHttpFetch {
 
 
             if(jsonObject==null){
-                Intent intent=new Intent(context, login.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
-            }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
                 Intent intent=new Intent(context, login.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
@@ -113,11 +109,7 @@ public class OKHttpFetch {
             if(jsonObject==null){
                 Intent intent=new Intent(context, login.class);
                 context.startActivity(intent);
-            }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
-                Intent intent=new Intent(context, login.class);
-                context.startActivity(intent);
             }
-
             result=s;
         } catch (IOException e) {
             e.printStackTrace();
@@ -177,9 +169,6 @@ public class OKHttpFetch {
             if(jsonObject==null){
                 Intent intent=new Intent(context, login.class);
                 context.startActivity(intent);
-            }else if(jsonObject.get("message").equals("Token失效，请重新登录")){
-                Intent intent=new Intent(context, login.class);
-                context.startActivity(intent);
             }
 
             result=s;
@@ -201,6 +190,4 @@ public class OKHttpFetch {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
         context.startActivity(intent);
     }
-
-
 }

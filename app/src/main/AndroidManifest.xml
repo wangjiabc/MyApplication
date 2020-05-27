@@ -61,7 +61,7 @@
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodListActivity"
-            android:label="@string/app_name"
+            android:label="商品管理"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
@@ -86,7 +86,12 @@
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodDetailActivity"
-            android:label="@string/app_name"
+            android:label="商品管理"
+            android:parentActivityName="com.safety.android.Food.FoodListActivity" >
+        </activity>
+        <activity
+            android:name="com.safety.android.Food.FoodCompagesActivity"
+            android:label="组合商品"
             android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
     </application>
