@@ -254,7 +254,7 @@ public class login extends AppCompatActivity {
                 JSONArray authArray=new JSONArray(allAuth);
                 JSONArray menuArray=new JSONArray(menu);
 
-                //PermissionLab.get(getApplicationContext()).delPermission();
+                PermissionLab.get(getApplicationContext()).delPermission();
 
                 for(int i=0;i<authArray.length();i++){
                     JSONObject jsonObject1=authArray.getJSONObject(i);

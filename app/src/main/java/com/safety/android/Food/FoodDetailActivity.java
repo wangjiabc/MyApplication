@@ -78,8 +78,6 @@ public class FoodDetailActivity extends AppCompatActivity {
 
     private String img=null;
 
-    private String oldImg=null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
