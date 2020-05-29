@@ -15,11 +15,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
@@ -29,7 +33,6 @@ import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
-import com.safety.android.SQLite3.SafeInfo;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
@@ -42,7 +45,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,15 +53,9 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import static com.safety.android.MainActivity.dataUrl;
 
-public class FoodListActivity extends AppCompatActivity {
-
+public class FoodCompagesListActivity extends AppCompatActivity {
     QMUIPullRefreshLayout mPullRefreshLayout;
 
     QMUIStickySectionLayout mSectionLayout;
@@ -81,7 +77,7 @@ public class FoodListActivity extends AppCompatActivity {
 
     private String search="";
 
-    private Map<Integer,JSONObject> itemMap=new HashMap<>();
+    private Map<Integer, JSONObject> itemMap=new HashMap<>();
 
     private Map<Integer,JSONObject> selectMap=new HashMap();
 
@@ -89,13 +85,14 @@ public class FoodListActivity extends AppCompatActivity {
 
     private boolean isCost=false;
 
+    private Button foodButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-       view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -138,6 +135,27 @@ public class FoodListActivity extends AppCompatActivity {
             }
         });
 
+        foodButton=view.findViewById(R.id.food_button);
+
+        foodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                JSONArray jsonArray=new JSONArray();
+
+                for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()) {
+                    JSONObject jsonObject = map.getValue();
+                    jsonArray.put(jsonObject);
+                }
+
+                Intent intent = new Intent();
+                intent.putExtra("value", jsonArray.toString());
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+
+            }
+        });
+
         List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
 
         Iterator<PermissionInfo> iterator=list.iterator();
@@ -158,153 +176,6 @@ public class FoodListActivity extends AppCompatActivity {
 
         }
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
-
-        Iterator<PermissionInfo> iterator=list.iterator();
-
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        view.findViewById(R.id.menu_item_add).setVisibility(View.GONE);
-
-        while (iterator.hasNext()){
-
-            PermissionInfo permissionInfo=iterator.next();
-
-            String action=permissionInfo.getAction();
-            String component=permissionInfo.getComponent();
-
-            if(action!=null){
-                if(action.equals("material:add")){
-                    view.findViewById(R.id.menu_item_add).setVisibility(View.VISIBLE);
-                }
-                if(action.equals("material:storageAdd")){
-                    menu.add(Menu.NONE, Menu.FIRST + 1, 1, "添加库存").setIcon(android.R.drawable.ic_menu_edit);
-                }
-                if(action.equals("material:compages")){
-                    menu.add(Menu.NONE, Menu.FIRST + 2, 2, "组合商品").setIcon(android.R.drawable.ic_menu_edit);
-                }
-                if(action.equals("material:compages")){
-                    menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_menu_edit);
-                }
-            }
-
-        }
-
-        return true;
-
-    }
-
-    /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
-     * 让菜单同时显示图标和文字
-     */
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
-            if (menu.getClass().getSimpleName().equalsIgnoreCase("MenuBuilder")) {
-                try {
-                    Method method = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
-                    method.setAccessible(true);
-                    method.invoke(menu, true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return super.onMenuOpened(featureId, menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        System.out.println("click");
-        switch (item.getItemId()) {
-            case Menu.FIRST + 1:
-                LayoutInflater inflater = getLayoutInflater();
-                View validateView = inflater.inflate(
-                        R.layout.dialog_validate, null);
-                final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                layout_validate.removeAllViews();
-                final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-                for(int i=0;i<itemMap.size();i++){
-                    Map<String,Object> map = new HashMap<String, Object>();
-                    View validateItem = inflater.inflate(
-                            R.layout.item_validate_enter, null);
-                    validateItem.setTag(i);
-                    layout_validate.addView(validateItem);
-                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                    map.put("name", tv_validateName);
-                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                    map.put("value", et_validate);
-                    JSONObject j=itemMap.get(i);
-                    try {
-                        tv_validateName.setText(j.getString("name"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    list.add(map);
-                }
-                AlertDialog dialog = new AlertDialog.Builder(this).setTitle("填写入群信息：")
-                        .setView(validateView)
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                StringBuffer stringBuffer = new StringBuffer();
-                                for(int i=0;i<list.size();i++){
-                                    String name = ((TextView)list.get(i).get("name")).getText().toString();
-                                    String value = ((EditText)list.get(i).get("value")).getText().toString();
-                                    stringBuffer.append(name+value+",");
-                                }
-                               
-                                dialog.dismiss();
-                            }
-
-                        }).setNegativeButton("取消", new DialogInterface.OnClickListener()
-                        {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                dialog.dismiss();
-                            }
-                        }).create();
-                dialog.show();
-
-                break;
-            case Menu.FIRST + 2:
-                JSONArray jsonArray=new JSONArray();
-                for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()){
-                    jsonArray.put(map.getValue());
-                }
-                JSONObject jsonObject=new JSONObject();
-                try {
-                    jsonObject.put("id","-1");
-                    jsonObject.put("ids",jsonArray);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                Intent intent2 = new Intent(getApplicationContext(), FoodCompagesActivity.class);
-                intent2.putExtra("jsonString", jsonObject.toString());
-                startActivityForResult(intent2, 1);
-
-                break;
-            case Menu.FIRST + 3:
-                break;
-            case R.id.menu_item_add:
-                Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
-                startActivityForResult(intent,1);
-                //Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
-                break;
-        }
-
-        return false;
     }
 
 
@@ -348,13 +219,6 @@ public class FoodListActivity extends AppCompatActivity {
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
-       /* final GridLayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 3);
-        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int i) {
-                return mAdapter.getItemIndex(i) < 0 ? layoutManager.getSpanCount() : 1;
-            }
-        });*/
 
         final LinearLayoutManager layoutManager =new LinearLayoutManager(getApplicationContext()) {
             @Override
@@ -381,33 +245,33 @@ public class FoodListActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                       new Thread(new Runnable(){
+                        new Thread(new Runnable(){
 
-                           @Override
-                           public void run() {
+                            @Override
+                            public void run() {
 
-                               ArrayList<SectionItem> contents = new ArrayList<>();
-                               String cSearch="";
-                               if(search!=null&&!search.equals(""))
-                                   cSearch=search;
-                               String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                ArrayList<SectionItem> contents = new ArrayList<>();
+                                String cSearch="";
+                                if(search!=null&&!search.equals(""))
+                                    cSearch=search;
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
-                               try {
-                                   JSONObject jsonObject = new JSONObject(json);
-                                   String success = jsonObject.optString("success", null);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(json);
+                                    String success = jsonObject.optString("success", null);
 
-                                   if (success.equals("true")) {
+                                    if (success.equals("true")) {
 
-                                       contents=addContents(contents,jsonObject);
-                                   }
-                                   queue.put(contents);
-                               } catch (JSONException | InterruptedException e) {
-                                   e.printStackTrace();
-                               }
+                                        contents=addContents(contents,jsonObject);
+                                    }
+                                    queue.put(contents);
+                                } catch (JSONException | InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 
-                           }
+                            }
 
-                       }).start();
+                        }).start();
 
                         ArrayList<SectionItem> contents = null;
                         try {
@@ -454,37 +318,12 @@ public class FoodListActivity extends AppCompatActivity {
 
                         final JSONObject finalJsonObject = jsonObject;
 
-                        new AlertDialog.Builder(FoodListActivity.this)
+                        new AlertDialog.Builder(FoodCompagesListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
-                                .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
                                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(FoodListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                                        final JSONObject json=itemMap.get(n);
-                                        int combination=0;
-                                        try {
-                                            json.put("position",position);
-                                            combination=json.getInt("combination");
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                        if(combination==0) {
-                                            Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
-                                            intent.putExtra("jsonString", json.toString());
-                                            startActivityForResult(intent, 1);
-                                        }else if(combination==1){
-                                            Intent intent = new Intent(getApplicationContext(), FoodCompagesActivity.class);
-                                            intent.putExtra("jsonString", json.toString());
-                                            startActivityForResult(intent, 1);
-                                        }
+                                        Toast.makeText(FoodCompagesListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
                                         dialogInterface.dismiss();
                                     }
                                 })
@@ -542,46 +381,6 @@ public class FoodListActivity extends AppCompatActivity {
 
         new FetchItemsTask().execute();
 
-
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        System.out.println("requestCode===="+requestCode+"         resultCode==="+resultCode);
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }else if(requestCode==1){
-
-            try {
-                JSONObject jsonObject=new JSONObject(data.getStringExtra("value"));
-                int type=jsonObject.getInt("type");
-                System.out.println("type=========="+type);
-                if(type==1) {
-                    ArrayList<SectionItem> contents = new ArrayList<>();
-                    jsonObject.put("order", String.valueOf(mAdapter.getItemCount()));
-                    String s = StringToHtml(jsonObject);
-                    contents.add(new SectionItem(s));
-                    boolean existMoreData = true;
-
-                    if (total < (page * 10)) {
-                        existMoreData = false;
-                    }
-
-                    mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, existMoreData);
-                }else {
-                    int position=jsonObject.getInt("position");
-                    jsonObject.put("order",position);
-                    Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
-                    final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
-                    String s = StringToHtml(jsonObject);
-                    ((TextView) viewHolder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
 
     }
 

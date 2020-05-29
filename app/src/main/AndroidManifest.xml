@@ -94,6 +94,11 @@
             android:label="组合商品"
             android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
+        <activity
+            android:name="com.safety.android.Food.FoodCompagesListActivity"
+            android:label="添加组合商品"
+            android:parentActivityName="com.safety.android.Food.FoodCompagesActivity" >
+        </activity>
     </application>
 
 

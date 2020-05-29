@@ -6,9 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -29,11 +33,14 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
+import com.safety.android.MainActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
+import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
+import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 import com.safety.android.tools.TakePictures;
 import com.safety.android.tools.UpFileToQiniu;
@@ -53,6 +60,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import okhttp3.FormBody;
 
 import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
 
@@ -75,6 +84,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
     private int id=-1;
 
     private int position=0;
+
+    private Button foodButton;
 
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
@@ -107,16 +118,37 @@ public class FoodCompagesActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(jsonString);
 
                 id=jsonObject.getInt("id");
-                position=jsonObject.getInt("position");
-                String name = jsonObject.getString("name");
-                Double cost = jsonObject.getDouble("cost");
-                Double retailprice = jsonObject.getDouble("retailprice");
-                String remark = jsonObject.getString("remark");
-                String thisImg=jsonObject.getString("img");
-                if(thisImg!=null)
-                    updatePhotoView("http://qiniu.lzxlzc.com/"+thisImg);
+                if(id!=-1) {
+                    position = jsonObject.getInt("position");
+                    String name = jsonObject.getString("name");
+                    Double cost = jsonObject.getDouble("cost");
+                    Double retailprice = jsonObject.getDouble("retailprice");
+                    String remark = jsonObject.getString("remark");
+                    String thisImg = jsonObject.getString("img");
+                    if (thisImg != null)
+                        updatePhotoView("http://qiniu.lzxlzc.com/" + thisImg);
 
-                editText1.setText(name);
+                    editText1.setText(name);
+                }else{
+
+                    JSONArray jsonArray=jsonObject.getJSONArray("ids");
+
+                    for (int i = 0; i < jsonArray.length()-1; i++) {
+
+                        int order=i+1;
+
+                        JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                        JSONObject jsonObject2=new JSONObject();
+                        jsonObject2.put("order",order);
+                        jsonObject2.put("NAME",jsonObject1.get("name"));
+                        jsonObject2.put("AMOUNT","1");
+                        itemMap.put(order,jsonObject2);
+
+                    }
+
+                    initDataNew();
+
+                }
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -149,6 +181,17 @@ public class FoodCompagesActivity extends AppCompatActivity {
                 }else{
                     startActivityForResult(captureImage, REQUEST_PHOTO);
                 }
+
+            }
+        });
+
+        foodButton=view.findViewById(R.id.food_button);
+
+        foodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                new FetchItemsUpdateTask();
 
             }
         });
@@ -408,6 +451,83 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     }
 
+    private class FetchItemsUpdateTask extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            JSONArray jsonArray=new JSONArray();
+
+            for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()) {
+
+                JSONObject jsonObject=map.getValue();
+
+                try {
+                    int id=jsonObject.getInt("id");
+                    jsonArray.put(id);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            String value="";
+
+            if(jsonArray.length()>0)
+                value+="items="+jsonArray;
+
+            if(id!=-1)
+                value+="&compagesId="+id;
+
+            String text1=editText1.getText().toString();
+
+            if(text1!=null&&!text1.equals(""))
+                value+="&compagesName="+text1;
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "food/material/compages?"+value);
+
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            JSONObject jsonObject = null;
+
+            try {
+
+                jsonObject = new JSONObject(json);
+
+                String success = jsonObject.optString("success", null);
+
+                Toast.makeText(FoodCompagesActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                if (success.equals("true")) {
+
+                    String text1=editText1.getText().toString();
+
+                    JSONObject jsonObject1 =new JSONObject();
+
+                    jsonObject1.put("name",text1);
+
+                    if(img!=null) {
+                        jsonObject1.put("img", img);
+                    }
+
+                    Intent intent = new Intent();
+                    intent.putExtra("value", jsonObject1.toString());
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
     private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
 
 
@@ -486,6 +606,24 @@ public class FoodCompagesActivity extends AppCompatActivity {
             img=key;
             new UpFileToQiniu(key,getApplicationContext());
 
+        }else if(requestCode==1){
+            try {
+
+                JSONArray jsonArray=new JSONArray(data.getStringExtra("value"));
+                ArrayList<SectionItem> contents = new ArrayList<>();
+                int count=mAdapter.getItemCount()+1;
+                for(int i=0;i<jsonArray.length();i++) {
+                    JSONObject jsonObject=new JSONObject();
+                    itemMap.put(count+i,jsonObject);
+                    jsonObject.put("order", String.valueOf(count+i));
+                    String s = StringToHtml(jsonObject);
+                    contents.add(new SectionItem(s));
+                }
+                mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, false);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
     }

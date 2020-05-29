@@ -17,7 +17,6 @@ public class PermissionBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table "+PermissionDbSchema.PermissionTable.NAME+"("+
-                "_id integer primary key autoincrement, "+
                 PermissionDbSchema.PermissionTable.Cols.action+","+
                 PermissionDbSchema.PermissionTable.Cols.component+","+
                 PermissionDbSchema.PermissionTable.Cols.describe+","+
