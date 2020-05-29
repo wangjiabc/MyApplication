@@ -29,7 +29,6 @@ import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
-import com.safety.android.SQLite3.SafeInfo;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.HtmlImageGetter;
@@ -37,6 +36,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
+import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -169,7 +169,11 @@ public class FoodListActivity extends AppCompatActivity {
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        view.findViewById(R.id.menu_item_add).setVisibility(View.GONE);
+        menu.getItem(0).setVisible(false);
+
+        boolean storageAdd=false;
+        boolean compages=false;
+        boolean delete=false;
 
         while (iterator.hasNext()){
 
@@ -180,20 +184,32 @@ public class FoodListActivity extends AppCompatActivity {
 
             if(action!=null){
                 if(action.equals("material:add")){
-                    view.findViewById(R.id.menu_item_add).setVisibility(View.VISIBLE);
+                    menu.getItem(0).setVisible(true);
                 }
                 if(action.equals("material:storageAdd")){
-                    menu.add(Menu.NONE, Menu.FIRST + 1, 1, "添加库存").setIcon(android.R.drawable.ic_menu_edit);
+                    storageAdd=true;
+
                 }
                 if(action.equals("material:compages")){
-                    menu.add(Menu.NONE, Menu.FIRST + 2, 2, "组合商品").setIcon(android.R.drawable.ic_menu_edit);
+                    compages=true;
+
                 }
-                if(action.equals("material:compages")){
-                    menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_menu_edit);
+                if(action.equals("material:delete")){
+                    delete=true;
+
                 }
             }
 
         }
+
+        if(storageAdd)
+            menu.add(Menu.NONE, Menu.FIRST + 1, 1, "添加库存").setIcon(android.R.drawable.ic_menu_edit);
+
+        if(compages)
+            menu.add(Menu.NONE, Menu.FIRST + 2, 2, "组合商品").setIcon(android.R.drawable.ic_menu_edit);
+
+        if(delete)
+            menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_menu_edit);
 
         return true;
 
@@ -230,7 +246,7 @@ public class FoodListActivity extends AppCompatActivity {
                 final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
                 layout_validate.removeAllViews();
                 final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-                for(int i=0;i<itemMap.size();i++){
+                for(int i=1;i<itemMap.size();i++){
                     Map<String,Object> map = new HashMap<String, Object>();
                     View validateItem = inflater.inflate(
                             R.layout.item_validate_enter, null);
@@ -240,12 +256,12 @@ public class FoodListActivity extends AppCompatActivity {
                     map.put("name", tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                     map.put("value", et_validate);
+                    System.out.println("i==========="+i);
                     JSONObject j=itemMap.get(i);
-                    try {
-                        tv_validateName.setText(j.getString("name"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    MyTestUtil.print(j);
+
+                        tv_validateName.setText("aaaaaaaaaaa");
+
                     list.add(map);
                 }
                 AlertDialog dialog = new AlertDialog.Builder(this).setTitle("填写入群信息：")
@@ -279,7 +295,9 @@ public class FoodListActivity extends AppCompatActivity {
                 break;
             case Menu.FIRST + 2:
                 JSONArray jsonArray=new JSONArray();
-                for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()){
+                System.out.println("selecmap==================");
+                MyTestUtil.print(selectMap);
+                for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()){
                     jsonArray.put(map.getValue());
                 }
                 JSONObject jsonObject=new JSONObject();

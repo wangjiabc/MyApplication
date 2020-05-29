@@ -6,13 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,14 +30,11 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.MainActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 import com.safety.android.tools.TakePictures;
 import com.safety.android.tools.UpFileToQiniu;
@@ -60,8 +54,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import okhttp3.FormBody;
 
 import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
 
@@ -96,6 +88,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.food_compages, null);
 
@@ -133,7 +127,10 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                     JSONArray jsonArray=jsonObject.getJSONArray("ids");
 
-                    for (int i = 0; i < jsonArray.length()-1; i++) {
+                    System.out.println("jsonArray==============");
+                    MyTestUtil.print(jsonArray);
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
 
                         int order=i+1;
 
@@ -158,7 +155,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
         initRefreshLayout();
         initStickyLayout();
-        initData();
+        if(id!=-1)
+            initData();
 
         mPhotoButton.setOnClickListener(new View.OnClickListener(){
 
@@ -230,10 +228,13 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        System.out.println("click");
+
         switch (item.getItemId()) {
             case R.id.menu_food_compages_add:
-                Toast.makeText(this, "删除菜单被点击了", Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(getApplicationContext(), FoodCompagesListActivity.class);
+                startActivityForResult(intent,1);
+
                 break;
         }
         return false;
@@ -540,7 +541,6 @@ public class FoodCompagesActivity extends AppCompatActivity {
             JSONObject jsonObject1 = (JSONObject) records.get(i);
             jsonObject1.put("order",order);
             String s=StringToHtml(jsonObject1);
-            SpannableString spannableString = new SpannableString(s);
 
             itemMap.put(order,jsonObject1);
 
@@ -558,16 +558,14 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
         for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()){
             JSONObject jsonObject1=map.getValue();
+            jsonObject1.put("order",String.valueOf(i));
             String s=StringToHtml(jsonObject1);
+            contents.add(new SectionItem(s));
             itemMap2.put(i,jsonObject1);
             i++;
         }
 
-        MyTestUtil.print(itemMap);
-
         itemMap=itemMap2;
-
-        MyTestUtil.print(itemMap2);
 
         return contents;
     }
@@ -613,13 +611,15 @@ public class FoodCompagesActivity extends AppCompatActivity {
                 ArrayList<SectionItem> contents = new ArrayList<>();
                 int count=mAdapter.getItemCount()+1;
                 for(int i=0;i<jsonArray.length();i++) {
-                    JSONObject jsonObject=new JSONObject();
+                    JSONObject jsonObject= (JSONObject) jsonArray.get(i);
                     itemMap.put(count+i,jsonObject);
                     jsonObject.put("order", String.valueOf(count+i));
-                    String s = StringToHtml(jsonObject);
-                    contents.add(new SectionItem(s));
+                    jsonObject.put("NAME",jsonObject.get("name"));
+                    jsonObject.put("AMOUNT","1");
+                    itemMap.put(count+i,jsonObject);
                 }
-                mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, false);
+
+                initDataNew();
 
             } catch (JSONException e) {
                 e.printStackTrace();
