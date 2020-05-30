@@ -7,9 +7,5 @@
         android:icon="@drawable/ic_menu_add"
         android:title="New"
         app:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:icon="@mipmap/ic_launcher"
-        app:showAsAction="never"/>
+
 </menu>

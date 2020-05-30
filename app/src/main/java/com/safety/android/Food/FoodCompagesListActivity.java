@@ -251,7 +251,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+"&combination=0"+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -388,7 +388,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
             String cSearch="";
             if(search!=null&&!search.equals(""))
                 cSearch=search;
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+"&combination=0"+cSearch);
         }
 
 
@@ -501,7 +501,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;</span>&nbsp;&nbsp;<span><font color='red' size='20'>库存:" + storage + "</font>"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
         return s;
     }
 

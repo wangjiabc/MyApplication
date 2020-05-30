@@ -163,7 +163,7 @@ public class FoodListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
+       List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
 
         Iterator<PermissionInfo> iterator=list.iterator();
 
@@ -246,25 +246,37 @@ public class FoodListActivity extends AppCompatActivity {
                 final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
                 layout_validate.removeAllViews();
                 final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-                for(int i=1;i<itemMap.size();i++){
+
+                int i=0;
+                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                     Map<String,Object> map = new HashMap<String, Object>();
-                    View validateItem = inflater.inflate(
-                            R.layout.item_validate_enter, null);
+                    View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
                     validateItem.setTag(i);
                     layout_validate.addView(validateItem);
                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                    map.put("name", tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                    map.put("value", et_validate);
-                    System.out.println("i==========="+i);
-                    JSONObject j=itemMap.get(i);
-                    MyTestUtil.print(j);
+                    TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                    JSONObject jsonObject=sMap.getValue();
+                    try {
+                        tv_validateName.setText(jsonObject.getString("name"));
+                        et_validate.setText(jsonObject.getString("cost"));
+                        if(!isCost) {
+                            et_validateText.setVisibility(View.GONE);
+                            et_validate.setVisibility(View.GONE);
+                        }
+                        map.put("id",jsonObject.getInt("id"));
+                        map.put("name", tv_validateName);
+                        map.put("value", et_validate);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                        tv_validateName.setText("aaaaaaaaaaa");
 
                     list.add(map);
+                    i++;
                 }
-                AlertDialog dialog = new AlertDialog.Builder(this).setTitle("填写入群信息：")
+
+                AlertDialog dialog = new AlertDialog.Builder(this).setTitle("批量添加库存")
                         .setView(validateView)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener()
                         {
@@ -273,11 +285,14 @@ public class FoodListActivity extends AppCompatActivity {
                             {
                                 StringBuffer stringBuffer = new StringBuffer();
                                 for(int i=0;i<list.size();i++){
+                                    int id= (int) list.get(i).get("id");
                                     String name = ((TextView)list.get(i).get("name")).getText().toString();
                                     String value = ((EditText)list.get(i).get("value")).getText().toString();
-                                    stringBuffer.append(name+value+",");
+                                    stringBuffer.append(id+"  "+name+"  "+value+",");
                                 }
-                               
+
+                                System.out.println(stringBuffer);
+
                                 dialog.dismiss();
                             }
 
@@ -475,11 +490,76 @@ public class FoodListActivity extends AppCompatActivity {
                         new AlertDialog.Builder(FoodListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                .setNeutralButton("添加库存", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(FoodListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+
                                         dialogInterface.dismiss();
+
+                                        LayoutInflater inflater = getLayoutInflater();
+                                        View validateView = inflater.inflate(
+                                                R.layout.dialog_validate, null);
+                                        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                                        layout_validate.removeAllViews();
+                                        final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+
+                                            Map<String,Object> map = new HashMap<String, Object>();
+                                            View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                                            validateItem.setTag(i);
+                                            layout_validate.addView(validateItem);
+                                            TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                                            EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                                            TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                                            try {
+                                                tv_validateName.setText(finalJsonObject.getString("name"));
+                                                et_validate.setText(finalJsonObject.getString("cost"));
+                                                if(!isCost) {
+                                                    et_validateText.setVisibility(View.GONE);
+                                                    et_validate.setVisibility(View.GONE);
+                                                }
+                                                map.put("id",finalJsonObject.getInt("id"));
+                                                map.put("name", tv_validateName);
+                                                map.put("value", et_validate);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+
+
+                                            list.add(map);
+
+
+                                        AlertDialog dialog = new AlertDialog.Builder(FoodListActivity.this).setTitle("添加库存")
+                                                .setView(validateView)
+                                                .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                                                {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which)
+                                                    {
+                                                        StringBuffer stringBuffer = new StringBuffer();
+                                                        for(int i=0;i<list.size();i++){
+                                                            int id= (int) list.get(i).get("id");
+                                                            String name = ((TextView)list.get(i).get("name")).getText().toString();
+                                                            String value = ((EditText)list.get(i).get("value")).getText().toString();
+                                                            stringBuffer.append(id+"  "+name+"  "+value+",");
+                                                        }
+
+                                                        System.out.println(stringBuffer);
+
+                                                        dialog.dismiss();
+                                                    }
+
+                                                }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                                                {
+
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which)
+                                                    {
+                                                        dialog.dismiss();
+                                                    }
+                                                }).create();
+                                        dialog.show();
+
                                     }
                                 })
                                 .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
@@ -723,7 +803,7 @@ public class FoodListActivity extends AppCompatActivity {
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;</span>&nbsp;&nbsp;<span><font color='red' size='20'>库存:" + storage + "</font>"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
         return s;
     }
 

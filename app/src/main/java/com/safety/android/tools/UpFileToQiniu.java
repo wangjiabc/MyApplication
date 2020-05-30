@@ -39,7 +39,7 @@ public class UpFileToQiniu {
                 UploadManager uploadManager=new UploadManager();
 
 
-                System.out.println("key========="+key+ "     token"+token);
+                System.out.println("key========="+key+ "     token===="+token);
 
                 File file=TakePictures.getFile();
 

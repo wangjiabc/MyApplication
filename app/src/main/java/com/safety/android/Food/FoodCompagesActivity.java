@@ -46,6 +46,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -115,9 +116,6 @@ public class FoodCompagesActivity extends AppCompatActivity {
                 if(id!=-1) {
                     position = jsonObject.getInt("position");
                     String name = jsonObject.getString("name");
-                    Double cost = jsonObject.getDouble("cost");
-                    Double retailprice = jsonObject.getDouble("retailprice");
-                    String remark = jsonObject.getString("remark");
                     String thisImg = jsonObject.getString("img");
                     if (thisImg != null)
                         updatePhotoView("http://qiniu.lzxlzc.com/" + thisImg);
@@ -138,6 +136,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
                         JSONObject jsonObject2=new JSONObject();
                         jsonObject2.put("order",order);
                         jsonObject2.put("NAME",jsonObject1.get("name"));
+                        jsonObject2.put("id",jsonObject1.getInt("id"));
                         jsonObject2.put("AMOUNT","1");
                         itemMap.put(order,jsonObject2);
 
@@ -285,24 +284,77 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                     final int n=holder.getAdapterPosition();
 
-                    new AlertDialog.Builder(FoodCompagesActivity.this)
-                            .setTitle("删除"+finalJsonObject.getString("NAME")+"?")
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    LayoutInflater inflater = getLayoutInflater();
+                    View validateView = inflater.inflate(
+                            R.layout.dialog_validate, null);
+                    final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                    layout_validate.removeAllViews();
+                    final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+
+                    Map<String,Object> map = new HashMap<String, Object>();
+                    View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                    validateItem.setTag(1);
+                    layout_validate.addView(validateItem);
+                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                    TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                    MyTestUtil.print(finalJsonObject);
+                    try {
+                        tv_validateName.setText(finalJsonObject.getString("NAME"));
+                        et_validate.setText(finalJsonObject.getString("AMOUNT"));
+
+                        map.put("id",finalJsonObject.getInt("id"));
+                        map.put("name", tv_validateName);
+                        map.put("value", et_validate);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    list.add(map);
+
+
+                    AlertDialog dialog = new AlertDialog.Builder(FoodCompagesActivity.this).setTitle("设置组合数量")
+                            .setView(validateView)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                            {
                                 @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                }
-                            }).setNegativeButton("删除", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        itemMap.remove(n);
-
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    StringBuffer stringBuffer = new StringBuffer();
+                                    for(int i=0;i<list.size();i++){
+                                        int id= (int) list.get(i).get("id");
+                                        String name = ((TextView)list.get(i).get("name")).getText().toString();
+                                        String value = ((EditText)list.get(i).get("value")).getText().toString();
+                                        int amount=Integer.parseInt(value);
+                                        try {
+                                            finalJsonObject.put("AMOUNT",amount);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        itemMap.put(n,finalJsonObject);
                                         initDataNew();
-
+                                        stringBuffer.append(id+"  "+name+"  "+value+",");
                                     }
-                    }).create().show();
 
-                }catch (ClassCastException | JSONException e){
+                                    System.out.println(stringBuffer);
+
+                                    dialog.dismiss();
+                                }
+
+                            }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                            {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    dialog.dismiss();
+                                }
+                            }).create();
+                    dialog.show();
+
+                }catch (ClassCastException e){
                     e.printStackTrace();
                     ((TextView) holder.itemView).setText("");
                 }
@@ -339,28 +391,76 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                     final int n=holder.getAdapterPosition();
 
-                    System.out.println("n======"+n);
+                    LayoutInflater inflater = getLayoutInflater();
+                    View validateView = inflater.inflate(
+                            R.layout.dialog_validate, null);
+                    final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                    layout_validate.removeAllViews();
+                    final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
-                    MyTestUtil.print(itemMap);
 
-                    new AlertDialog.Builder(FoodCompagesActivity.this)
-                            .setTitle("删除"+finalJsonObject.getString("NAME")+"?")
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    Map<String,Object> map = new HashMap<String, Object>();
+                    View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                    validateItem.setTag(1);
+                    layout_validate.addView(validateItem);
+                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                    TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                    try {
+                        tv_validateName.setText(finalJsonObject.getString("NAME"));
+                        et_validate.setText(finalJsonObject.getString("AMOUNT"));
+
+                        map.put("id",finalJsonObject.getInt("id"));
+                        map.put("name", tv_validateName);
+                        map.put("value", et_validate);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    list.add(map);
+
+
+                    AlertDialog dialog = new AlertDialog.Builder(FoodCompagesActivity.this).setTitle("设置组合数量")
+                            .setView(validateView)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                            {
                                 @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    StringBuffer stringBuffer = new StringBuffer();
+                                    for(int i=0;i<list.size();i++){
+                                        int id= (int) list.get(i).get("id");
+                                        String name = ((TextView)list.get(i).get("name")).getText().toString();
+                                        String value = ((EditText)list.get(i).get("value")).getText().toString();
+                                        int amount=Integer.parseInt(value);
+                                        try {
+                                            finalJsonObject.put("AMOUNT",amount);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        itemMap.put(n,finalJsonObject);
+                                        initDataNew();
+                                        stringBuffer.append(id+"  "+name+"  "+value+",");
+                                    }
+
+                                    System.out.println(stringBuffer);
+
+                                    dialog.dismiss();
                                 }
-                            }).setNegativeButton("删除", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            itemMap.remove(n);
 
-                            initDataNew();
+                            }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                            {
 
-                        }
-                    }).create().show();
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    dialog.dismiss();
+                                }
+                            }).create();
+                    dialog.show();
 
-                }catch (ClassCastException | JSONException e){
+                }catch (ClassCastException e){
                     e.printStackTrace();
                     ((TextView) holder.itemView).setText("");
                 }
@@ -540,6 +640,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
             jsonObject1.put("order",order);
+            jsonObject1.put("id",jsonObject1.getInt("MATERIAL_ID"));
             String s=StringToHtml(jsonObject1);
 
             itemMap.put(order,jsonObject1);

@@ -25,6 +25,15 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="LunchTheme" parent="AppTheme.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <!--下面这句如果你加上觉得好看就加，不好看就不加咯-->
+        <!--<item name="android:navigationBarColor">@color/transparent</item>-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@drawable/apple</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

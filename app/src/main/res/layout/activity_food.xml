@@ -60,7 +60,7 @@
                     android:gravity="center_vertical"
                     android:paddingLeft="@dimen/common_content_spacing"
                     android:paddingRight="@dimen/common_content_spacing"
-                    android:text="账号"
+                    android:text="商品名称"
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
                 <!--账号输入框-->
@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="fill"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:hint="请输入2到20位字符"
+                    android:hint=""
                     android:maxLength="20"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
@@ -83,7 +83,7 @@
                     android:gravity="center_vertical"
                     android:paddingLeft="@dimen/common_content_spacing"
                     android:paddingRight="@dimen/common_content_spacing"
-                    android:text="手机号"
+                    android:text="商品成本"
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
                 <!--手机号输入框-->
@@ -93,9 +93,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="fill"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:hint="请输入11位手机号"
-                    android:inputType="phone"
-                    android:maxLength="11"
+                    android:inputType="number"
+                    android:hint=""
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
                 <!--验证码-->
@@ -106,30 +105,22 @@
                     android:gravity="center_vertical"
                     android:paddingLeft="@dimen/common_content_spacing"
                     android:paddingRight="@dimen/common_content_spacing"
-                    android:text="验证码"
+                    android:text="商品价格"
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
-                <!--验证码输入框-->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="fill"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <!--验证码输入框-->
-                    <EditText
-                        android:id="@+id/food3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2"
-                        android:background="@drawable/qmui_divider_bottom_bitmap"
-                        android:hint="4位数字验证码"
-                        android:inputType="number"
-                        android:maxLength="4"
-                        android:textColor="?attr/qmui_config_color_gray_5"
-                        android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
 
-                </LinearLayout>
+                <EditText
+                    android:id="@+id/food3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:hint=""
+                    android:inputType="number"
+                    android:maxLength="40"
+                    android:textColor="?attr/qmui_config_color_gray_5"
+                    android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
+
                 <!--密码-->
                 <TextView
                     android:layout_width="wrap_content"
@@ -139,7 +130,7 @@
                     android:gravity="center_vertical"
                     android:paddingLeft="@dimen/common_content_spacing"
                     android:paddingRight="@dimen/common_content_spacing"
-                    android:text="密码"
+                    android:text="商品备注"
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
                 <!--密码输入框-->
@@ -149,9 +140,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="fill"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:hint="请输入6到20位密码"
-                    android:maxLength="20"
-                    android:inputType="number"
+                    android:hint=""
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
             </GridLayout>
