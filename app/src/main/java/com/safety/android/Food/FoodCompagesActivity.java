@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -182,13 +183,15 @@ public class FoodCompagesActivity extends AppCompatActivity {
             }
         });
 
-        foodButton=view.findViewById(R.id.food_button);
+        foodButton=view.findViewById(R.id.food_compages_button);
 
         foodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                new FetchItemsUpdateTask();
+                System.out.println("foddbout click");
+
+                new FetchItemsUpdateTask().execute();
 
             }
         });
@@ -557,25 +560,44 @@ public class FoodCompagesActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Void... params) {
 
-            JSONArray jsonArray=new JSONArray();
+
+            com.alibaba.fastjson.JSONArray jsonArray=new com.alibaba.fastjson.JSONArray();
+
+            int i=0;
 
             for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()) {
 
                 JSONObject jsonObject=map.getValue();
 
                 try {
-                    int id=jsonObject.getInt("id");
-                    jsonArray.put(id);
+                    jsonObject.put("number","1");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
+                com.alibaba.fastjson.JSONObject jsonObject1=new com.alibaba.fastjson.JSONObject();
+
+                try {
+                    jsonObject1.put("id",jsonObject.get("id"));
+                    jsonObject1.put("number",jsonObject.get("AMOUNT"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                jsonArray.add(jsonObject1);
+
+                i++;
             }
+
+            MyTestUtil.print(jsonArray);
 
             String value="";
 
-            if(jsonArray.length()>0)
-                value+="items="+jsonArray;
+            if(jsonArray.size()>0)
+                value+="items="+ Uri.encode(jsonArray.toJSONString());
+
+            System.out.println("jsonArray======"+jsonArray);
+            System.out.println("value=========="+value);
 
             if(id!=-1)
                 value+="&compagesId="+id;
@@ -585,7 +607,12 @@ public class FoodCompagesActivity extends AppCompatActivity {
             if(text1!=null&&!text1.equals(""))
                 value+="&compagesName="+text1;
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "food/material/compages?"+value);
+            if(img!=null&&!img.equals(""))
+                value+="&img="+img;
+
+            System.out.println("value======="+value);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/compages?"+value);
 
         }
 
@@ -593,7 +620,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
         protected void onPostExecute(String json) {
 
             JSONObject jsonObject = null;
-
+MyTestUtil.print(json);
             try {
 
                 jsonObject = new JSONObject(json);

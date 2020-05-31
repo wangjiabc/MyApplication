@@ -55,7 +55,7 @@ public class OKHttpFetch2 {
 
             String s=response.body().string();
 
-            System.out.println("response1==="+s);
+            //System.out.println("response1==="+s);
 
             JSONObject jsonObject=new JSONObject(s);
 

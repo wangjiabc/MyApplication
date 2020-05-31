@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -89,6 +90,7 @@ public class FoodListActivity extends AppCompatActivity {
 
     private boolean isCost=false;
 
+    private double allCost=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -267,12 +269,23 @@ public class FoodListActivity extends AppCompatActivity {
                         map.put("id",jsonObject.getInt("id"));
                         map.put("name", tv_validateName);
                         map.put("value", et_validate);
+                        map.put("combination",jsonObject.getInt("combination"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
 
                     list.add(map);
+
+                    tv_validateName.setText("进货数量");
+                    et_validate.setText("1");
+
+                    map.put("id",-1);
+                    map.put("name", tv_validateName);
+                    map.put("value", et_validate);
+
+                    list.add(map);
+
                     i++;
                 }
 
@@ -284,11 +297,31 @@ public class FoodListActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which)
                             {
                                 StringBuffer stringBuffer = new StringBuffer();
+                                JSONArray jsonArray=new JSONArray();
+                                int amount=0;
                                 for(int i=0;i<list.size();i++){
                                     int id= (int) list.get(i).get("id");
-                                    String name = ((TextView)list.get(i).get("name")).getText().toString();
-                                    String value = ((EditText)list.get(i).get("value")).getText().toString();
-                                    stringBuffer.append(id+"  "+name+"  "+value+",");
+                                    if(id!=-1) {
+                                        String name = ((TextView) list.get(i).get("name")).getText().toString();
+                                        String cost = ((EditText) list.get(i).get("value")).getText().toString();
+                                        int combination = (int) list.get(i).get("combination");
+                                        JSONObject jsonObject = new JSONObject();
+                                        try {
+                                            jsonObject.put("id",id);
+                                            jsonObject.put("name",name);
+                                            jsonObject.put("cost",cost);
+                                            jsonObject.put("combination",combination);
+                                            jsonArray.put(jsonObject);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }else{
+                                        amount= (int) list.get(i).get("value");
+                                    }
+                                    Map map=new HashMap();
+                                    map.put("jsonArray",jsonArray);
+                                    map.put("amount",amount);
+                                    new FetchItemsTaskAddStorage().execute(map);
                                 }
 
                                 System.out.println(stringBuffer);
@@ -536,15 +569,29 @@ public class FoodListActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which)
                                                     {
-                                                        StringBuffer stringBuffer = new StringBuffer();
-                                                        for(int i=0;i<list.size();i++){
-                                                            int id= (int) list.get(i).get("id");
-                                                            String name = ((TextView)list.get(i).get("name")).getText().toString();
-                                                            String value = ((EditText)list.get(i).get("value")).getText().toString();
-                                                            stringBuffer.append(id+"  "+name+"  "+value+",");
+                                                        JSONArray jsonArray=new JSONArray();
+                                                        int amount=0;
+                                                        int id= (int) list.get(0).get("id");
+                                                        String name = ((TextView) list.get(0).get("name")).getText().toString();
+                                                        String cost = ((EditText) list.get(0).get("value")).getText().toString();
+                                                        int combination = (int) list.get(0).get("combination");
+                                                        JSONObject jsonObject = new JSONObject();
+                                                        try {
+                                                            jsonObject.put("id",id);
+                                                            jsonObject.put("name",name);
+                                                            jsonObject.put("cost",cost);
+                                                            jsonObject.put("combination",combination);
+                                                            jsonArray.put(jsonObject);
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
                                                         }
 
-                                                        System.out.println(stringBuffer);
+                                                        amount= (int) list.get(1).get("value");
+
+                                                        Map map=new HashMap();
+                                                        map.put("jsonArray",jsonArray);
+                                                        map.put("amount",amount);
+                                                        new FetchItemsTaskAddStorage().execute(map);
 
                                                         dialog.dismiss();
                                                     }
@@ -690,6 +737,17 @@ public class FoodListActivity extends AppCompatActivity {
             String cSearch="";
             if(search!=null&&!search.equals(""))
                 cSearch=search;
+
+            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+cSearch);
+
+            try {
+                JSONObject jsonObject=new JSONObject(res);
+                JSONObject jsonObject1=jsonObject.getJSONObject("result");
+                allCost=jsonObject1.getDouble("ALLCOST");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
@@ -710,7 +768,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                     contents=addContents(contents,jsonObject);
 
-                    SectionHeader header = new SectionHeader("共"+total+"条");
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        总金额："+allCost);
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
 
                     list.add(section);
@@ -808,5 +866,41 @@ public class FoodListActivity extends AppCompatActivity {
     }
 
 
+    private class FetchItemsTaskAddStorage extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+            Map map=params[0];
+
+            JSONArray jsonArray= (JSONArray) map.get("jsonArray");
+
+            int amount= (int) map.get("amount");
+
+            String items=Uri.encode(jsonArray.toString());
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/food/material/storageAdd?items="+items+"&amount="+amount);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
 
 }

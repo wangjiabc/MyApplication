@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
@@ -240,7 +241,7 @@ public class login extends AppCompatActivity {
 
             JSONObject jsonObject = null;
 
-            System.out.println("token=="+token);
+            //System.out.println("token=="+token);
 
             try {
                 jsonObject = new JSONObject(json);
@@ -267,7 +268,7 @@ public class login extends AppCompatActivity {
                 }
 
                 for(int i=0;i<menuArray.length();i++){
-                    System.out.println(menuArray.getString(i));
+                    //System.out.println(menuArray.getString(i));
                     JSONObject jsonObject1=menuArray.getJSONObject(i);
                     try{
                         JSONArray menuArray1=jsonObject1.getJSONArray("children");
@@ -293,7 +294,7 @@ public class login extends AppCompatActivity {
 
                 Toast.makeText(login.this, "登录成功", Toast.LENGTH_SHORT).show();        //吐司界面，参数依次为提示发出Activity,提示内容,提示时长
 
-                Intent intent = new Intent(getApplication(), MainActivity.class);
+                Intent intent = new Intent(getApplication(), LunchActivity.class);
                 startActivity(intent);
 
             } catch (JSONException e) {

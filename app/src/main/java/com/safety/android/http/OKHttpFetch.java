@@ -164,13 +164,13 @@ public class OKHttpFetch {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
+           /* for (int i = 0; i < responseHeaders.size(); i++) {
                 System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-            }
+            }*/
 
             String s=response.body().string();
 
-            System.out.println("response1="+s);
+         //   System.out.println("response1="+s);
 
             JSONObject jsonObject=new JSONObject(s);
 

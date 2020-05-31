@@ -78,7 +78,7 @@
                     android:layout_weight="1" />
 
                 <Button
-                    android:id="@+id/food_button"
+                    android:id="@+id/food_compages_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="确定" />
