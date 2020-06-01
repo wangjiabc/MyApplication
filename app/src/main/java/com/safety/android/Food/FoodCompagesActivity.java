@@ -81,6 +81,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     private Button foodButton;
 
+    private boolean isEdit=false;
+
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
     private RecyclerView.LayoutManager mLayoutManager;
@@ -115,6 +117,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                 id=jsonObject.getInt("id");
                 if(id!=-1) {
+                    isEdit=true;
                     position = jsonObject.getInt("position");
                     String name = jsonObject.getString("name");
                     String thisImg = jsonObject.getString("img");
@@ -346,12 +349,14 @@ public class FoodCompagesActivity extends AppCompatActivity {
                                     dialog.dismiss();
                                 }
 
-                            }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                            }).setNegativeButton("删除", new DialogInterface.OnClickListener()
                             {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which)
                                 {
+                                    itemMap.remove(n);
+                                    initDataNew();
                                     dialog.dismiss();
                                 }
                             }).create();
@@ -620,7 +625,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
         protected void onPostExecute(String json) {
 
             JSONObject jsonObject = null;
-MyTestUtil.print(json);
+
             try {
 
                 jsonObject = new JSONObject(json);
@@ -637,9 +642,47 @@ MyTestUtil.print(json);
 
                     jsonObject1.put("name",text1);
 
+                    if(isEdit) {
+                        jsonObject1.put("type", 0);
+                        jsonObject1.put("position",position);
+                    }else {
+                        jsonObject1.put("type",1);
+                    }
+
                     if(img!=null) {
                         jsonObject1.put("img", img);
+                    }else{
+                        jsonObject1.put("img","");
                     }
+
+                    Integer storage=0;
+                    Double cost=0.0;
+                    Double retailprice=0.0;
+                    for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()) {
+
+                        JSONObject jsonObject11=map.getValue();
+
+                        try {
+                            jsonObject11.put("number","1");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            int amount=jsonObject11.getInt("AMOUNT");
+                             storage= jsonObject11.getInt("storage")/amount;
+                             cost+=jsonObject11.getDouble("cost")*amount;
+                            retailprice+=jsonObject11.getDouble("retailprice")*amount;
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    jsonObject1.put("storage",storage);
+                    jsonObject1.put("cost",cost);
+                    jsonObject1.put("retailprice",retailprice);
 
                     Intent intent = new Intent();
                     intent.putExtra("value", jsonObject1.toString());

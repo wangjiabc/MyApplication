@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity{
 
     public static String dataUrl="";
 
+    private static Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -331,6 +333,14 @@ public class MainActivity extends AppCompatActivity{
 
         }
 
+    }
+
+    /**
+     * 获取context
+     * @return
+     */
+    public static Context getContext(){
+        return mContext;
     }
 
 }

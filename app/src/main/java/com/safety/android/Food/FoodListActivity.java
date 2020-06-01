@@ -82,6 +82,8 @@ public class FoodListActivity extends AppCompatActivity {
 
     private String search="";
 
+    private String search2="";
+
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
     private Map<Integer,JSONObject> selectMap=new HashMap();
@@ -129,6 +131,7 @@ public class FoodListActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String queryText) {
 
                 search="&name=*"+queryText+"*";
+                search2="&name="+queryText;
                 mSearchView.clearFocus();
                 mPullRefreshLayout.finishRefresh();
                 page=1;
@@ -523,7 +526,7 @@ public class FoodListActivity extends AppCompatActivity {
                         new AlertDialog.Builder(FoodListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
-                                .setNeutralButton("添加库存", new DialogInterface.OnClickListener() {
+                                .setNegativeButton("添加库存", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -609,7 +612,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                                     }
                                 })
-                                .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
+                                .setNeutralButton("编辑", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -734,18 +737,27 @@ public class FoodListActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... params) {
-            String cSearch="";
-            if(search!=null&&!search.equals(""))
-                cSearch=search;
 
-            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+cSearch);
+            String aSearch="";
+            String cSearch="";
+
+            if(search!=null&&!search.equals("")) {
+                cSearch = search;
+                aSearch = search2;
+            }
+
+            System.out.println("aSearch===="+aSearch);
+
+            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+aSearch);
 
             try {
                 JSONObject jsonObject=new JSONObject(res);
                 JSONObject jsonObject1=jsonObject.getJSONObject("result");
                 allCost=jsonObject1.getDouble("ALLCOST");
+                System.out.println("allCost============"+allCost);
             } catch (JSONException e) {
                 e.printStackTrace();
+                allCost=0;
             }
 
             return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+cSearch);

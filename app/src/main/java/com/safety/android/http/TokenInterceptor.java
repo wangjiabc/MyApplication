@@ -2,9 +2,12 @@ package com.safety.android.http;
 
 
 import com.safety.android.MainActivity;
+import com.safety.android.SQLite3.UserInfo;
+import com.safety.android.SQLite3.UserLab;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -17,10 +20,19 @@ public class TokenInterceptor  implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
 
-        String token= MainActivity.token;
+        List<UserInfo> list= UserLab.get(MainActivity.getContext()).getUserInfo();
 
-        if(token==null||token.equals("")){
-            token=login.token;
+        String token="";
+
+        try {
+            if(list.size()>0) {
+                UserInfo userInfo = list.get(0);
+                token = userInfo.getToken();
+            }else {
+
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
 
         System.out.println("token================"+token);
