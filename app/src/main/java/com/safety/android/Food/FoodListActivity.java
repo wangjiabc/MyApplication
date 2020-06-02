@@ -280,17 +280,26 @@ public class FoodListActivity extends AppCompatActivity {
 
                     list.add(map);
 
-                    tv_validateName.setText("进货数量");
-                    et_validate.setText("1");
-
-                    map.put("id",-1);
-                    map.put("name", tv_validateName);
-                    map.put("value", et_validate);
-
-                    list.add(map);
-
                     i++;
                 }
+
+                View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                validateItem.setTag(i);
+                layout_validate.addView(validateItem);
+                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+
+                tv_validateName.setText("进货数量");
+                et_validateText.setText("");
+                et_validate.setText("1");
+
+                Map<String,Object> map0 = new HashMap<String, Object>();
+                map0.put("id",-1);
+                map0.put("name", tv_validateName);
+                map0.put("value", et_validate);
+
+                list.add(map0);
 
                 AlertDialog dialog = new AlertDialog.Builder(this).setTitle("批量添加库存")
                         .setView(validateView)
@@ -319,7 +328,8 @@ public class FoodListActivity extends AppCompatActivity {
                                             e.printStackTrace();
                                         }
                                     }else{
-                                        amount= (int) list.get(i).get("value");
+                                        String amountString= ((EditText) list.get(i).get("value")).getText().toString();
+                                        amount=Integer.parseInt(amountString);
                                     }
                                     Map map=new HashMap();
                                     map.put("jsonArray",jsonArray);
@@ -365,6 +375,40 @@ public class FoodListActivity extends AppCompatActivity {
 
                 break;
             case Menu.FIRST + 3:
+
+                String delName="";
+
+                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                    JSONObject json = sMap.getValue();
+                    try {
+                        delName+=json.getString("name")+",";
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                new AlertDialog.Builder(FoodListActivity.this)
+                        .setTitle("删除"+delName.substring(0,delName.length()-1)+"?")
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(FoodListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                new FetchItemsTaskDel().execute();
+
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create()
+                        .show();
+
                 break;
             case R.id.menu_item_add:
                 Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
@@ -540,13 +584,13 @@ public class FoodListActivity extends AppCompatActivity {
                                         final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
 
-                                            Map<String,Object> map = new HashMap<String, Object>();
                                             View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
-                                            validateItem.setTag(i);
+                                            validateItem.setTag(0);
                                             layout_validate.addView(validateItem);
                                             TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                                             EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                                             TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                                            Map<String,Object> map = new HashMap<String, Object>();
                                             try {
                                                 tv_validateName.setText(finalJsonObject.getString("name"));
                                                 et_validate.setText(finalJsonObject.getString("cost"));
@@ -557,6 +601,7 @@ public class FoodListActivity extends AppCompatActivity {
                                                 map.put("id",finalJsonObject.getInt("id"));
                                                 map.put("name", tv_validateName);
                                                 map.put("value", et_validate);
+                                                map.put("combination",finalJsonObject.getInt("combination"));
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
@@ -564,6 +609,21 @@ public class FoodListActivity extends AppCompatActivity {
 
                                             list.add(map);
 
+                                        View validateItem2 = inflater.inflate(R.layout.item_validate_enter, null);
+                                        validateItem2.setTag(1);
+                                        layout_validate.addView(validateItem2);
+                                        TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
+                                        EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+                                        TextView et_validateText2=validateItem2.findViewById(R.id.et_validate_text);
+                                        Map<String,Object> map2 = new HashMap<String, Object>();
+                                        tv_validateName2.setText("数量");
+                                        et_validateText2.setText("");
+                                        et_validate2.setText("1");
+
+                                        map2.put("name", tv_validateName2);
+                                        map2.put("value", et_validate2);
+
+                                        list.add(map2);
 
                                         AlertDialog dialog = new AlertDialog.Builder(FoodListActivity.this).setTitle("添加库存")
                                                 .setView(validateView)
@@ -589,7 +649,8 @@ public class FoodListActivity extends AppCompatActivity {
                                                             e.printStackTrace();
                                                         }
 
-                                                        amount= (int) list.get(1).get("value");
+                                                        String amountString= ((EditText) list.get(1).get("value")).getText().toString();
+                                                        amount=Integer.parseInt(amountString);
 
                                                         Map map=new HashMap();
                                                         map.put("jsonArray",jsonArray);
@@ -903,6 +964,58 @@ public class FoodListActivity extends AppCompatActivity {
 
                     JSONObject jsonObject=new JSONObject(items);
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
+
+    private class FetchItemsTaskDel extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            JSONArray jsonArray=new JSONArray();
+
+            for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                JSONObject json = sMap.getValue();
+                try {
+                    jsonArray.put(json.getInt("id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String ids=Uri.encode(jsonArray.toString());
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/food/material/deleteBatch2?ids="+ids);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                    mSearchView.clearFocus();
+                    mPullRefreshLayout.finishRefresh();
+                    itemMap=new HashMap<>();
+                    selectMap=new HashMap<>();
+                    page=1;
+                    total=0;
+                    search="";
+                    initData();
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();

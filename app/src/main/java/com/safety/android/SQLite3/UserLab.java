@@ -77,7 +77,7 @@ public class UserLab {
         Cursor cursor=database.query(UserDbSchema.UserTable.NAME,
                 null,whereClause,
                 whereArgs,null,null,
-                "date");
+                "date DESC");
         return new UserInfoCusorWrapper(cursor);
     }
 

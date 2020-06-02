@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,8 +48,9 @@ public class login extends AppCompatActivity {
     private EditText mPassWord;
     private CheckBox mCheckbox;
 
-    String username=null;
+    public static String username=null;
     String password=null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,7 +243,19 @@ public class login extends AppCompatActivity {
 
             JSONObject jsonObject = null;
 
-            //System.out.println("token=="+token);
+            List<UserInfo> list= UserLab.get(MainActivity.getContext()).getUserInfo();
+
+            Iterator iterator=list.iterator();
+
+            while (iterator.hasNext()){
+                UserInfo userInfo= (UserInfo) iterator.next();
+                if(userInfo.getName().equals(username)){
+                    token=userInfo.getToken();
+                    System.out.println("username==="+username+"token=="+token);
+                    continue;
+                }
+            }
+
 
             try {
                 jsonObject = new JSONObject(json);

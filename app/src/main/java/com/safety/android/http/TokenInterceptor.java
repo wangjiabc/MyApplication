@@ -4,9 +4,11 @@ package com.safety.android.http;
 import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
+import com.safety.android.tools.MyTestUtil;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 import java.util.List;
 
 import okhttp3.Interceptor;
@@ -22,19 +24,34 @@ public class TokenInterceptor  implements Interceptor {
 
         List<UserInfo> list= UserLab.get(MainActivity.getContext()).getUserInfo();
 
+        System.out.println("tokeninterceptor list==================");
+        MyTestUtil.print(list);
+
         String token="";
 
-        try {
-            if(list.size()>0) {
-                UserInfo userInfo = list.get(0);
-                token = userInfo.getToken();
-            }else {
+        Iterator iterator=list.iterator();
 
+        if(login.username!=null&&!login.username.equals("")) {
+            while (iterator.hasNext()) {
+                UserInfo userInfo = (UserInfo) iterator.next();
+                if (userInfo.getName().equals(login.username)) {
+                    token = userInfo.getToken();
+                    System.out.println("username===" + login.username + "token==" + token);
+                    continue;
+                }
             }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        }else {
+            try {
+                if (list.size() > 0) {
+                    UserInfo userInfo = list.get(0);
+                    token = userInfo.getToken();
+                } else {
 
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         System.out.println("token================"+token);
 
         Request originalRequest = chain.request();

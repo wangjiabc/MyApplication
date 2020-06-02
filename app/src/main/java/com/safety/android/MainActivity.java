@@ -21,6 +21,7 @@ import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
+import com.safety.android.http.login;
 import com.safety.android.mqtt.connect.MqttClient;
 import com.safety.android.mqtt.event.MessageEvent;
 
@@ -34,6 +35,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -73,17 +75,28 @@ public class MainActivity extends AppCompatActivity{
 
         List<UserInfo> list= UserLab.get(getApplication()).getUserInfo();
 
-        try {
-            if(list.size()>0) {
-                UserInfo userInfo = list.get(0);
-                token = userInfo.getToken();
-                Log.d("user====",userInfo.toString());
-            }else {
+        Iterator iterator=list.iterator();
 
+        if(login.username!=null&&!login.username.equals("")) {
+            while (iterator.hasNext()) {
+                UserInfo userInfo = (UserInfo) iterator.next();
+                if (userInfo.getName().equals(login.username)) {
+                    token = userInfo.getToken();
+                    System.out.println("username===" + login.username + "token==" + token);
+                    continue;
+                }
             }
-        }catch (Exception e) {
+        }else {
+            try {
+                if (list.size() > 0) {
+                    UserInfo userInfo = list.get(0);
+                    token = userInfo.getToken();
+                } else {
 
-            e.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 

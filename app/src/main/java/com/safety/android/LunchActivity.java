@@ -82,7 +82,7 @@ public class LunchActivity extends AppCompatActivity {
 
             System.out.println("lunchtoken===="+token);
 
-            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/sys/user/getUserSectionInfoByToken?token="+token);
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/sys/user/getUserSectionInfoByToken");
         }
 
 
