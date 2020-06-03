@@ -263,10 +263,10 @@ public class login extends AppCompatActivity {
 
                 JSONObject jsonObject2=new JSONObject(result);
 
-                String allAuth=jsonObject2.getString("allAuth");
+                String auth=jsonObject2.getString("auth");
                 String menu=jsonObject2.getString("menu");
 
-                JSONArray authArray=new JSONArray(allAuth);
+                JSONArray authArray=new JSONArray(auth);
                 JSONArray menuArray=new JSONArray(menu);
 
                 PermissionLab.get(getApplicationContext()).delPermission();
@@ -277,7 +277,6 @@ public class login extends AppCompatActivity {
                     permissionInfo.setAction(jsonObject1.getString("action"));
                     permissionInfo.setDescribe(jsonObject1.getString("describe"));
                     permissionInfo.setType(jsonObject1.getInt("type"));
-                    permissionInfo.setStatus(jsonObject1.getInt("status"));
                     PermissionLab.get(getApplicationContext()).addPermission(permissionInfo);
                 }
 

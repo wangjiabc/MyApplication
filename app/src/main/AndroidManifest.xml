@@ -52,7 +52,7 @@
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.Asset.AssetListActivity"
+            android:name="com.safety.android.Sale.SaleActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
@@ -100,6 +100,11 @@
             android:name="com.safety.android.Food.FoodCompagesListActivity"
             android:label="添加组合商品"
             android:parentActivityName="com.safety.android.Food.FoodCompagesActivity" >
+        </activity>
+        <activity
+            android:name="com.safety.android.Sale.SaleListActivity"
+            android:label="销售/开单"
+            android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
     </application>
 

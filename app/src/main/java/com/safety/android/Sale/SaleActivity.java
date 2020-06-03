@@ -1,5 +1,6 @@
-package com.safety.android.Asset;
+package com.safety.android.Sale;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
@@ -8,36 +9,39 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
-import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
+import com.safety.android.tools.MyTestUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class AssetListActivity extends AppCompatActivity {
+public class SaleActivity extends AppCompatActivity {
 
-    //@BindView(R.id.topbar)
-    //QMUITopBar mTopBar;
-    //@BindView(R.id.listview_contact)
-    ListView mListView_contact;
-
-    QMUIPullRefreshLayout mPullRefreshLayout;
 
     QMUIStickySectionLayout mSectionLayout;
 
+    private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
     private RecyclerView.LayoutManager mLayoutManager;
     protected QMUIStickySectionAdapter<SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> mAdapter;
@@ -49,23 +53,64 @@ public class AssetListActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        //QMUIStatusBarHelper.translucent(this);
 
-        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.sale_activity, null);
 
-       // mListView_contact=view.findViewById(R.id.listview_contact);
-        mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
-        mSectionLayout=view.findViewById(R.id.section_layout);
-        //ButterKnife.bind(this, root);
-        //初始化状态栏
-        //initTopBar();
-        //初始化列表
-       // initListView();
+        Intent intent=getIntent();
 
-        initRefreshLayout();
-        initStickyLayout();
-        initData();
-      //  initListView();
+        String jsonString=intent.getStringExtra("jsonString");
+
+        if(jsonString!=null&&!jsonString.equals("")){
+            try {
+
+                JSONObject jsonObject = new JSONObject(jsonString);
+
+                JSONArray jsonArray=jsonObject.getJSONArray("ids");
+
+                System.out.println("jsonArray==============");
+                MyTestUtil.print(jsonArray);
+
+                LayoutInflater inflater = getLayoutInflater();
+                LinearLayout layout_validate = (LinearLayout) view.findViewById(R.id.layout_sale);
+                layout_validate.removeAllViews();
+                List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    int order=i+1;
+
+                    JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                    JSONObject jsonObject2=new JSONObject();
+                    jsonObject2.put("order",order);
+                    jsonObject2.put("NAME",jsonObject1.get("name"));
+                    jsonObject2.put("id",jsonObject1.getInt("id"));
+                    jsonObject2.put("AMOUNT","1");
+                    itemMap.put(order,jsonObject2);
+
+                    View validateItem = inflater.inflate(R.layout.sale_item, null);
+                    validateItem.setTag(i);
+                    layout_validate.addView(validateItem);
+                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.sale1);
+                    EditText et_validate = (EditText) validateItem.findViewById(R.id.sale2);
+                    TextView et_validateText=validateItem.findViewById(R.id.sale3);
+                    Map<String,Object> map = new HashMap<String, Object>();
+                    try {
+                        tv_validateName.setText(jsonObject1.getString("name"));
+                        et_validate.setText(jsonObject1.getString("cost"));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         setContentView(view);
 
     }
@@ -77,29 +122,6 @@ public class AssetListActivity extends AppCompatActivity {
     }
 
 
-    private void initRefreshLayout() {
-        mPullRefreshLayout.setOnPullListener(new QMUIPullRefreshLayout.OnPullListener() {
-            @Override
-            public void onMoveTarget(int offset) {
-
-            }
-
-            @Override
-            public void onMoveRefreshView(int offset) {
-
-            }
-
-            @Override
-            public void onRefresh() {
-                mPullRefreshLayout.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPullRefreshLayout.finishRefresh();
-                    }
-                }, 2000);
-            }
-        });
-    }
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {

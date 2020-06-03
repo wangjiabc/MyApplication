@@ -3,6 +3,7 @@ package com.safety.android;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -307,6 +308,9 @@ public class MainActivity extends AppCompatActivity{
                     JSONObject jsonObject=new JSONObject(items);
                     token=null;
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(getApplication(), login.class);
+                    startActivity(intent);
 
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -16,9 +16,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.myapplication.R;
-import com.safety.android.Asset.AssetListActivity;
-import com.safety.android.HiddenCheck.HiddenCheckListActivity;
 import com.safety.android.Food.FoodListActivity;
+import com.safety.android.HiddenCheck.HiddenCheckListActivity;
 import com.safety.android.LocalFile.SdCard;
 import com.safety.android.Message.Chat2Activity;
 import com.safety.android.PhotoGallery.PhotoGalleryActivity;
@@ -28,6 +27,7 @@ import com.safety.android.SQLite3.SafeInfo;
 import com.safety.android.SQLite3.SafeLab;
 import com.safety.android.SafeList.SafeListActivity;
 import com.safety.android.SafeList.SafePagerActivity;
+import com.safety.android.Sale.SaleListActivity;
 import com.safety.android.util.phone;
 
 import java.util.ArrayList;
@@ -196,13 +196,8 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*
-                        dialog = new AlertDialog.Builder(v.getContext()).setTitle("多选对话框")
-                                .setNegativeButton("取消", null).setPositiveButton("确定", null)
-                                .create();
-                        dialog.show();
-                        */
-                        Intent intent=new Intent(getActivity(), HiddenCheckListActivity.class);
+
+                        Intent intent=new Intent(getActivity(), SaleListActivity.class);
                         startActivity(intent);
                     }
                 };
@@ -212,7 +207,8 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent=new Intent(getActivity(), AssetListActivity.class);
+
+                        Intent intent=new Intent(getActivity(), HiddenCheckListActivity.class);
                         startActivity(intent);
 
                     }
