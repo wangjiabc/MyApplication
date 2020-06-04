@@ -208,13 +208,13 @@ public class FoodListActivity extends AppCompatActivity {
         }
 
         if(storageAdd)
-            menu.add(Menu.NONE, Menu.FIRST + 1, 1, "添加库存").setIcon(android.R.drawable.ic_menu_edit);
+            menu.add(Menu.NONE, Menu.FIRST + 1, 1, "添加库存").setIcon(android.R.drawable.ic_input_add);
 
         if(compages)
-            menu.add(Menu.NONE, Menu.FIRST + 2, 2, "组合商品").setIcon(android.R.drawable.ic_menu_edit);
+            menu.add(Menu.NONE, Menu.FIRST + 2, 2, "组合商品").setIcon(android.R.drawable.ic_menu_manage);
 
         if(delete)
-            menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_menu_edit);
+            menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_delete);
 
         return true;
 

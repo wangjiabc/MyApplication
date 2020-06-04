@@ -150,10 +150,11 @@ public class MainActivity extends AppCompatActivity{
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "修改密码").setIcon(android.R.drawable.ic_menu_delete);
+        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "修改密码").setIcon(android.R.drawable.ic_lock_lock);
         // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
         // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
-        menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_menu_edit);
+        menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_lock_power_off);
+        menu.add(Menu.NONE, Menu.FIRST + 3, 3, "关于").setIcon(android.R.drawable.ic_menu_info_details);
         return true;
     }
 
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity{
 
                 Map<String,Object> map = new HashMap<String, Object>();
                 View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
-                validateItem.setTag(1);
+                validateItem.setTag(0);
                 layout_validate.addView(validateItem);
                 TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                 EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
@@ -188,19 +189,35 @@ public class MainActivity extends AppCompatActivity{
 
                 list.add(map);
 
-                tv_validateName.setText("新密码");
+                Map<String,Object> map2 = new HashMap<String, Object>();
+                View validateItem2 = inflater.inflate(R.layout.item_validate_enter2, null);
+                validateItem2.setTag(1);
+                layout_validate.addView(validateItem);
+                TextView tv_validateName2 = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                EditText et_validate2 = (EditText) validateItem.findViewById(R.id.et_validate);
+                TextView et_validateText2=validateItem.findViewById(R.id.et_validate_text);
 
-                map.put("name", tv_validateName);
-                map.put("value", et_validate);
+                tv_validateName2.setText("新密码");
 
-                list.add(map);
+                map2.put("name", tv_validateName2);
+                map2.put("value", et_validate2);
 
-                tv_validateName.setText("确认新密码");
+                list.add(map2);
 
-                map.put("name", tv_validateName);
-                map.put("value", et_validate);
+                Map<String,Object> map3 = new HashMap<String, Object>();
+                View validateItem3 = inflater.inflate(R.layout.item_validate_enter2, null);
+                validateItem3.setTag(2);
+                layout_validate.addView(validateItem3);
+                TextView tv_validateName3 = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                EditText et_validate3 = (EditText) validateItem.findViewById(R.id.et_validate);
+                TextView et_validateText3=validateItem.findViewById(R.id.et_validate_text);
 
-                list.add(map);
+                tv_validateName3.setText("确认新密码");
+
+                map.put("name", tv_validateName3);
+                map.put("value", et_validate3);
+
+                list.add(map3);
 
 
                 AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setTitle("设置组合数量")
@@ -218,9 +235,9 @@ public class MainActivity extends AppCompatActivity{
 
                                 String oldpassword = ((EditText)list.get(0).get("value")).getText().toString();
 
-                                String password = ((EditText)list.get(0).get("value")).getText().toString();
+                                String password = ((EditText)list.get(1).get("value")).getText().toString();
 
-                                String confirmpassword = ((EditText)list.get(0).get("value")).getText().toString();
+                                String confirmpassword = ((EditText)list.get(2).get("value")).getText().toString();
 
                                 JSONObject jsonObject=new JSONObject();
 
