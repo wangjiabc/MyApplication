@@ -21,30 +21,36 @@
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/qmui_config_color_white"
-                android:columnCount="4"
-                android:focusable="true"
-                android:focusableInTouchMode="true">
+                android:columnCount="1"
+                android:useDefaultMargins="true">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1">
             <!--账号-->
             <TextView
                 android:id="@+id/sale1"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/qmui_list_item_height"
                 android:layout_gravity="fill_horizontal"
-                android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                android:background="@drawable/qmui_divider_bottom_bitmap"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/common_content_spacing"
-                android:paddingRight="@dimen/common_content_spacing"
+                android:layout_weight="1"
                 android:text="商品名称"
+                android:maxLength="4"
                 android:textColor="?attr/qmui_config_color_gray_1"
                 android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
             <!--账号输入框-->
             <EditText
                 android:id="@+id/sale2"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="fill"
-                android:background="@drawable/qmui_divider_bottom_bitmap"
+                android:layout_height="@dimen/qmui_list_item_height"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                android:layout_marginRight="@dimen/common_content_spacing"
+                android:layout_marginLeft="@dimen/common_content_spacing"
                 android:hint=""
                 android:maxLength="20"
                 android:textColor="?attr/qmui_config_color_gray_5"
@@ -52,23 +58,27 @@
                 <EditText
                     android:id="@+id/sale3"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="fill"
-                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                    android:layout_marginRight="@dimen/common_content_spacing"
                     android:hint=""
                     android:maxLength="20"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
-                <EditText
-                    android:id="@+id/sale4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="fill"
-                    android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:hint=""
-                    android:maxLength="20"
-                    android:textColor="?attr/qmui_config_color_gray_5"
-                    android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
+                    <TextView
+                        android:id="@+id/sale4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="fill_horizontal"
+                        android:background="@drawable/qmui_divider_bottom_bitmap"
+                        android:gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:text=""
+                        android:textColor="?attr/qmui_config_color_gray_1"
+                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                </LinearLayout>
             </GridLayout>
 
         </LinearLayout>

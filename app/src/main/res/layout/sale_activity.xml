@@ -64,6 +64,7 @@
                     android:paddingLeft="@dimen/common_content_spacing"
                     android:paddingRight="@dimen/common_content_spacing"
                     android:text="商品名称"
+                    android:maxLength="4"
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size"
 
@@ -102,6 +103,7 @@
                     android:paddingLeft="@dimen/common_content_spacing"
                     android:paddingRight="@dimen/common_content_spacing"
                     android:text="总价"
+                    android:maxLength="2"
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
             </LinearLayout>
@@ -134,6 +136,74 @@
 
 
             </LinearLayout>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="1"
+                android:useDefaultMargins="true">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                        android:gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:paddingLeft="@dimen/common_content_spacing"
+                        android:paddingRight="@dimen/common_content_spacing"
+                        android:text="总计"
+                        android:maxLength="4"
+                        android:textColor="?attr/qmui_config_color_gray_1"
+                        android:textSize="?attr/qmui_common_list_item_title_h_text_size"
+
+                        />
+                    <TextView
+                        android:id="@+id/saleall2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                        android:gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:paddingLeft="@dimen/common_content_spacing"
+                        android:paddingRight="@dimen/common_content_spacing"
+                        android:text=""
+                        android:textColor="?attr/qmui_config_color_gray_1"
+                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                    <TextView
+                        android:id="@+id/saleall3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                        android:gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:paddingLeft="@dimen/common_content_spacing"
+                        android:paddingRight="@dimen/common_content_spacing"
+                        android:text=""
+                        android:textColor="?attr/qmui_config_color_gray_1"
+                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                    <TextView
+                        android:id="@+id/saleall4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
+                        android:gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:paddingLeft="@dimen/common_content_spacing"
+                        android:paddingRight="@dimen/common_content_spacing"
+                        android:text=""
+                        android:textColor="?attr/qmui_config_color_gray_1"
+                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                </LinearLayout>
+            </GridLayout>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
