@@ -1,6 +1,7 @@
 package com.safety.android.Sale;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -11,16 +12,18 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.section.QMUISection;
-import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
-import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.qmuidemo.view.QDListSectionAdapter;
+import com.safety.android.http.FlickrFetch;
+import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
@@ -37,20 +40,13 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class SaleActivity extends AppCompatActivity {
 
-
-    QMUIStickySectionLayout mSectionLayout;
-
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
-    private RecyclerView.LayoutManager mLayoutManager;
-    protected QMUIStickySectionAdapter<SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> mAdapter;
-
-    private int page=0;
+    private Spinner spinner;
+    private ArrayAdapter<String> adapter;
 
     private TextView saleall2;
     private TextView saleall3;
@@ -242,10 +238,25 @@ public class SaleActivity extends AppCompatActivity {
 
         }
 
+        view = (TextView) findViewById(R.id.spinnerText);
+        spinner = (Spinner) findViewById(R.id.Spinner01);
+
+
         setContentView(view);
 
     }
 
+    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            System.out.println("arg2="+arg2);
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
+    }
 
     void calculatePrice(List<Map<String,Object>> list){
 
@@ -295,87 +306,66 @@ public class SaleActivity extends AppCompatActivity {
 
     }
 
-    protected QMUIStickySectionAdapter<
-            SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter();
-    }
 
-    protected RecyclerView.LayoutManager createLayoutManager() {
-       /* final GridLayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 3);
-        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int i) {
-                return mAdapter.getItemIndex(i) < 0 ? layoutManager.getSpanCount() : 1;
-            }
-        });*/
+    private class FetchItemsTask extends AsyncTask<Void,Void,String> {
 
-        final LinearLayoutManager layoutManager =new LinearLayoutManager(getApplicationContext()) {
-            @Override
-            public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-                return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-            }
-        };
+        @Override
+        protected String doInBackground(Void... params) {
 
-        return layoutManager;
-    }
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/supplier/supplier/selectGroupUser");
 
-    protected void initStickyLayout() {
-        mLayoutManager = createLayoutManager();
-        mSectionLayout.setLayoutManager(mLayoutManager);
-    }
-
-    private void initData() {
-        mAdapter = createAdapter();
-        mAdapter.setCallback(new QMUIStickySectionAdapter.Callback<SectionHeader, SectionItem>() {
-            @Override
-            public void loadMore(final QMUISection<SectionHeader, SectionItem> section, final boolean loadMoreBefore) {
-
-            }
-
-            @Override
-            public void onItemClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
-                try {
-                    String text = (String) ((TextView) holder.itemView).getText();
-
-                    //holder.itemView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.qmui_config_color_gray_4));
-                    final Spanned sp = Html.fromHtml("<font color='red' size='20'>" + text + "</font>", null, null);
-                    ((TextView) holder.itemView).setText(sp);
-                    Log.d("ddddddddd", "onItemClick: " + text + "  " + holder.getAdapterPosition());
-                }catch (java.lang.ClassCastException e){
-
-                    ((TextView) holder.itemView).setText("");
-                }
-            }
-
-            @Override
-            public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-        mSectionLayout.setAdapter(mAdapter, true);
-        ArrayList<QMUISection<SectionHeader, SectionItem>> list = new ArrayList<>();
-        /*for (int i = 0; i < 1; i++) {
-            list.add(createSection("header " + i, false,i));
-        }*/
-
-        ArrayList<SectionItem> contents = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-
-            contents.add(new SectionItem("qmuiFloatLayout"+(i+page*10)));
-            Log.d("aaaa", "createSection: "+i);
         }
-        page++;
-        SectionHeader header = new SectionHeader("1");
-        QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
-        // if test load more, you can open the code
-        section.setExistAfterDataToLoad(true);
 
-        list.add(section);
 
-        mAdapter.setData(list);
+        @Override
+        protected void onPostExecute(String json) {
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(json);
+                String success = jsonObject.optString("success", null);
+
+                if(success.equals("true")){
+
+                    JSONArray jsonArray=jsonObject.getJSONArray("result");
+
+                    String[] m=new String[jsonArray.length()];
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+
+                        JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+
+                        String name=jsonObject1.getString("SUPPLIER");
+
+                        m[i]=name;
+
+                    }
+
+                    //将可选内容与ArrayAdapter连接起来
+                    adapter = new ArrayAdapter<String>(SaleActivity.this,android.R.layout.simple_spinner_item,m);
+
+                    //设置下拉列表的风格
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                    //将adapter 添加到spinner中
+                    spinner.setAdapter(adapter);
+
+                    //添加事件Spinner事件监听
+                    spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                    //设置默认值
+                    spinner.setVisibility(View.VISIBLE);
+
+
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 
 
