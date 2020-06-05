@@ -25,6 +25,7 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.http.login;
 import com.safety.android.mqtt.connect.MqttClient;
 import com.safety.android.mqtt.event.MessageEvent;
+import com.safety.android.tools.MyTestUtil;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
@@ -182,6 +183,7 @@ public class MainActivity extends AppCompatActivity{
                 TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                 EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                 TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                et_validateText.setText("");
 
                 tv_validateName.setText("原密码");
 
@@ -193,10 +195,11 @@ public class MainActivity extends AppCompatActivity{
                 Map<String,Object> map2 = new HashMap<String, Object>();
                 View validateItem2 = inflater.inflate(R.layout.item_validate_enter2, null);
                 validateItem2.setTag(1);
-                layout_validate.addView(validateItem);
-                TextView tv_validateName2 = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                EditText et_validate2 = (EditText) validateItem.findViewById(R.id.et_validate);
-                TextView et_validateText2=validateItem.findViewById(R.id.et_validate_text);
+                layout_validate.addView(validateItem2);
+                TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
+                EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+                TextView et_validateText2=validateItem2.findViewById(R.id.et_validate_text);
+                et_validateText2.setText("");
 
                 tv_validateName2.setText("新密码");
 
@@ -209,19 +212,20 @@ public class MainActivity extends AppCompatActivity{
                 View validateItem3 = inflater.inflate(R.layout.item_validate_enter2, null);
                 validateItem3.setTag(2);
                 layout_validate.addView(validateItem3);
-                TextView tv_validateName3 = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                EditText et_validate3 = (EditText) validateItem.findViewById(R.id.et_validate);
-                TextView et_validateText3=validateItem.findViewById(R.id.et_validate_text);
+                TextView tv_validateName3 = (TextView) validateItem3.findViewById(R.id.tv_validateName);
+                EditText et_validate3 = (EditText) validateItem3.findViewById(R.id.et_validate);
+                TextView et_validateText3=validateItem3.findViewById(R.id.et_validate_text);
+                et_validateText3.setText("");
 
                 tv_validateName3.setText("确认新密码");
 
-                map.put("name", tv_validateName3);
-                map.put("value", et_validate3);
+                map3.put("name", tv_validateName3);
+                map3.put("value", et_validate3);
 
                 list.add(map3);
 
 
-                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setTitle("设置组合数量")
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setTitle("修改密码")
                         .setView(validateView)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener()
                         {
@@ -231,6 +235,8 @@ public class MainActivity extends AppCompatActivity{
                                 StringBuffer stringBuffer = new StringBuffer();
 
                                 Map sysUser=LunchActivity.sysUser;
+
+                                MyTestUtil.print(list);
 
                                 String username= (String) sysUser.get("sysUserName");
 
@@ -346,7 +352,7 @@ public class MainActivity extends AppCompatActivity{
         @Override
         protected String doInBackground(org.json.JSONObject... params) {
 
-            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/sys/user/updatePassword",params[0],"PUT");
+            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/sys/user/updatePassword",params[0],"put");
         }
 
 

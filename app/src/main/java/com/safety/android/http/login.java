@@ -173,11 +173,11 @@ public class login extends AppCompatActivity {
 
                     String result=jsonObject.getString("result");
 
-                    JSONObject jsonObject2=new JSONObject(result);
-
-                    token=jsonObject2.getString("token");
-
                     if(message.equals("登录成功")) {
+
+                        JSONObject jsonObject2=new JSONObject(result);
+
+                        token=jsonObject2.getString("token");
 
                         if (mCheckbox.isChecked()) {
 
@@ -233,7 +233,8 @@ public class login extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... params) {
-            String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/sys/permission/getUserPermissionByToken?token="+token);
+            //String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/sys/permission/getUserPermissionByToken?token="+token);
+            String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/sys/permission/getUserPermissionByName?username="+username);
             return json;
         }
 

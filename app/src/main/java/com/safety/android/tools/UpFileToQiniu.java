@@ -60,7 +60,7 @@ public class UpFileToQiniu {
 
                 try {
                     //new PictureCompressUtil().compressByQuality(file.getPath(),file.getPath()+"compress",60);
-                    new PictureCompressUtil().compressBySampleSize(file.getPath(),file.getPath()+"compress",50,40);
+                    new PictureCompressUtil().compressBySampleSize(file.getPath(),file.getPath()+"compress",360,240);
                     uploadManager.put(file.getPath()+"compress", "compress/"+key, token,
                             new UpCompletionHandler() {
                                 @Override

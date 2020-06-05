@@ -4,28 +4,21 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.Html;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.myapplication.R;
-import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.SectionHeader;
-import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
@@ -33,7 +26,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,21 +43,37 @@ public class SaleActivity extends AppCompatActivity {
     private Spinner spinner;
     private ArrayAdapter<String> adapter;
 
+    private TextView sale_title;
     private TextView saleall2;
     private TextView saleall3;
     private TextView saleall4;
+
+    private JSONArray jsonArray;
+
+    private TextView phoneNum;
+    private TextView orderNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.sale_activity, null);
 
+        sale_title=view.findViewById(R.id.sale_title);
         saleall2=view.findViewById(R.id.saleall2);
         saleall3=view.findViewById(R.id.saleall3);
         saleall4=view.findViewById(R.id.saleall4);
+
+        phoneNum=view.findViewById(R.id.phoneNum);
+        orderNumber=view.findViewById(R.id.orderNumber);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");//设置日期格式
+        String newsNo = df.format(new Date())+String.valueOf((int)(Math.random()*9+1)*1000);
+
+        orderNumber.setText(newsNo);
 
         Intent intent=getIntent();
 
@@ -238,24 +249,12 @@ public class SaleActivity extends AppCompatActivity {
 
         }
 
-        view = (TextView) findViewById(R.id.spinnerText);
-        spinner = (Spinner) findViewById(R.id.Spinner01);
+        spinner = (Spinner) view.findViewById(R.id.Spinner01);
 
+        new FetchItemsTask().execute();
 
         setContentView(view);
 
-    }
-
-    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
-
-        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
-
-            System.out.println("arg2="+arg2);
-
-        }
-
-        public void onNothingSelected(AdapterView<?> arg0) {
-        }
     }
 
     void calculatePrice(List<Map<String,Object>> list){
@@ -288,7 +287,7 @@ public class SaleActivity extends AppCompatActivity {
 
             allCount+=amount;
 
-            totalAllPrice+=allPrice*allCount;
+            totalAllPrice+=price*amount;
 
         }
 
@@ -327,7 +326,7 @@ public class SaleActivity extends AppCompatActivity {
 
                 if(success.equals("true")){
 
-                    JSONArray jsonArray=jsonObject.getJSONArray("result");
+                    jsonArray=jsonObject.getJSONArray("result");
 
                     String[] m=new String[jsonArray.length()];
 
@@ -336,6 +335,11 @@ public class SaleActivity extends AppCompatActivity {
                         JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
 
                         String name=jsonObject1.getString("SUPPLIER");
+
+                        if(jsonObject1.getString("EMAIL")!=null&&!jsonObject1.getString("EMAIL").equals("null")) {
+                            System.out.println("email======="+jsonObject1.getString("EMAIL"));
+                            sale_title.setText(jsonObject1.getString("EMAIL") + "销售单");
+                        }
 
                         m[i]=name;
 
@@ -369,5 +373,26 @@ public class SaleActivity extends AppCompatActivity {
     }
 
 
+    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            System.out.println("arg2="+arg2);
+
+            try {
+
+                JSONObject jsonObject = (JSONObject) jsonArray.get(arg2);
+
+                phoneNum.setText(jsonObject.getString("PHONENUM"));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
+    }
 
 }

@@ -27,6 +27,8 @@ public class LunchActivity extends AppCompatActivity {
 
     public String token;
 
+    public String username;
+
     public static Map sysUser=null;
 
     @Override
@@ -39,6 +41,7 @@ public class LunchActivity extends AppCompatActivity {
             if(list.size()>0) {
                 UserInfo userInfo = list.get(0);
                 token = userInfo.getToken();
+                username=userInfo.getName();
                 Log.d("user====",userInfo.toString());
             }else {
 
@@ -82,7 +85,8 @@ public class LunchActivity extends AppCompatActivity {
 
             System.out.println("lunchtoken===="+token);
 
-            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/sys/user/getUserSectionInfoByToken");
+            //return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/sys/user/getUserSectionInfoByToken");
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/sys/user/getUserSectionInfoByName?username="+username);
         }
 
 
