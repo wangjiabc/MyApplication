@@ -69,11 +69,13 @@ public class HtmlImageGetter implements ImageGetter{
             setDrawable(defaultDraw);
         }
         private void setDrawable(Drawable ndrawable){
+            if(ndrawable!=null){
             drawable = ndrawable;
             drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable
                     .getIntrinsicHeight());
             setBounds(0, 0, drawable.getIntrinsicWidth(), drawable
                     .getIntrinsicHeight());
+            }
         }
         @Override
         public void draw(Canvas canvas) {
