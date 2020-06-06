@@ -1,19 +1,18 @@
-package com.safety.android.Sale;
+package com.safety.android.AccountheadList;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,20 +24,18 @@ import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
+import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,9 +49,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.safety.android.MainActivity.dataUrl;
+/**
+ * Created by WangJing on 2018/5/15.
+ */
 
-public class SaleListActivity extends AppCompatActivity {
+public class AccountheadListActivity extends AppCompatActivity {
 
     QMUIPullRefreshLayout mPullRefreshLayout;
 
@@ -87,7 +86,7 @@ public class SaleListActivity extends AppCompatActivity {
 
     private boolean isCost=false;
 
-    private double allCost=0;
+    private double allAccount=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +124,7 @@ public class SaleListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String queryText) {
 
-                search="&name=*"+queryText+"*";
+                search="&detail=*"+queryText+"*";
                 search2="&name="+queryText;
                 mSearchView.clearFocus();
                 mPullRefreshLayout.finishRefresh();
@@ -159,39 +158,6 @@ public class SaleListActivity extends AppCompatActivity {
         }
 
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
-
-        Iterator<PermissionInfo> iterator=list.iterator();
-
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        return true;
-
-    }
-
-    /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
-     * 让菜单同时显示图标和文字
-     */
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
-            if (menu.getClass().getSimpleName().equalsIgnoreCase("MenuBuilder")) {
-                try {
-                    Method method = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
-                    method.setAccessible(true);
-                    method.invoke(menu, true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return super.onMenuOpened(featureId, menu);
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -295,7 +261,7 @@ public class SaleListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/list?column=createTime&order=desc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -359,7 +325,7 @@ public class SaleListActivity extends AppCompatActivity {
 
                         final JSONObject finalJsonObject = jsonObject;
 
-                        new AlertDialog.Builder(SaleListActivity.this)
+                        new AlertDialog.Builder(AccountheadListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
                                 .setNegativeButton("出售", new DialogInterface.OnClickListener() {
@@ -368,19 +334,98 @@ public class SaleListActivity extends AppCompatActivity {
 
                                         dialogInterface.dismiss();
 
-                                        JSONArray jsonArray=new JSONArray();
+                                        LayoutInflater inflater = getLayoutInflater();
+                                        View validateView = inflater.inflate(
+                                                R.layout.dialog_validate, null);
+                                        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                                        layout_validate.removeAllViews();
+                                        final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
-                                        jsonArray.put(itemMap.get(holder.getAdapterPosition()));
 
-                                        JSONObject jsonObject=new JSONObject();
+                                        View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                                        validateItem.setTag(0);
+                                        layout_validate.addView(validateItem);
+                                        TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                                        EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                                        TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                                        et_validateText.setText("价格");
+                                        Map<String,Object> map = new HashMap<String, Object>();
                                         try {
-                                            jsonObject.put("ids",jsonArray);
+                                            tv_validateName.setText(finalJsonObject.getString("name"));
+                                            et_validate.setText(finalJsonObject.getString("cost"));
+
+                                            map.put("id",finalJsonObject.getInt("id"));
+                                            map.put("name", tv_validateName);
+                                            map.put("value", et_validate);
+                                            map.put("combination",finalJsonObject.getInt("combination"));
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
-                                        intent.putExtra("jsonString", jsonObject.toString());
-                                        startActivityForResult(intent, 1);
+
+
+                                        list.add(map);
+
+                                        View validateItem2 = inflater.inflate(R.layout.item_validate_enter, null);
+                                        validateItem2.setTag(1);
+                                        layout_validate.addView(validateItem2);
+                                        TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
+                                        EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+                                        TextView et_validateText2=validateItem2.findViewById(R.id.et_validate_text);
+                                        Map<String,Object> map2 = new HashMap<String, Object>();
+                                        tv_validateName2.setText("数量");
+                                        et_validateText2.setText("");
+                                        et_validate2.setText("1");
+
+                                        map2.put("name", tv_validateName2);
+                                        map2.put("value", et_validate2);
+
+                                        list.add(map2);
+
+                                        AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this).setTitle("添加库存")
+                                                .setView(validateView)
+                                                .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                                                {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which)
+                                                    {
+                                                        JSONArray jsonArray=new JSONArray();
+                                                        int amount=0;
+                                                        int id= (int) list.get(0).get("id");
+                                                        String name = ((TextView) list.get(0).get("name")).getText().toString();
+                                                        String cost = ((EditText) list.get(0).get("value")).getText().toString();
+                                                        int combination = (int) list.get(0).get("combination");
+                                                        JSONObject jsonObject = new JSONObject();
+                                                        try {
+                                                            jsonObject.put("id",id);
+                                                            jsonObject.put("name",name);
+                                                            jsonObject.put("cost",cost);
+                                                            jsonObject.put("combination",combination);
+                                                            jsonArray.put(jsonObject);
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+
+                                                        String amountString= ((EditText) list.get(1).get("value")).getText().toString();
+                                                        amount=Integer.parseInt(amountString);
+
+                                                        Map map=new HashMap();
+                                                        map.put("jsonArray",jsonArray);
+                                                        map.put("amount",amount);
+                                                        new FetchItemsTaskAddStorage().execute(map);
+
+                                                        dialog.dismiss();
+                                                    }
+
+                                                }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                                                {
+
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which)
+                                                    {
+                                                        dialog.dismiss();
+                                                    }
+                                                }).create();
+                                        dialog.show();
 
                                     }
                                 })
@@ -390,29 +435,8 @@ public class SaleListActivity extends AppCompatActivity {
                                         JSONObject jsonObject = null;
                                         jsonObject = selectMap.get(n);
                                         String s = "";
-                                        if (jsonObject == null) {
-                                            jsonObject = itemMap.get(n);
-                                            try {
-                                                s = StringToHtml2(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.put(n, jsonObject);
-                                        } else {
-                                            try {
-                                                s = StringToHtml(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.remove(n);
-                                        }
-                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
 
 
-                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                                        ((TextView) holder.itemView).setText(sp);
-                                        dialogInterface.dismiss();
                                     }
                                 })
                                 .create()
@@ -477,19 +501,19 @@ public class SaleListActivity extends AppCompatActivity {
 
             System.out.println("aSearch===="+aSearch);
 
-            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+aSearch);
+            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/getAllAccount?"+aSearch);
 
             try {
                 JSONObject jsonObject=new JSONObject(res);
                 JSONObject jsonObject1=jsonObject.getJSONObject("result");
-                allCost=jsonObject1.getDouble("ALLCOST");
-                System.out.println("allCost============"+allCost);
+                allAccount=jsonObject1.getDouble("ALLACCOUNT");
+                System.out.println("allAccount============"+allAccount);
             } catch (JSONException e) {
                 e.printStackTrace();
-                allCost=0;
+                allAccount=0;
             }
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=sale&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/list?column=createTime&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
 
@@ -509,7 +533,7 @@ public class SaleListActivity extends AppCompatActivity {
 
                     contents=addContents(contents,jsonObject);
 
-                    SectionHeader header = new SectionHeader("共"+total+"条");
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        总金额："+allAccount);
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
 
                     list.add(section);
@@ -547,6 +571,8 @@ public class SaleListActivity extends AppCompatActivity {
             JSONObject jsonObject1 = (JSONObject) records.get(i);
             jsonObject1.put("order",order);
             String s=StringToHtml(jsonObject1);
+            //String s="<p>(1).Name:&nbsp;Toking Hazard by Joking Hazard</p><p>(2).Material: Paper</p><p>(3).Package: Box</p><p><br/></p><p>50 Marijuana themed cards to heighten your Joking Hazard experience.<br/></p><p>This is an expansion pack. It requires Joking Hazard to play</p><p>In addition to the cards, there is a secret in each box!</p><p>The box is OVERSIZED to fit the surprise</p><p><br/></p>";
+            SpannableString spannableString = new SpannableString(s);
 
             itemMap.put(order,jsonObject1);
 
@@ -565,47 +591,103 @@ public class SaleListActivity extends AppCompatActivity {
             first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
         else
             first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
+        String name = jsonObject.getString("materialName");
+        String  billno = jsonObject.getString("billno");
+        Double totalprice = jsonObject.getDouble("totalprice");
+        String  count=jsonObject.getString("count");
         String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span>成本:" + cost + "</span>";
+        String createTime=jsonObject.getString("createTime");
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
-        return s;
-    }
-
-    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='red'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;订单号:" + billno + "</span>&nbsp;&nbsp;数量"+count+ "</span>&nbsp;&nbsp;<span>金额:" + totalprice + "</block quote>"+
+                "</span>&nbsp;&nbsp;<span>时间:" + createTime + "</block quote>";
         return s;
     }
 
 
 
+    private class FetchItemsTaskAddStorage extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/list");
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
+
+    private class FetchItemsTaskDel extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            JSONArray jsonArray=new JSONArray();
+
+            for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                JSONObject json = sMap.getValue();
+                try {
+                    jsonArray.put(json.getInt("id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String ids=Uri.encode(jsonArray.toString());
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/food/material/deleteBatch2?ids="+ids);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                    mSearchView.clearFocus();
+                    mPullRefreshLayout.finishRefresh();
+                    itemMap=new HashMap<>();
+                    selectMap=new HashMap<>();
+                    page=1;
+                    total=0;
+                    search="";
+                    initData();
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
 
 }
-

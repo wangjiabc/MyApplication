@@ -1,6 +1,7 @@
 package com.safety.android.Sale;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,10 +12,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.safety.android.http.FlickrFetch;
@@ -38,9 +41,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SaleActivity extends AppCompatActivity {
 
-    private Map<Integer,JSONObject> itemMap=new HashMap<>();
-
     private Spinner spinner;
+    private Spinner spinner2;
     private ArrayAdapter<String> adapter;
 
     private TextView sale_title;
@@ -52,6 +54,12 @@ public class SaleActivity extends AppCompatActivity {
 
     private TextView phoneNum;
     private TextView orderNumber;
+
+    private Button saleButon;
+
+    private Integer arg;
+
+    private int type=2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +78,10 @@ public class SaleActivity extends AppCompatActivity {
         phoneNum=view.findViewById(R.id.phoneNum);
         orderNumber=view.findViewById(R.id.orderNumber);
 
+        saleButon=view.findViewById(R.id.sale_button);
+
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");//设置日期格式
-        String newsNo = df.format(new Date())+String.valueOf((int)(Math.random()*9+1)*1000);
+        final String newsNo = df.format(new Date())+String.valueOf((int)(Math.random()*9+1)*1000);
 
         orderNumber.setText(newsNo);
 
@@ -101,12 +111,6 @@ public class SaleActivity extends AppCompatActivity {
                     int order=i+1;
 
                     JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
-                    JSONObject jsonObject2=new JSONObject();
-                    jsonObject2.put("order",order);
-                    jsonObject2.put("NAME",jsonObject1.get("name"));
-                    jsonObject2.put("id",jsonObject1.getInt("id"));
-                    jsonObject2.put("AMOUNT","1");
-                    itemMap.put(order,jsonObject2);
 
                     View validateItem = inflater.inflate(R.layout.sale_item, null);
                     validateItem.setTag(i);
@@ -127,6 +131,7 @@ public class SaleActivity extends AppCompatActivity {
                         tv_valiateAll.setText(jsonObject1.getString("retailprice"));
                         tv_valiateAll.setGravity(Gravity.CENTER);
                         Map<String,Object> map=new HashMap();
+                        map.put("id",jsonObject1.getInt("id"));
                         map.put("retailprice",et_validatePrice);
                         map.put("count",et_validateCount);
                         map.put("allPrice",tv_valiateAll);
@@ -247,9 +252,108 @@ public class SaleActivity extends AppCompatActivity {
 
             calculatePrice(list);
 
+
+            saleButon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if(arg==null){
+
+                        Toast.makeText(getApplication(),"请选择客户",Toast.LENGTH_SHORT).show();
+
+                    }else {
+
+                        com.alibaba.fastjson.JSONArray jsonArray1=new com.alibaba.fastjson.JSONArray();
+
+                        Iterator<Map<String, Object>> iterator = list.iterator();
+
+                        while (iterator.hasNext()) {
+
+                            Map<String, Object> map = iterator.next();
+                            int id = (int) map.get("id");
+                            EditText et_validatePrice = (EditText) map.get("retailprice");
+                            EditText et_validateCount = (EditText) map.get("count");
+                            TextView tv_valiateAll= (TextView) map.get("allPrice");
+
+
+                            float totalAllPrice=0;
+
+                            float sprice = 0;
+
+                            if (et_validatePrice.getText().toString() != null && !et_validatePrice.getText().toString().equals(""))
+                                sprice = Float.parseFloat(et_validatePrice.getText().toString());
+
+                            String  number = "";
+
+                            if (et_validateCount.getText().toString() != null && !et_validateCount.getText().toString().equals(""))
+                                number = et_validateCount.getText().toString();
+
+
+                            if(tv_valiateAll.getText().toString()!=null&&!tv_valiateAll.getText().toString().equals(""))
+                                totalAllPrice=Float.parseFloat(tv_valiateAll.getText().toString());
+
+                            DecimalFormat fnum = new DecimalFormat("##0.00");
+                            String price = fnum.format(sprice);
+                            String totalPrice=fnum.format(totalAllPrice);
+
+                            String ordernumber=orderNumber.getText().toString();
+
+                            int supplierId=0;
+                            String supplier="";
+
+                            try {
+                                JSONObject jsonObject= (JSONObject) jsonArray.get(arg);
+                                supplierId=jsonObject.getInt("ID");
+                                supplier=jsonObject.getString("SUPPLIER");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            com.alibaba.fastjson.JSONObject jsonObject=new com.alibaba.fastjson.JSONObject();
+                            
+                            jsonObject.put("id",id);
+                            jsonObject.put("number",number);
+                            jsonObject.put("retailprice",price);
+                            jsonObject.put("totalprice",totalPrice);
+                            jsonObject.put("orderNumber",ordernumber);
+                            jsonObject.put("supplierId",supplierId);
+                            jsonObject.put("supplier",supplier);
+                            jsonObject.put("type",String.valueOf(type));
+
+
+                            jsonArray1.add(jsonObject);
+
+                        }
+
+                        new FetchItemsTaskSale().execute(jsonArray1);
+                    }
+                }
+            });
+
+
         }
 
-        spinner = (Spinner) view.findViewById(R.id.Spinner01);
+        spinner = view.findViewById(R.id.Spinner01);
+        spinner2 = view.findViewById(R.id.Spinner02);
+
+        String[] m={"微信支付","现金","支付宝", "银联"};
+
+        ArrayAdapter<String> adapter2;
+
+        //将可选内容与ArrayAdapter连接起来
+        adapter2 = new ArrayAdapter<String>(SaleActivity.this,android.R.layout.simple_spinner_item,m);
+
+        //设置下拉列表的风格
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        //将adapter 添加到spinner中
+        spinner2.setAdapter(adapter2);
+
+        //添加事件Spinner事件监听
+        spinner2.setOnItemSelectedListener(new SpinnerSelectedListener2());
+
+        //设置默认值
+        spinner2.setVisibility(View.VISIBLE);
 
         new FetchItemsTask().execute();
 
@@ -379,6 +483,8 @@ public class SaleActivity extends AppCompatActivity {
 
             System.out.println("arg2="+arg2);
 
+            arg=arg2;
+
             try {
 
                 JSONObject jsonObject = (JSONObject) jsonArray.get(arg2);
@@ -394,5 +500,73 @@ public class SaleActivity extends AppCompatActivity {
         public void onNothingSelected(AdapterView<?> arg0) {
         }
     }
+
+    class SpinnerSelectedListener2 implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            if(arg2==1){
+                type=2;
+            }else if(arg2==2){
+                type=1;
+            }else {
+                type = arg2 + 1;
+            }
+            System.out.println("type="+type);
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
+    }
+
+    private class FetchItemsTaskSale extends AsyncTask<com.alibaba.fastjson.JSONArray,Void,String> {
+
+        @Override
+        protected String doInBackground(com.alibaba.fastjson.JSONArray... params) {
+
+            MyTestUtil.print(params);
+
+            com.alibaba.fastjson.JSONArray jsonArray=params[0];
+
+            MyTestUtil.print(jsonArray);
+
+            String items=Uri.encode(jsonArray.toJSONString());
+
+            System.out.println("items========="+items);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/sale?items="+items);
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(json);
+                String success = jsonObject.optString("success", null);
+
+                    Toast.makeText(SaleActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                    if (success.equals("true")) {
+
+                        Intent intent = new Intent();
+                        intent.putExtra("value", jsonObject.toString());
+                        setResult(SaleListActivity.RESULT_OK, intent);
+                        finish();
+
+                    }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
 
 }

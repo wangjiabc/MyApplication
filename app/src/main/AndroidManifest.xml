@@ -52,13 +52,13 @@
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.Sale.SaleActivity"
+            android:name="com.safety.android.Sale.SaleListActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.HiddenCheck.HiddenCheckListActivity"
-            android:label="@string/app_name"
+            android:name="com.safety.android.AccountheadList.AccountheadListActivity"
+            android:label="销售记录"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
@@ -68,7 +68,7 @@
         </activity>
         <activity
             android:name="com.safety.android.SafeList.SafeListActivity"
-            android:label="@string/app_name"
+            android:label="销售/开单"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
@@ -102,9 +102,9 @@
             android:parentActivityName="com.safety.android.Food.FoodCompagesActivity" >
         </activity>
         <activity
-            android:name="com.safety.android.Sale.SaleListActivity"
+            android:name="com.safety.android.Sale.SaleActivity"
             android:label="销售/开单"
-            android:parentActivityName="com.safety.android.MainActivity" >
+            android:parentActivityName="com.safety.android.Sale.SaleListActivity" >
         </activity>
     </application>
 

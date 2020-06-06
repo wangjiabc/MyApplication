@@ -94,6 +94,10 @@ public class FoodListActivity extends AppCompatActivity {
 
     private double allCost=0;
 
+    private int currentPostion;
+    private int addStorage;
+    private int addCount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -334,6 +338,9 @@ public class FoodListActivity extends AppCompatActivity {
                                     Map map=new HashMap();
                                     map.put("jsonArray",jsonArray);
                                     map.put("amount",amount);
+
+                                    addCount=list.size();
+
                                     new FetchItemsTaskAddStorage().execute(map);
                                 }
 
@@ -583,7 +590,7 @@ public class FoodListActivity extends AppCompatActivity {
                                         layout_validate.removeAllViews();
                                         final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
-
+                                            currentPostion=n;
                                             View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
                                             validateItem.setTag(0);
                                             layout_validate.addView(validateItem);
@@ -652,6 +659,8 @@ public class FoodListActivity extends AppCompatActivity {
                                                         String amountString= ((EditText) list.get(1).get("value")).getText().toString();
                                                         amount=Integer.parseInt(amountString);
 
+                                                        addStorage=amount;
+                                                        addCount=1;
                                                         Map map=new HashMap();
                                                         map.put("jsonArray",jsonArray);
                                                         map.put("amount",amount);
@@ -963,7 +972,29 @@ public class FoodListActivity extends AppCompatActivity {
                 try {
 
                     JSONObject jsonObject=new JSONObject(items);
-                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+
+                    String success = jsonObject.optString("success", null);
+                    String message = jsonObject.optString("message", null);
+                    if(success.equals("true")) {
+                        if(message.equals("添加库存成功!")) {
+                            Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+                            if (addCount == 1) {
+                                int position = currentPostion;
+                                JSONObject jsonObject1 = itemMap.get(position);
+                                Integer storage = jsonObject1.getInt("storage");
+                                jsonObject1.put("storage", storage + addStorage);
+                                Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
+                                final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
+                                String s = StringToHtml(jsonObject1);
+                                ((TextView) viewHolder.itemView).setText(Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null));
+                            } else {
+                                Toast.makeText(getApplication(), "批量添加库存后请刷新页面", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }else{
+                        Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();

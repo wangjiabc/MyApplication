@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.example.myapplication.R;
 import com.safety.android.Food.FoodListActivity;
-import com.safety.android.HiddenCheck.HiddenCheckListActivity;
+import com.safety.android.AccountheadList.AccountheadListActivity;
 import com.safety.android.LocalFile.SdCard;
 import com.safety.android.Message.Chat2Activity;
 import com.safety.android.PhotoGallery.PhotoGalleryActivity;
@@ -208,7 +208,7 @@ public class SafeBoxFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
 
-                        Intent intent=new Intent(getActivity(), HiddenCheckListActivity.class);
+                        Intent intent=new Intent(getActivity(), AccountheadListActivity.class);
                         startActivity(intent);
 
                     }

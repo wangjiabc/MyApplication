@@ -52,6 +52,7 @@
                 android:layout_marginRight="@dimen/common_content_spacing"
                 android:layout_marginLeft="@dimen/common_content_spacing"
                 android:hint=""
+                android:inputType="numberDecimal"
                 android:maxLength="20"
                 android:textColor="?attr/qmui_config_color_gray_5"
                 android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
@@ -64,6 +65,7 @@
                     android:background="@drawable/qmui_s_list_item_bg_with_border_bottom"
                     android:layout_marginRight="@dimen/common_content_spacing"
                     android:hint=""
+                    android:inputType="number"
                     android:maxLength="20"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
