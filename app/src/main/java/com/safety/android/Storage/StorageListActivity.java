@@ -1,17 +1,19 @@
-package com.safety.android.AccountheadList;
+package com.safety.android.Storage;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.SpannableString;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,10 +28,11 @@ import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
+import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.tools.MyTestUtil;
+import com.safety.android.qmuidemo.view.getGradientDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,11 +51,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * Created by WangJing on 2018/5/15.
- */
+import static com.safety.android.MainActivity.dataUrl;
 
-public class AccountheadListActivity extends AppCompatActivity {
+public class StorageListActivity extends AppCompatActivity {
 
     QMUIPullRefreshLayout mPullRefreshLayout;
 
@@ -85,7 +86,7 @@ public class AccountheadListActivity extends AppCompatActivity {
 
     private boolean isCost=false;
 
-    private double allAccount=0;
+    private double allCost=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +124,7 @@ public class AccountheadListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String queryText) {
 
-                search="&detail=*"+queryText+"*";
+                search="&name=*"+queryText+"*";
                 search2="&name="+queryText;
                 mSearchView.clearFocus();
                 mPullRefreshLayout.finishRefresh();
@@ -158,30 +159,36 @@ public class AccountheadListActivity extends AppCompatActivity {
 
     }
 
+    /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
+     * 让菜单同时显示图标和文字
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "修改密码").setIcon(android.R.drawable.ic_lock_lock);
+        // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
+        // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
+        menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_lock_power_off);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         System.out.println("click");
         switch (item.getItemId()) {
-            case R.id.menu_item_add:
-                JSONArray jsonArray=new JSONArray();
-                System.out.println("selecmap==================");
-                MyTestUtil.print(selectMap);
-                for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()){
-                    jsonArray.put(map.getValue());
-                }
-                JSONObject jsonObject=new JSONObject();
-                try {
-                    jsonObject.put("ids",jsonArray);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
-                intent.putExtra("jsonString", jsonObject.toString());
-                startActivityForResult(intent, 1);
+            case Menu.FIRST + 1:
+
+                break;
+            case Menu.FIRST + 2:
+
                 break;
         }
 
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
 
@@ -260,7 +267,7 @@ public class AccountheadListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/list?column=createTime&order=desc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -304,7 +311,7 @@ public class AccountheadListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-
+                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
                 viewHolder=holder;
                 if(position!=0) {
                     try {
@@ -313,129 +320,79 @@ public class AccountheadListActivity extends AppCompatActivity {
 
                         final int n=holder.getAdapterPosition();
 
-                        jsonObject=itemMap.get(n);
-
-                        final JSONObject finaljsonObject=jsonObject;
-
-                        LayoutInflater inflater = getLayoutInflater();
-                        View validateView = inflater.inflate(
-                                R.layout.dialog_validate, null);
-                        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                        layout_validate.removeAllViews();
-
-                        Map<String,Object> sMap=new HashMap();
-
-                        List list=new ArrayList();
-
-                        try {
-                            String name = jsonObject.getString("materialName");
-                            sMap.put("商品名称:",name);
-                            list.add(sMap);
-                            String  billno = jsonObject.getString("billno");
-                            sMap=new HashMap();
-                            sMap.put("订单号:",billno);
-                            list.add(sMap);
-                            String supplier=jsonObject.getString("supplier");
-                            sMap=new HashMap();
-                            sMap.put("客户名称:",supplier);
-                            list.add(sMap);
-                            Double totalprice = jsonObject.getDouble("totalprice");
-                            sMap=new HashMap();
-                            sMap.put("销售金额:",totalprice);
-                            list.add(sMap);
-                            String  count=jsonObject.getString("count");
-                            sMap=new HashMap();
-                            sMap.put("数量:",count);
-                            list.add(sMap);
-                            String detail=jsonObject.getString("detail");
-                            sMap=new HashMap();
-                            sMap.put("详情",detail);
-                            list.add(sMap);
-                            String img=jsonObject.getString("img");
-                            String createTime=jsonObject.getString("createTime");
-                            sMap=new HashMap();
-                            sMap.put("时间:",createTime);
-                            list.add(sMap);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        jsonObject = selectMap.get(holder.getAdapterPosition());
+                        String buttonText;
+                        if (jsonObject == null) {
+                            jsonObject = itemMap.get(holder.getAdapterPosition());
+                            buttonText="选择";
+                        }else{
+                            buttonText="取消选择";
                         }
 
-                        int i=0;
-                        Iterator iterator=list.iterator();
-                        while (iterator.hasNext()) {
-                            Map<String, Object> cMap= (Map) iterator.next();
-                            for (Map.Entry<String, Object> map : cMap.entrySet()) {
+                        final JSONObject finalJsonObject = jsonObject;
 
-                                View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
-                                validateItem.setTag(i);
-                                layout_validate.addView(validateItem);
-                                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                                TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                                et_validate.setVisibility(View.GONE);
-
-                                tv_validateName.setText(map.getKey());
-                                et_validateText.setText(map.getValue().toString());
-
-                                i++;
-                            }
-                        }
-
-
-                        AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this)
-                                .setView(validateView)
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener()
-                                {
+                        new AlertDialog.Builder(StorageListActivity.this)
+                                .setTitle(finalJsonObject.getString("name"))
+                                .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
+                                .setNegativeButton("出售", new DialogInterface.OnClickListener() {
                                     @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
+                                    public void onClick(DialogInterface dialogInterface, int i) {
 
-                                        dialog.dismiss();
-                                    }
+                                        dialogInterface.dismiss();
 
-                                }).setNegativeButton("删除", new DialogInterface.OnClickListener()
-                                {
+                                        JSONArray jsonArray=new JSONArray();
 
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        dialog.dismiss();
+                                        jsonArray.put(itemMap.get(holder.getAdapterPosition()));
+
+                                        JSONObject jsonObject=new JSONObject();
                                         try {
-                                            new AlertDialog.Builder(AccountheadListActivity.this)
-                                                    .setTitle("删除商品"+finaljsonObject.getString("materialName")+"销售记录,订单号:"+finaljsonObject.getString("billno")+"?")
-                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                                            try {
-                                                                new FetchItemsTaskDel().execute(finaljsonObject.getInt("id"));
-                                                            } catch (JSONException e) {
-                                                                e.printStackTrace();
-                                                            }
-
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .create()
-                                                    .show();
+                                            jsonObject.put("ids",jsonArray);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
+                                        Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
+                                        intent.putExtra("jsonString", jsonObject.toString());
+                                        startActivityForResult(intent, 1);
 
                                     }
-                                }).create();
-                        dialog.show();
+                                })
+                                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        JSONObject jsonObject = null;
+                                        jsonObject = selectMap.get(n);
+                                        String s = "";
+                                        if (jsonObject == null) {
+                                            jsonObject = itemMap.get(n);
+                                            try {
+                                                s = StringToHtml2(jsonObject);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            selectMap.put(n, jsonObject);
+                                        } else {
+                                            try {
+                                                s = StringToHtml(jsonObject);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            selectMap.remove(n);
+                                        }
+                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
+                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
+
+
+                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
+                                        ((TextView) holder.itemView).setText(sp);
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
 
 
 
-                    } catch (ClassCastException e) {
+                    } catch (ClassCastException | JSONException e) {
                         e.printStackTrace();
                         ((TextView) holder.itemView).setText("");
                     }
@@ -492,19 +449,19 @@ public class AccountheadListActivity extends AppCompatActivity {
 
             System.out.println("aSearch===="+aSearch);
 
-            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/getAllAccount?"+aSearch);
+            String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+aSearch);
 
             try {
                 JSONObject jsonObject=new JSONObject(res);
                 JSONObject jsonObject1=jsonObject.getJSONObject("result");
-                allAccount=jsonObject1.getDouble("ALLACCOUNT");
-                System.out.println("allAccount============"+allAccount);
+                allCost=jsonObject1.getDouble("ALLCOST");
+                System.out.println("allCost============"+allCost);
             } catch (JSONException e) {
                 e.printStackTrace();
-                allAccount=0;
+                allCost=0;
             }
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/list?column=createTime&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=sale&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
 
@@ -524,7 +481,7 @@ public class AccountheadListActivity extends AppCompatActivity {
 
                     contents=addContents(contents,jsonObject);
 
-                    SectionHeader header = new SectionHeader("共"+total+"条"+"        总金额："+allAccount);
+                    SectionHeader header = new SectionHeader("共"+total+"条");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
 
                     list.add(section);
@@ -562,8 +519,6 @@ public class AccountheadListActivity extends AppCompatActivity {
             JSONObject jsonObject1 = (JSONObject) records.get(i);
             jsonObject1.put("order",order);
             String s=StringToHtml(jsonObject1);
-            //String s="<p>(1).Name:&nbsp;Toking Hazard by Joking Hazard</p><p>(2).Material: Paper</p><p>(3).Package: Box</p><p><br/></p><p>50 Marijuana themed cards to heighten your Joking Hazard experience.<br/></p><p>This is an expansion pack. It requires Joking Hazard to play</p><p>In addition to the cards, there is a secret in each box!</p><p>The box is OVERSIZED to fit the surprise</p><p><br/></p>";
-            SpannableString spannableString = new SpannableString(s);
 
             itemMap.put(order,jsonObject1);
 
@@ -582,64 +537,46 @@ public class AccountheadListActivity extends AppCompatActivity {
             first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
         else
             first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("materialName");
-        String  billno = jsonObject.getString("billno");
-        Double totalprice = jsonObject.getDouble("totalprice");
-        String  count=jsonObject.getString("count");
+        String name = jsonObject.getString("name");
+        Integer storage = jsonObject.getInt("storage");
+        Double cost = jsonObject.getDouble("cost");
+        Double retailprice=jsonObject.getDouble("retailprice");
         String img=jsonObject.getString("img");
-        String createTime=jsonObject.getString("createTime");
-        String supplier=jsonObject.getString("supplier");
+        String costText="";
+        if(isCost)
+            costText="<span>成本:" + cost + "</span>";
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;订单号:" + billno + "</p>"+
-                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;数量"+count+ "</span>&nbsp;&nbsp;<span>金额:" + totalprice + "</block quote></p>"+
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;客户"+supplier+ "</span>&nbsp;&nbsp"+"</span>&nbsp;&nbsp;<span>时间:" + createTime + "</block quote>";
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
+        return s;
+    }
+
+    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
+        Integer order=jsonObject.getInt("order");
+        String first="";
+        if(order<10)
+            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
+        else if(10<order&&order<100)
+            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
+        else
+            first="<span><font color='red'　size='30'>"+order+"</font></span>";
+        String name = jsonObject.getString("name");
+        Integer storage = jsonObject.getInt("storage");
+        Double cost = jsonObject.getDouble("cost");
+        Double retailprice=jsonObject.getDouble("retailprice");
+        String img=jsonObject.getString("img");
+        String costText="";
+        if(isCost)
+            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
+        if(img!=null&&!img.equals(""))
+            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
+        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
         return s;
     }
 
 
-    private class FetchItemsTaskDel extends AsyncTask<Integer,Void,String> {
 
-        @Override
-        protected String doInBackground(Integer... params) {
-
-            int id=params[0];
-
-            JSONObject jsonObject=new JSONObject();
-
-            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/accounthead/accounthead/delete?id="+id,jsonObject,"delete");
-        }
-
-
-        @Override
-        protected void onPostExecute(String items) {
-
-            if(items!=null){
-                try {
-
-                    JSONObject jsonObject=new JSONObject(items);
-
-
-                    String success = jsonObject.optString("success", null);
-                    String message = jsonObject.optString("message", null);
-                    if(success.equals("true")) {
-
-                        ((TextView) viewHolder.itemView).setText("");
-
-                    }
-
-                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-        }
-
-    }
 
 }

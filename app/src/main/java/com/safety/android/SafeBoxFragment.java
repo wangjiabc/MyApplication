@@ -1,12 +1,10 @@
 package com.safety.android;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
@@ -16,9 +14,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.myapplication.R;
-import com.safety.android.Food.FoodListActivity;
 import com.safety.android.AccountheadList.AccountheadListActivity;
-import com.safety.android.LocalFile.SdCard;
+import com.safety.android.Food.FoodListActivity;
 import com.safety.android.Message.Chat2Activity;
 import com.safety.android.PhotoGallery.PhotoGalleryActivity;
 import com.safety.android.SQLite3.PermissionInfo;
@@ -28,6 +25,8 @@ import com.safety.android.SQLite3.SafeLab;
 import com.safety.android.SafeList.SafeListActivity;
 import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.Sale.SaleListActivity;
+import com.safety.android.Storage.StorageListActivity;
+import com.safety.android.Storage.StorageLogListActivity;
 import com.safety.android.util.phone;
 
 import java.util.ArrayList;
@@ -81,7 +80,7 @@ public class SafeBoxFragment extends Fragment {
             if(component!=null) {
 
                 if (component.equals("food/MaterialList")) {
-                    String name = "name" + 0;
+                    String name = "商品管理";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(0);
@@ -89,7 +88,7 @@ public class SafeBoxFragment extends Fragment {
                 }
 
                 if (component.equals("sale/SaleList")) {
-                    String name = "name" + 1;
+                    String name = "销售/开单";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(1);
@@ -97,7 +96,7 @@ public class SafeBoxFragment extends Fragment {
                 }
 
                 if (component.equals("accounthead/AccountheadList")) {
-                    String name = "name" + 2;
+                    String name = "销售记录";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(2);
@@ -105,7 +104,7 @@ public class SafeBoxFragment extends Fragment {
                 }
 
                 if (component.equals("storage/StorageList")) {
-                    String name = "name" + 3;
+                    String name = "实库";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(3);
@@ -113,13 +112,13 @@ public class SafeBoxFragment extends Fragment {
                 }
 
                 if (component.equals("storageLog/StorageLogList")) {
-                    String name = "name" + 4;
+                    String name = "进货记录";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(4);
                     mSafeInfos.add(mSafeInfo);
                 }
-
+/*
                 if (component.equals("inoutitem/InoutitemList")) {
                     String name = "name" + 5;
                     SafeInfo mSafeInfo = new SafeInfo();
@@ -127,7 +126,7 @@ public class SafeBoxFragment extends Fragment {
                     mSafeInfo.setId(5);
                     mSafeInfos.add(mSafeInfo);
                 }
-
+*/
             }
         }
 
@@ -219,7 +218,8 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        SdCard.getFilePath();
+                        Intent intent=new Intent(getActivity(), StorageListActivity.class);
+                        startActivity(intent);
                     }
                 };
             }else
@@ -228,6 +228,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                       /*
                         final Intent pickContact=new Intent(Intent.ACTION_PICK,
                                 ContactsContract.Contacts.CONTENT_URI);
                         //检查SDK版本；如果它比Android 6.0更大,便向用户请求READ_CONTACTS权限
@@ -238,6 +239,9 @@ public class SafeBoxFragment extends Fragment {
                         }else {
                             startActivityForResult(pickContact,REQUEST_CONTACT);
                         }
+                        */
+                        Intent intent=new Intent(getActivity(), StorageLogListActivity.class);
+                        startActivity(intent);
                     }
                 };
             }else
