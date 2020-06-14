@@ -116,6 +116,11 @@
             android:label="进货记录"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
+        <activity
+            android:name="com.safety.android.Food.FoodClassifyActivity"
+            android:label="选择分类"
+            android:parentActivityName="com.safety.android.MainActivity" >
+        </activity>
     </application>
 
 

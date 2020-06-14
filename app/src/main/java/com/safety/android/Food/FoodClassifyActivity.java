@@ -1,0 +1,160 @@
+package com.safety.android.Food;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.example.myapplication.R;
+import com.safety.android.http.FlickrFetch;
+import com.safety.android.http.OKHttpFetch2;
+import com.safety.android.tools.MyHolder;
+import com.unnamed.b.atv.model.TreeNode;
+import com.unnamed.b.atv.view.AndroidTreeView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class FoodClassifyActivity extends AppCompatActivity {
+
+    private View rootView;
+
+    private ViewGroup containerView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        LayoutInflater inflater = getLayoutInflater();
+
+        rootView = inflater.inflate(R.layout.fragment_default, null, false);
+        containerView = (ViewGroup) rootView.findViewById(R.id.container);
+
+        new FetchItemsTask().execute();
+
+        setContentView(rootView);
+
+
+    }
+
+
+    private class FetchItemsTask extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            return new OKHttpFetch2(getApplicationContext()).get(FlickrFetch.base + "/tree/tree/selectTree");
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+
+            try {
+
+                    JSONObject jsonObject = new JSONObject(json);
+
+                    TreeNode root = TreeNode.root();
+
+                    TreeNode parent = addTree(jsonObject);
+
+
+              /*  MyHolder.IconTreeItem nodeItem = new MyHolder.IconTreeItem();
+                nodeItem.setText("aaaaaaaa");
+                nodeItem.setIcon(R.drawable.qmui_icon_popup_close);
+                TreeNode parent = new TreeNode(nodeItem).setViewHolder(new MyHolder(getApplicationContext()));*/
+
+                    root.addChild(parent);
+
+                    AndroidTreeView tView = new AndroidTreeView(getApplicationContext(), root);
+
+                    containerView.addView(tView.getView());
+
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+
+    TreeNode addTree(JSONObject jsonObject){
+
+
+        String name = null;
+        String childrenString;
+        JSONArray children = null;
+        try {
+            name = (String) jsonObject.get("name");
+
+            childrenString = jsonObject.getString("children");
+
+            children = new JSONArray(childrenString);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+            MyHolder.IconTreeItem nodeItem = new MyHolder.IconTreeItem();
+            System.out.println("name="+name);
+            nodeItem.setText(name);
+            nodeItem.setIcon(R.drawable.qmui_icon_quick_action_more_arrow_right);
+
+            TreeNode parent = new TreeNode(nodeItem).setViewHolder(new MyHolder(getApplicationContext()));
+
+            parent.setClickListener(new TreeNode.TreeNodeClickListener() {
+                @Override
+                public void onClick(TreeNode node, Object value) {
+                    System.out.println("id======"+node.getId()+"      "+node.getLevel());
+                    //MyTestUtil.print(value);
+
+                }
+            });
+
+            if(children!=null){
+
+                for(int i=0;i<children.length();i++){
+                    JSONObject jsonObject2 = null;
+                    JSONArray children2;
+                    TreeNode child = null;
+                    String name2=null;
+                    try {
+                        jsonObject2=children.getJSONObject(i);
+                        name2=jsonObject2.getString("name");
+                        jsonObject2 = (JSONObject) children.get(i);
+                        children2 = jsonObject2.getJSONArray("children");
+                        if (children2 != null) {
+                            child = addTree(jsonObject2);
+                        }
+                        parent.addChild(child);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        MyHolder.IconTreeItem cNodeItem = new MyHolder.IconTreeItem();
+
+                        cNodeItem.setText(name2);
+                        cNodeItem.setIcon(R.drawable.ic_menu_slideshow);
+                        child = new TreeNode(cNodeItem).setViewHolder(new MyHolder(getApplicationContext()));
+                        parent.addChild(child);
+
+                    }
+
+                }
+
+
+            }
+
+            return parent;
+
+        
+    }
+
+}
+
