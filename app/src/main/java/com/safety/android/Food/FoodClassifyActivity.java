@@ -10,6 +10,7 @@ import com.example.myapplication.R;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch2;
 import com.safety.android.tools.MyHolder;
+import com.safety.android.tools.MyTestUtil;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -62,7 +63,7 @@ public class FoodClassifyActivity extends AppCompatActivity {
 
                     TreeNode root = TreeNode.root();
 
-                    TreeNode parent = addTree(jsonObject);
+                    TreeNode parent = addTree(jsonObject,0);
 
 
               /*  MyHolder.IconTreeItem nodeItem = new MyHolder.IconTreeItem();
@@ -87,67 +88,82 @@ public class FoodClassifyActivity extends AppCompatActivity {
     }
 
 
-    TreeNode addTree(JSONObject jsonObject){
+    TreeNode addTree(JSONObject jsonObject,int indent){
 
+        indent++;
 
         String name = null;
         String childrenString;
         JSONArray children = null;
+        Integer id=null;
         try {
             name = (String) jsonObject.get("name");
+
+            id=jsonObject.getInt("id");
 
             childrenString = jsonObject.getString("children");
 
             children = new JSONArray(childrenString);
         }catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
-        
+
+        MyTestUtil.print(jsonObject);
+
             MyHolder.IconTreeItem nodeItem = new MyHolder.IconTreeItem();
-            System.out.println("name="+name);
+            nodeItem.setId(id);
             nodeItem.setText(name);
-            nodeItem.setIcon(R.drawable.qmui_icon_quick_action_more_arrow_right);
+            nodeItem.setIcon(android.R.drawable.arrow_down_float);
+            nodeItem.setIndent(indent);
+            nodeItem.setMore(true);
 
             TreeNode parent = new TreeNode(nodeItem).setViewHolder(new MyHolder(getApplicationContext()));
-
-            parent.setClickListener(new TreeNode.TreeNodeClickListener() {
-                @Override
-                public void onClick(TreeNode node, Object value) {
-                    System.out.println("id======"+node.getId()+"      "+node.getLevel());
-                    //MyTestUtil.print(value);
-
-                }
-            });
 
             if(children!=null){
 
                 for(int i=0;i<children.length();i++){
                     JSONObject jsonObject2 = null;
-                    JSONArray children2;
+                    JSONArray children2 = null;
                     TreeNode child = null;
                     String name2=null;
+                    Integer id2=null;
                     try {
                         jsonObject2=children.getJSONObject(i);
                         name2=jsonObject2.getString("name");
-                        jsonObject2 = (JSONObject) children.get(i);
+                        id2=jsonObject2.getInt("id");
                         children2 = jsonObject2.getJSONArray("children");
-                        if (children2 != null) {
-                            child = addTree(jsonObject2);
-                        }
-                        parent.addChild(child);
+
                     }catch (Exception e){
-                        e.printStackTrace();
+                        //e.printStackTrace();
+                    }
+
+                    if (children2 != null) {
+                        child = addTree(jsonObject2,indent);
+                        parent.addChild(child);
+                    }else{
                         MyHolder.IconTreeItem cNodeItem = new MyHolder.IconTreeItem();
 
                         cNodeItem.setText(name2);
-                        cNodeItem.setIcon(R.drawable.ic_menu_slideshow);
+                        cNodeItem.setId(id2);
+                        cNodeItem.setIndent(indent);
+                        cNodeItem.setMore(false);
                         child = new TreeNode(cNodeItem).setViewHolder(new MyHolder(getApplicationContext()));
-                        parent.addChild(child);
 
+                        child.setClickListener(new TreeNode.TreeNodeClickListener() {
+                            @Override
+                            public void onClick(TreeNode node, Object value) {
+                                //System.out.println("id======"+node.getId()+"      "+node.getLevel());
+                                // MyTestUtil.print(value);
+                                MyHolder.IconTreeItem iconTreeItem= (MyHolder.IconTreeItem) value;
+                                System.out.println("id======"+iconTreeItem.getId()+"      "+iconTreeItem.getText());
+
+                            }
+                        });
+
+                        parent.addChild(child);
                     }
 
                 }
-
 
             }
 

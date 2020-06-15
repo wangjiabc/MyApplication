@@ -19,7 +19,7 @@ public class FlickrFetch {
 
     //public static final String URL="http://192.168.1.106:8080";
 
-    public static final String URL="http://223.86.150.188:8891/";
+    public static final String URL="http://223.86.150.188:8890/";
 
     public static final String base="/jeecg-boot";
 
