@@ -89,7 +89,7 @@
         <activity
             android:name="com.safety.android.Food.FoodDetailActivity"
             android:label="商品管理"
-            android:parentActivityName="com.safety.android.Food.FoodListActivity" >
+            android:parentActivityName="com.safety.android.Food.FoodClassifyActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodCompagesActivity"
@@ -120,6 +120,11 @@
             android:name="com.safety.android.Food.FoodClassifyActivity"
             android:label="选择分类"
             android:parentActivityName="com.safety.android.MainActivity" >
+        </activity>
+        <activity
+            android:name="com.safety.android.Food.FoodCatalogListActivity"
+            android:label="添加商品到分类"
+            android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
     </application>
 

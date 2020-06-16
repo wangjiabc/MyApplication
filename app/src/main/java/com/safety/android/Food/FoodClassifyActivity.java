@@ -1,5 +1,6 @@
 package com.safety.android.Food;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -154,10 +156,22 @@ public class FoodClassifyActivity extends AppCompatActivity {
                             public void onClick(TreeNode node, Object value) {
                                 //System.out.println("id======"+node.getId()+"      "+node.getLevel());
                                 // MyTestUtil.print(value);
-                                MyHolder.IconTreeItem iconTreeItem= (MyHolder.IconTreeItem) value;
-                                System.out.println("id======"+iconTreeItem.getId()+"      "+iconTreeItem.getText());
+                                MyHolder.IconTreeItem iconTreeItem = (MyHolder.IconTreeItem) value;
+                                System.out.println("id======" + iconTreeItem.getId() + "      " + iconTreeItem.getText());
 
+                                JSONObject json = new JSONObject();
+
+                                try {
+                                    json.put("catalog",iconTreeItem.getId());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                Intent intent = new Intent(getApplicationContext(), FoodListActivity.class);
+                                intent.putExtra("jsonString", json.toString());
+                                startActivityForResult(intent, 1);
                             }
+
                         });
 
                         parent.addChild(child);

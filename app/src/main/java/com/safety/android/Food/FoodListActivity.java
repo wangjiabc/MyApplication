@@ -84,6 +84,8 @@ public class FoodListActivity extends AppCompatActivity {
 
     private String search2="";
 
+    private String searchCatalog="";
+
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
 
     private Map<Integer,JSONObject> selectMap=new HashMap();
@@ -103,7 +105,28 @@ public class FoodListActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-       view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        Intent intent=getIntent();
+
+        String jsonString=intent.getStringExtra("jsonString");
+
+        Integer catalog = null;
+
+        try {
+            if(jsonString!=null) {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                catalog = jsonObject.getInt("catalog");
+            }else{
+                catalog=-1;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if(catalog!=null){
+            searchCatalog="&catalog="+catalog;
+        }
+
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -219,6 +242,8 @@ public class FoodListActivity extends AppCompatActivity {
 
         if(delete)
             menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_delete);
+
+        menu.add(Menu.NONE,Menu.FIRST+4,4,"添加商品到分类").setIcon(android.R.drawable.ic_menu_add);
 
         return true;
 
@@ -378,7 +403,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                 Intent intent2 = new Intent(getApplicationContext(), FoodCompagesActivity.class);
                 intent2.putExtra("jsonString", jsonObject.toString());
-                startActivityForResult(intent2, 1);
+                startActivityForResult(intent2, 5);
 
                 break;
             case Menu.FIRST + 3:
@@ -416,6 +441,10 @@ public class FoodListActivity extends AppCompatActivity {
                         .create()
                         .show();
 
+                break;
+            case Menu.FIRST + 4:
+                Intent intent0 = new Intent(getApplicationContext(), FoodCatalogListActivity.class);
+                startActivityForResult(intent0,5);
                 break;
             case R.id.menu_item_add:
                 Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
@@ -508,8 +537,10 @@ public class FoodListActivity extends AppCompatActivity {
 
                                ArrayList<SectionItem> contents = new ArrayList<>();
                                String cSearch="";
+                               if(searchCatalog!=null&&!searchCatalog.equals(""))
+                                   cSearch+=searchCatalog;
                                if(search!=null&&!search.equals(""))
-                                   cSearch=search;
+                                   cSearch+=search;
                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                try {
@@ -799,6 +830,34 @@ public class FoodListActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+        }else if(requestCode==5){
+            System.out.println("is========5555555");
+
+            try {
+                JSONArray jsonArray=new JSONArray(data.getStringExtra("value"));
+                ArrayList<SectionItem> contents = new ArrayList<>();
+                int count=mAdapter.getItemCount()+1;
+                for(int i=0;i<jsonArray.length();i++) {
+                    JSONObject jsonObject= (JSONObject) jsonArray.get(i);
+                    jsonObject.put("order", String.valueOf(mAdapter.getItemCount()));
+
+                    String s = StringToHtml(jsonObject);
+                    contents.add(new SectionItem(s));
+                    boolean existMoreData = true;
+
+                    if (total < (page * 10)) {
+                        existMoreData = false;
+                    }
+
+                    mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, existMoreData);
+                }
+
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
@@ -811,9 +870,12 @@ public class FoodListActivity extends AppCompatActivity {
             String aSearch="";
             String cSearch="";
 
+            if(searchCatalog!=null&&!searchCatalog.equals(""))
+                cSearch+=searchCatalog;
+
             if(search!=null&&!search.equals("")) {
-                cSearch = search;
-                aSearch = search2;
+                cSearch += search;
+                aSearch += search2;
             }
 
             System.out.println("aSearch===="+aSearch);
