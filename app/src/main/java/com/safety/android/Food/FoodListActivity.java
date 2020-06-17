@@ -100,6 +100,8 @@ public class FoodListActivity extends AppCompatActivity {
     private int addStorage;
     private int addCount;
 
+    Integer catalog = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -108,8 +110,6 @@ public class FoodListActivity extends AppCompatActivity {
         Intent intent=getIntent();
 
         String jsonString=intent.getStringExtra("jsonString");
-
-        Integer catalog = null;
 
         try {
             if(jsonString!=null) {
@@ -121,6 +121,8 @@ public class FoodListActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        System.out.println("catalog11======="+catalog);
 
         if(catalog!=null){
             searchCatalog="&catalog="+catalog;
@@ -244,6 +246,8 @@ public class FoodListActivity extends AppCompatActivity {
             menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_delete);
 
         menu.add(Menu.NONE,Menu.FIRST+4,4,"添加商品到分类").setIcon(android.R.drawable.ic_menu_add);
+
+        menu.add(Menu.NONE,Menu.FIRST+5,5,"从分类删除商品").setIcon(android.R.drawable.ic_menu_delete);
 
         return true;
 
@@ -444,7 +448,42 @@ public class FoodListActivity extends AppCompatActivity {
                 break;
             case Menu.FIRST + 4:
                 Intent intent0 = new Intent(getApplicationContext(), FoodCatalogListActivity.class);
-                startActivityForResult(intent0,5);
+                intent0.putExtra("jsonString", String.valueOf(catalog));
+                startActivityForResult(intent0, 5);
+                break;
+            case Menu.FIRST + 5:
+                String delClassName="";
+
+                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                    JSONObject json = sMap.getValue();
+                    try {
+                        delClassName+=json.getString("name")+",";
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                new AlertDialog.Builder(FoodListActivity.this)
+                        .setTitle("从当前分类中删除"+delClassName.substring(0,delClassName.length()-1)+"?")
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(FoodListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                new FetchItemsUpdateTask().execute();
+
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create()
+                        .show();
                 break;
             case R.id.menu_item_add:
                 Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
@@ -831,32 +870,17 @@ public class FoodListActivity extends AppCompatActivity {
             }
 
         }else if(requestCode==5){
-            System.out.println("is========5555555");
+            System.out.println("is========5");
 
-            try {
-                JSONArray jsonArray=new JSONArray(data.getStringExtra("value"));
-                ArrayList<SectionItem> contents = new ArrayList<>();
-                int count=mAdapter.getItemCount()+1;
-                for(int i=0;i<jsonArray.length();i++) {
-                    JSONObject jsonObject= (JSONObject) jsonArray.get(i);
-                    jsonObject.put("order", String.valueOf(mAdapter.getItemCount()));
+            mSearchView.clearFocus();
+            mPullRefreshLayout.finishRefresh();
+            itemMap=new HashMap<>();
+            selectMap=new HashMap<>();
+            page=1;
+            total=0;
+            search="";
+            initData();
 
-                    String s = StringToHtml(jsonObject);
-                    contents.add(new SectionItem(s));
-                    boolean existMoreData = true;
-
-                    if (total < (page * 10)) {
-                        existMoreData = false;
-                    }
-
-                    mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, existMoreData);
-                }
-
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
         }
 
@@ -870,8 +894,10 @@ public class FoodListActivity extends AppCompatActivity {
             String aSearch="";
             String cSearch="";
 
-            if(searchCatalog!=null&&!searchCatalog.equals(""))
-                cSearch+=searchCatalog;
+            if(searchCatalog!=null&&!searchCatalog.equals("")) {
+                cSearch += searchCatalog;
+                aSearch+=searchCatalog;
+            }
 
             if(search!=null&&!search.equals("")) {
                 cSearch += search;
@@ -1120,5 +1146,72 @@ public class FoodListActivity extends AppCompatActivity {
         }
 
     }
+
+
+    private class FetchItemsUpdateTask extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+
+            JSONArray jsonArray=new JSONArray();
+
+            for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                JSONObject json = sMap.getValue();
+                try {
+                    jsonArray.put(json.getInt("id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String value="";
+
+            String ids=Uri.encode(jsonArray.toString());
+
+            value+="items="+ids;
+
+            value+="&catalog="+catalog;
+
+            System.out.println("value======="+value);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/updateDelCatalog?"+value);
+
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            JSONObject jsonObject = null;
+
+            try {
+
+                jsonObject = new JSONObject(json);
+
+                String success = jsonObject.optString("success", null);
+
+                Toast.makeText(FoodListActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                if (success.equals("true")) {
+
+                    mSearchView.clearFocus();
+                    mPullRefreshLayout.finishRefresh();
+                    itemMap=new HashMap<>();
+                    selectMap=new HashMap<>();
+                    page=1;
+                    total=0;
+                    search="";
+                    initData();
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
 
 }

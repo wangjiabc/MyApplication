@@ -27,6 +27,7 @@ import com.safety.android.mqtt.connect.MqttClient;
 import com.safety.android.mqtt.event.MessageEvent;
 import com.safety.android.tools.MyTestUtil;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity{
 
     private static Context mContext;
 
+    private MqttAndroidClient client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +77,6 @@ public class MainActivity extends AppCompatActivity{
 
         notificationManager = (NotificationManager) getSystemService(getBaseContext().NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(this,"default");
-        MqttClient.getMqttAndroidClientInstace(getBaseContext());
 
         List<UserInfo> list= UserLab.get(getApplication()).getUserInfo();
 
@@ -102,9 +104,11 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
+        client=MqttClient.getMqttAndroidClientInstace(getBaseContext());
 
 
     }
+
 
     private String getDiskCacheDir(Context context) {
         String cachePath = null;

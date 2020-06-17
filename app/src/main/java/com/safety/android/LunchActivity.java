@@ -27,7 +27,7 @@ public class LunchActivity extends AppCompatActivity {
 
     public String token;
 
-    public String username;
+    public static String username;
 
     public static Map sysUser=null;
 

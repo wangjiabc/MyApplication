@@ -130,6 +130,11 @@ public class SafeBoxFragment extends Fragment {
             }
         }
 
+        SafeInfo mSafeInfo = new SafeInfo();
+        mSafeInfo.setmName("mqtt");
+        mSafeInfo.setId(8);
+        mSafeInfos.add(mSafeInfo);
+
         /*
         for (int i=0;i<9;i++){
             String name="name"+(i+1);

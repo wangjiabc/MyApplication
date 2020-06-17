@@ -1,7 +1,6 @@
 package com.safety.android.Message;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
 import butterknife.BindFont;
 import butterknife.ButterKnife;
 
@@ -56,7 +56,7 @@ public class ChatFragment extends Fragment {
 
     public static final String PA="PublishActivity";
     private SubcriberAdapter subcriberAdapter;
-    public static final String Topic="general";
+    public static final String Topic="springboot.topic";
     private String pubTopic="";
     private String pubMessage;
     private MqttAndroidClient client;

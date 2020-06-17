@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -32,6 +33,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
+import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,10 +86,24 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
     private Button foodButton;
 
+    private Integer catalog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        Intent intent=getIntent();
+
+        String jsonString=intent.getStringExtra("jsonString");
+
+        if(jsonString!=null) {
+            catalog = Integer.parseInt(jsonString);
+            System.out.println("catalog="+catalog);
+        }else{
+            finish();
+            System.out.println("jsonString is null");
+        }
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.food_compages_list, null);
 
@@ -138,17 +154,7 @@ public class FoodCatalogListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                JSONArray jsonArray=new JSONArray();
-
-                for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()) {
-                    JSONObject jsonObject = map.getValue();
-                    jsonArray.put(jsonObject);
-                }
-
-                Intent intent = new Intent();
-                intent.putExtra("value", jsonArray.toString());
-                setResult(Activity.RESULT_OK, intent);
-                finish();
+                new FetchItemsUpdateTask().execute();
 
             }
         });
@@ -506,5 +512,72 @@ public class FoodCatalogListActivity extends AppCompatActivity {
     }
 
 
+    private class FetchItemsUpdateTask extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+
+            JSONArray jsonArray=new JSONArray();
+
+            for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                JSONObject json = sMap.getValue();
+                try {
+                    jsonArray.put(json.getInt("id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String value="";
+
+            String ids=Uri.encode(jsonArray.toString());
+
+            value+="items="+ids;
+
+            value+="&catalog="+catalog;
+
+            System.out.println("value======="+value);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/updateCatalog?"+value);
+
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            JSONObject jsonObject = null;
+
+            try {
+
+                jsonObject = new JSONObject(json);
+
+                String success = jsonObject.optString("success", null);
+
+                Toast.makeText(FoodCatalogListActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                if (success.equals("true")) {
+
+                    JSONArray jsonArray=new JSONArray();
+
+                    for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()) {
+                        JSONObject json1 = map.getValue();
+                        jsonArray.put(json1);
+                    }
+
+                    Intent intent = new Intent();
+                    intent.putExtra("value", jsonArray.toString());
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
 
 }
