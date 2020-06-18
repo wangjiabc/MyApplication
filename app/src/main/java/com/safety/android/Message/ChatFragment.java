@@ -56,7 +56,7 @@ public class ChatFragment extends Fragment {
 
     public static final String PA="PublishActivity";
     private SubcriberAdapter subcriberAdapter;
-    public static final String Topic="springboot.topic";
+    //public static final String Topic="springboot.topic";
     private String pubTopic="";
     private String pubMessage;
     private MqttAndroidClient client;
@@ -80,6 +80,7 @@ public class ChatFragment extends Fragment {
         client= MqttClient.getMqttAndroidClientInstace(getContext());
         initDate();
 
+        final String Topic=edPubTopic.getText().toString();
 
         btnStartSub.setOnClickListener(new View.OnClickListener() {
             @Override

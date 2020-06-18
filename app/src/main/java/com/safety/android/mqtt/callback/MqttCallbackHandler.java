@@ -27,7 +27,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     private Context context;
     private String clientId;
 
-    public static final String Topic="general";
+    public static final String Topic="topic";
 
     public MqttCallbackHandler(MqttAndroidClient mqttAndroidClient, Context context, String clientId) {
         this.context=context;

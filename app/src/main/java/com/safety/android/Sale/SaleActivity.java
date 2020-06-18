@@ -8,14 +8,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +43,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SaleActivity extends AppCompatActivity {
 
-    private Spinner spinner;
-    private Spinner spinner2;
+    //private Spinner spinner;
+    //private Spinner spinner2;
     private ArrayAdapter<String> adapter;
 
     private TextView sale_title;
@@ -59,7 +61,12 @@ public class SaleActivity extends AppCompatActivity {
 
     private Integer arg;
 
-    private int type=2;
+   // private int type=2;
+
+    private AutoCompleteTextView atv_content;
+    private MultiAutoCompleteTextView matv_content;
+
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +75,7 @@ public class SaleActivity extends AppCompatActivity {
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.sale_activity, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.sale_activity, null);
 
         sale_title=view.findViewById(R.id.sale_title);
         saleall2=view.findViewById(R.id.saleall2);
@@ -318,7 +325,7 @@ public class SaleActivity extends AppCompatActivity {
                             jsonObject.put("orderNumber",ordernumber);
                             jsonObject.put("supplierId",supplierId);
                             jsonObject.put("supplier",supplier);
-                            jsonObject.put("type",String.valueOf(type));
+                           // jsonObject.put("type",String.valueOf(type));
 
 
                             jsonArray1.add(jsonObject);
@@ -332,7 +339,7 @@ public class SaleActivity extends AppCompatActivity {
 
 
         }
-
+/*
         spinner = view.findViewById(R.id.Spinner01);
         spinner2 = view.findViewById(R.id.Spinner02);
 
@@ -354,11 +361,24 @@ public class SaleActivity extends AppCompatActivity {
 
         //设置默认值
         spinner2.setVisibility(View.VISIBLE);
+*/
 
         new FetchItemsTask().execute();
 
         setContentView(view);
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // TODO Auto-generated method stub
+        if(item.getItemId() == android.R.id.home)
+        {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     void calculatePrice(List<Map<String,Object>> list){
@@ -432,7 +452,7 @@ public class SaleActivity extends AppCompatActivity {
 
                     jsonArray=jsonObject.getJSONArray("result");
 
-                    String[] m=new String[jsonArray.length()];
+                    final String[] data =new String[jsonArray.length()];
 
                     for (int i = 0; i < jsonArray.length(); i++) {
 
@@ -445,10 +465,36 @@ public class SaleActivity extends AppCompatActivity {
                             sale_title.setText(jsonObject1.getString("EMAIL") + "销售单");
                         }
 
-                        m[i]=name;
+                        data[i]=name;
 
                     }
 
+                    atv_content = (AutoCompleteTextView) view.findViewById(R.id.atv_content);
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(SaleActivity.
+                            this, android.R.layout.simple_dropdown_item_1line, data);
+                    atv_content.setAdapter(adapter);
+
+                    System.out.println(data);
+
+                    atv_content.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                            Object obj = parent.getItemAtPosition(position);
+
+                            String username= (String) obj;
+
+                            for(int i=0;i<data.length;i++){
+
+                                if(username.equals(data[i])){
+                                    arg=i;
+                                }
+
+                            }
+                        }
+                    });
+                    /*
                     //将可选内容与ArrayAdapter连接起来
                     adapter = new ArrayAdapter<String>(SaleActivity.this,android.R.layout.simple_spinner_item,m);
 
@@ -463,7 +509,7 @@ public class SaleActivity extends AppCompatActivity {
 
                     //设置默认值
                     spinner.setVisibility(View.VISIBLE);
-
+                    */
 
                 }
 
@@ -500,7 +546,7 @@ public class SaleActivity extends AppCompatActivity {
         public void onNothingSelected(AdapterView<?> arg0) {
         }
     }
-
+/*
     class SpinnerSelectedListener2 implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
@@ -519,7 +565,7 @@ public class SaleActivity extends AppCompatActivity {
         public void onNothingSelected(AdapterView<?> arg0) {
         }
     }
-
+*/
     private class FetchItemsTaskSale extends AsyncTask<com.alibaba.fastjson.JSONArray,Void,String> {
 
         @Override

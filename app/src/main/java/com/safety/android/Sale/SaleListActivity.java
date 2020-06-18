@@ -89,10 +89,33 @@ public class SaleListActivity extends AppCompatActivity {
 
     private double allCost=0;
 
+    Integer catalog = null;
+
+    private String searchCatalog="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        Intent intent=getIntent();
+
+        String jsonString=intent.getStringExtra("jsonString");
+
+        try {
+            if(jsonString!=null) {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                catalog = jsonObject.getInt("catalog");
+            }else{
+                catalog=-1;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if(catalog!=null){
+            searchCatalog="&catalog="+catalog;
+        }
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
 
@@ -293,8 +316,10 @@ public class SaleListActivity extends AppCompatActivity {
 
                                 ArrayList<SectionItem> contents = new ArrayList<>();
                                 String cSearch="";
+                                if(searchCatalog!=null&&!searchCatalog.equals(""))
+                                    cSearch+=searchCatalog;
                                 if(search!=null&&!search.equals(""))
-                                    cSearch=search;
+                                    cSearch+=search;
                                 String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
@@ -470,9 +495,14 @@ public class SaleListActivity extends AppCompatActivity {
             String aSearch="";
             String cSearch="";
 
+            if(searchCatalog!=null&&!searchCatalog.equals("")) {
+                cSearch += searchCatalog;
+                aSearch+=searchCatalog;
+            }
+
             if(search!=null&&!search.equals("")) {
-                cSearch = search;
-                aSearch = search2;
+                cSearch += search;
+                aSearch += search2;
             }
 
             System.out.println("aSearch===="+aSearch);

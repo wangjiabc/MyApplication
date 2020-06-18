@@ -20,7 +20,7 @@ public class MqttClient{
     private final static String PORT="61613";
     private static MqttAndroidClient client;
     private final static String userName = "admin";
-    private final static String passWord = "password";
+    private final static String passWord = "admin";
 
     /**
      * 获取MqttAndroidClient实例

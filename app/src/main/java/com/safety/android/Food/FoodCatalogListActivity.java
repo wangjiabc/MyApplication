@@ -12,6 +12,7 @@ import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -33,7 +34,6 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
-import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -181,6 +181,18 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // TODO Auto-generated method stub
+        if(item.getItemId() == android.R.id.home)
+        {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void initRefreshLayout() {
         mPullRefreshLayout.setOnPullListener(new QMUIPullRefreshLayout.OnPullListener() {

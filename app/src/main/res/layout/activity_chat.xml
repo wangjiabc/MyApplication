@@ -27,7 +27,7 @@
                 android:id="@+id/ed_topic"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="general"
+                android:text="topic"
                 android:textSize="23sp"
                 />
         </LinearLayout>

@@ -11,7 +11,6 @@ import com.example.myapplication.R;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch2;
 import com.safety.android.tools.MyHolder;
-import com.safety.android.tools.MyTestUtil;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -75,6 +74,10 @@ public class FoodClassifyActivity extends AppCompatActivity {
 
                     root.addChild(parent);
 
+                    parent.setExpanded(true);
+
+                    root.setExpanded(true);
+
                     AndroidTreeView tView = new AndroidTreeView(getApplicationContext(), root);
 
                     containerView.addView(tView.getView());
@@ -110,7 +113,7 @@ public class FoodClassifyActivity extends AppCompatActivity {
             //e.printStackTrace();
         }
 
-        MyTestUtil.print(jsonObject);
+       // MyTestUtil.print(jsonObject);
 
             MyHolder.IconTreeItem nodeItem = new MyHolder.IconTreeItem();
             nodeItem.setId(id);
