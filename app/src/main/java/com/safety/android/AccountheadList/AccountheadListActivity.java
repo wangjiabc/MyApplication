@@ -1,7 +1,6 @@
 package com.safety.android.AccountheadList;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +40,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -123,7 +119,7 @@ public class AccountheadListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String queryText) {
 
-                search="&detail=*"+queryText+"*";
+                search="&materialName=*"+queryText+"*";
                 search2="&name="+queryText;
                 mSearchView.clearFocus();
                 mPullRefreshLayout.finishRefresh();
@@ -317,6 +313,13 @@ public class AccountheadListActivity extends AppCompatActivity {
 
                         final JSONObject finaljsonObject=jsonObject;
 
+                        Integer id=jsonObject.getInt("id");
+
+                        Intent intent = new Intent(getApplicationContext(), AccountheadActivity.class);
+                        intent.putExtra("jsonString", id);
+                        startActivityForResult(intent, 2);
+
+                        /*
                         LayoutInflater inflater = getLayoutInflater();
                         View validateView = inflater.inflate(
                                 R.layout.dialog_validate, null);
@@ -432,10 +435,10 @@ public class AccountheadListActivity extends AppCompatActivity {
                                     }
                                 }).create();
                         dialog.show();
+                       */
 
 
-
-                    } catch (ClassCastException e) {
+                    } catch (ClassCastException | JSONException e) {
                         e.printStackTrace();
                         ((TextView) holder.itemView).setText("");
                     }
@@ -462,7 +465,7 @@ public class AccountheadListActivity extends AppCompatActivity {
         System.out.println("requestCode===="+requestCode+"         resultCode==="+resultCode);
         if (resultCode != Activity.RESULT_OK) {
             return;
-        }else if(requestCode==1){
+        }else if(requestCode==1||requestCode==2){
 
             mSearchView.clearFocus();
             mPullRefreshLayout.finishRefresh();
@@ -504,7 +507,7 @@ public class AccountheadListActivity extends AppCompatActivity {
                 allAccount=0;
             }
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/list?column=createTime&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/listUnite?column=createTime&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
 
@@ -641,5 +644,6 @@ public class AccountheadListActivity extends AppCompatActivity {
         }
 
     }
+
 
 }

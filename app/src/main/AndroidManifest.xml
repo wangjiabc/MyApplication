@@ -132,6 +132,11 @@
             android:label="选择分类"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
+        <activity
+            android:name="com.safety.android.AccountheadList.AccountheadActivity"
+            android:label="销售详情"
+            android:parentActivityName="com.safety.android.AccountheadList.AccountheadListActivity" >
+        </activity>
     </application>
 
 
