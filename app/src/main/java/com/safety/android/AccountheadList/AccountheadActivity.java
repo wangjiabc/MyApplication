@@ -1,5 +1,6 @@
 package com.safety.android.AccountheadList;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,10 +29,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AccountheadActivity extends AppCompatActivity {
@@ -60,6 +61,8 @@ public class AccountheadActivity extends AppCompatActivity {
     private View view;
 
     private Integer id=0;
+
+    private String billNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +128,25 @@ public class AccountheadActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case Menu.FIRST + 1:
 
-                new FetchItemsTaskDel().execute();
+                new AlertDialog.Builder(AccountheadActivity.this)
+                        .setTitle("删除"+billNo+"订单?")
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                new FetchItemsTaskDel().execute();
+
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create()
+                        .show();
 
                 break;
         }
@@ -215,23 +236,12 @@ public class AccountheadActivity extends AppCompatActivity {
                             atv_content.setText(jsonObject0.getString("realname"));
                             sale_title.setText(jsonObject0.getString("email") + "销售单");
 
+                            billNo=jsonObject0.getString("billno");
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
-                        Iterator<Map<String,Object>> iterator=list.iterator();
-
-                        while (iterator.hasNext()){
-
-                            Map<String,Object> map=iterator.next();
-                            EditText et_validatePrice = (EditText) map.get("retailprice");
-                            EditText et_validateCount = (EditText) map.get("count");
-                            TextView tv_valiateAll= (TextView) map.get("allPrice");
-
-
-
-
-                        }
 
                     }
 

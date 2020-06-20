@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TimePicker;
@@ -16,6 +15,8 @@ import com.example.myapplication.R;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import androidx.fragment.app.DialogFragment;
 
 /**
  * Created by WangJing on 2017/5/31.

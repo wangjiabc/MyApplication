@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -44,6 +45,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,6 +104,8 @@ public class FoodListActivity extends AppCompatActivity {
 
     Integer catalog = null;
 
+    private FrameLayout simple_date;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -129,6 +133,9 @@ public class FoodListActivity extends AppCompatActivity {
         }
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+
+        simple_date=view.findViewById(R.id.simple_date);
+        simple_date.setVisibility(View.GONE);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -938,7 +945,11 @@ public class FoodListActivity extends AppCompatActivity {
 
                     contents=addContents(contents,jsonObject);
 
-                    SectionHeader header = new SectionHeader("共"+total+"条"+"        总金额："+allCost);
+                    BigDecimal bigDecimal = new BigDecimal(allCost/10000);
+                    double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点;
+                    String rs = String.valueOf(f1);
+
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
 
                     list.add(section);

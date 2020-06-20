@@ -28,6 +28,64 @@
                 app:showAsAction="ifRoom|collapseActionView"
                 app:queryHint="输入商品名称搜索"/>
         </FrameLayout>
+        <FrameLayout
+            android:id="@+id/simple_date"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:fitsSystemWindows="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/qmui_s_list_item_bg_with_border_bottom" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:text="日期 : "
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+                <Button
+                    android:id="@+id/time_picker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:text="开始" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/common_content_spacing"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:gravity="center_vertical"
+                    android:text="至 "
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+                <Button
+                    android:id="@+id/time_picker2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:text="结束" />
+            </LinearLayout>
+
+        </FrameLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

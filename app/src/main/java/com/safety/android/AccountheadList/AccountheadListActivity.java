@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,12 +28,16 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.util.DatePickerFragment;
+import com.safety.android.util.OnLoginInforCompleted;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +46,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,7 +54,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * Created by WangJing on 2018/5/15.
  */
 
-public class AccountheadListActivity extends AppCompatActivity {
+public class AccountheadListActivity extends AppCompatActivity implements OnLoginInforCompleted {
 
     QMUIPullRefreshLayout mPullRefreshLayout;
 
@@ -82,6 +88,18 @@ public class AccountheadListActivity extends AppCompatActivity {
     private boolean isCost=false;
 
     private double allAccount=0;
+
+    private TextView mDateTextView;
+
+    private Button mDateButton;
+
+    private Button mDateButton2;
+
+    private static final int REQUEST_DATE=0;
+
+    private String startDate;
+
+    private String endDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +147,33 @@ public class AccountheadListActivity extends AppCompatActivity {
                 selectMap=new HashMap<>();
                 initData();
                 return true;
+            }
+        });
+
+
+        mDateButton= (Button) view.findViewById(R.id.time_picker);
+
+        final FragmentManager manager=getSupportFragmentManager();
+        final DatePickerFragment dialog=DatePickerFragment.newInstance("1",new Date());
+        dialog.setOnLoginInforCompleted(this);
+
+        mDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show(manager,"");
+            }
+        });
+
+        mDateButton2= (Button) view.findViewById(R.id.time_picker2);
+
+        final FragmentManager manager2=getSupportFragmentManager();
+        final DatePickerFragment dialog2=DatePickerFragment.newInstance("2",new Date());
+        dialog2.setOnLoginInforCompleted(this);
+
+        mDateButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog2.show(manager2,"");
             }
         });
 
@@ -255,8 +300,12 @@ public class AccountheadListActivity extends AppCompatActivity {
                                 ArrayList<SectionItem> contents = new ArrayList<>();
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
-                                    cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/list?column=createTime&order=desc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                    cSearch+=search;
+                                if(startDate!=null&&!startDate.equals(""))
+                                    cSearch+="&startDate="+startDate;
+                                if(endDate!=null&&!endDate.equals(""))
+                                    cSearch+="&endDate="+endDate;
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/listUnite?column=createTime&order=desc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -477,6 +526,25 @@ public class AccountheadListActivity extends AppCompatActivity {
             initData();
 
         }
+    }
+
+    @Override
+    public void inputLoginInforCompleted(String userName, String date) {
+        if(userName.equals("1")){
+            startDate=date;
+            mDateButton.setText(date);
+        }else if(userName.equals("2")){
+            endDate=date;
+            mDateButton2.setText(date);
+        }
+
+        mSearchView.clearFocus();
+        mPullRefreshLayout.finishRefresh();
+        itemMap=new HashMap<>();
+        page=1;
+        total=0;
+        search="";
+        initData();
 
     }
 
@@ -489,8 +557,17 @@ public class AccountheadListActivity extends AppCompatActivity {
             String cSearch="";
 
             if(search!=null&&!search.equals("")) {
-                cSearch = search;
-                aSearch = search2;
+                cSearch += search;
+                aSearch += search2;
+            }
+
+            if(startDate!=null&&!startDate.equals("")) {
+                cSearch += "&startDate=" + startDate;
+                aSearch+="&startDate=" + startDate;
+            }
+            if(endDate!=null&&!endDate.equals("")) {
+                cSearch += "&endDate=" + endDate;
+                aSearch+="&endDate=" + endDate;
             }
 
             System.out.println("aSearch===="+aSearch);
@@ -527,7 +604,12 @@ public class AccountheadListActivity extends AppCompatActivity {
 
                     contents=addContents(contents,jsonObject);
 
-                    SectionHeader header = new SectionHeader("共"+total+"条"+"        总金额："+allAccount);
+
+                    BigDecimal bigDecimal = new BigDecimal(allAccount/10000);
+                    double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点后一位;
+                    String rs = String.valueOf(f1);
+
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
 
                     list.add(section);
