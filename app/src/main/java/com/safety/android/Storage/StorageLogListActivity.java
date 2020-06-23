@@ -225,7 +225,7 @@ public class StorageLogListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/list?column=createTime&order=desc&page=" + page + "&pageSize="+size);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -436,7 +436,7 @@ public class StorageLogListActivity extends AppCompatActivity {
                 allCost=0;
             }
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/list?column=createTime&order=desc&" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/list?column=createTime&order=desc&page=" + page + "&pageSize="+size+cSearch);
         }
 
 

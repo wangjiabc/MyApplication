@@ -267,7 +267,7 @@ public class StorageListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog//getStorage?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -461,7 +461,7 @@ public class StorageListActivity extends AppCompatActivity {
                 allCost=0;
             }
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=sale&order=desc&pageNo=" + page + "&pageSize"+size+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getStorage?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
         }
 
 
@@ -510,7 +510,7 @@ public class StorageListActivity extends AppCompatActivity {
 
         JSONArray records = result.getJSONArray("records");
 
-        total=result.getInt("total");
+        total=result.getInt("count");
 
         for (int i = 0; i < records.length(); i++) {
 
@@ -538,17 +538,39 @@ public class StorageListActivity extends AppCompatActivity {
         else
             first="<span><font color='blue'　size='30'>"+order+"</font></span>";
         String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
+        Integer stockstorage =0;
+        try{
+           stockstorage= jsonObject.getInt("stockstorage");
+        }catch (Exception e){
+
+        }
+        Integer currentstorage=0;
+        try{
+            currentstorage= jsonObject.getInt("currentstorage");
+        }catch (Exception e){
+
+        }
+        Double cost =0.0;
+        try{
+            cost=jsonObject.getDouble("ALLCOST");
+        }catch (Exception e){
+
+        }
+        Integer accountcount=0;
+        try {
+            accountcount=jsonObject.getInt("accountcount");
+        }catch (Exception e){
+
+        }
+        String img="";
         String costText="";
         if(isCost)
             costText="<span>成本:" + cost + "</span>";
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货数量:" + stockstorage + "</span>&nbsp;&nbsp;"+costText+ "</block quote>"
+                + "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp<span>当前库存:" + currentstorage + "</span>&nbsp;&nbsp;<span>已销售:" + accountcount + "</block quote></p>";
         return s;
     }
 
@@ -562,17 +584,39 @@ public class StorageListActivity extends AppCompatActivity {
         else
             first="<span><font color='red'　size='30'>"+order+"</font></span>";
         String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
+        Integer stockstorage =0;
+        try{
+            stockstorage= jsonObject.getInt("stockstorage");
+        }catch (Exception e){
+
+        }
+        Integer currentstorage=0;
+        try{
+            currentstorage= jsonObject.getInt("currentstorage");
+        }catch (Exception e){
+
+        }
+        Double cost =0.0;
+        try{
+            cost=jsonObject.getDouble("ALLCOST");
+        }catch (Exception e){
+
+        }
+        Integer accountcount=0;
+        try {
+            accountcount=jsonObject.getInt("accountcount");
+        }catch (Exception e){
+
+        }
+        String img="";
         String costText="";
         if(isCost)
             costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
+                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>进货数量:" + stockstorage + "</font>&nbsp;&nbsp;"+costText+ "</block quote>"
+                + "<p></span>&nbsp;&nbsp;<span><font color='red' size='20'></span>&nbsp;&nbsp;<span>当前库存:" + currentstorage +"</span>&nbsp;&nbsp;<span>已销售:" + accountcount + "</block quote></p>";
         return s;
     }
 
