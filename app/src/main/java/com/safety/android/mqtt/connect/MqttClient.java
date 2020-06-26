@@ -17,7 +17,7 @@ public class MqttClient{
 
     private final static String ClientID="android";
     private final static String ServerIP="223.86.150.188";
-    private final static String PORT="61613";
+    private final static String PORT="61616";
     private static MqttAndroidClient client;
     private final static String userName = "admin";
     private final static String passWord = "admin";

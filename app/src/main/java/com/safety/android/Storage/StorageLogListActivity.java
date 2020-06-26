@@ -516,11 +516,14 @@ public class StorageLogListActivity extends AppCompatActivity {
         Integer stockStorage = jsonObject.getInt("stockStorage");
         Double cost = jsonObject.getDouble("cost");
         Integer currentStorage=jsonObject.getInt("currentStorage");
+        String createTime=jsonObject.getString("createTime");
+        String createBy=jsonObject.getString("createBy");
         String costText="";
         if(isCost)
             costText="<span>成本:" + cost + "</span>";
         String s = "<p>"+first+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货库存:" + stockStorage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>当前库存:" + currentStorage + "</block quote>";
+                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货库存:" + stockStorage + "</span>&nbsp;&nbsp;<span>当前库存:" + currentStorage + "</block quote>"+"</span>&nbsp;&nbsp;"+costText+"</p>"+
+                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;操作人:" + createBy + "</span>&nbsp;&nbsp;<span>时间:" + createTime + "</block quote></p>";
         return s;
     }
 

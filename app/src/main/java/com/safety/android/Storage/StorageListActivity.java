@@ -14,7 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +36,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.qmuidemo.view.getGradientDrawable;
+import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,12 +92,18 @@ public class StorageListActivity extends AppCompatActivity {
 
     private double allCost=0;
 
+    private Spinner spinner;
+
+    private Integer diff;
+
+    private boolean refurbish=true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.storage_list_item, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -124,7 +134,7 @@ public class StorageListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String queryText) {
 
-                search="&name=*"+queryText+"*";
+                search="&name="+queryText;
                 search2="&name="+queryText;
                 mSearchView.clearFocus();
                 mPullRefreshLayout.finishRefresh();
@@ -136,6 +146,24 @@ public class StorageListActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        spinner=view.findViewById(R.id.diff);
+
+        String[] m={"","总量与库存和销售相等","总量与库存和销售不相等", "库存与实际库存不相等"};
+
+        ArrayAdapter<String> adapter;
+
+        //将可选内容与ArrayAdapter连接起来
+        adapter = new ArrayAdapter<String>(StorageListActivity.this,android.R.layout.simple_spinner_item,m);
+
+        //设置下拉列表的风格
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        //将adapter 添加到spinner中
+        spinner.setAdapter(adapter);
+
+        //添加事件Spinner事件监听
+        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
 
         List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
 
@@ -157,6 +185,27 @@ public class StorageListActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            diff=arg2;
+
+            mSearchView.clearFocus();
+            mPullRefreshLayout.finishRefresh();
+            page=1;
+            total=0;
+            refurbish=false;
+            initData();
+
+            System.out.println("diff="+diff);
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
     }
 
     /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
@@ -218,6 +267,9 @@ public class StorageListActivity extends AppCompatActivity {
                         page=1;
                         total=0;
                         search="";
+                        diff=null;
+                        refurbish=true;
+                        spinner.setSelection(0);
                         initData();
 
                     }
@@ -250,7 +302,8 @@ public class StorageListActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        mAdapter = createAdapter();
+        if(refurbish)
+            mAdapter = createAdapter();
         mAdapter.setCallback(new QMUIStickySectionAdapter.Callback<SectionHeader, SectionItem>() {
             @Override
             public void loadMore(final QMUISection<SectionHeader, SectionItem> section, final boolean loadMoreBefore) {
@@ -266,7 +319,9 @@ public class StorageListActivity extends AppCompatActivity {
                                 ArrayList<SectionItem> contents = new ArrayList<>();
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
-                                    cSearch=search;
+                                    cSearch+=search;
+                                if(diff!=null)
+                                    cSearch+="&diff="+diff;
                                 String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog//getStorage?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
@@ -331,9 +386,11 @@ public class StorageListActivity extends AppCompatActivity {
 
                         final JSONObject finalJsonObject = jsonObject;
 
+                        MyTestUtil.print(finalJsonObject);
+
                         new AlertDialog.Builder(StorageListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
-                                .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
+                                .setMessage("库存:"+finalJsonObject.getDouble("currentstorage"))
                                 .setNegativeButton("出售", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -443,8 +500,13 @@ public class StorageListActivity extends AppCompatActivity {
             String cSearch="";
 
             if(search!=null&&!search.equals("")) {
-                cSearch = search;
-                aSearch = search2;
+                cSearch += search;
+                aSearch += search2;
+            }
+
+            if(diff!=null) {
+                cSearch += "&diff=" + diff;
+                aSearch += "&diff=" + diff;
             }
 
             System.out.println("aSearch===="+aSearch);
@@ -504,7 +566,7 @@ public class StorageListActivity extends AppCompatActivity {
 
     }
 
-    private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
+    private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents, JSONObject jsonObject) throws JSONException {
 
         JSONObject result= (JSONObject) jsonObject.get("result");
 
@@ -512,6 +574,8 @@ public class StorageListActivity extends AppCompatActivity {
 
         total=result.getInt("count");
 
+        List list=new ArrayList();
+        Map map=new HashMap();
         for (int i = 0; i < records.length(); i++) {
 
             int order=i+1+(page-1)*10;
@@ -522,8 +586,88 @@ public class StorageListActivity extends AppCompatActivity {
 
             itemMap.put(order,jsonObject1);
 
-            contents.add(new SectionItem(s));
+            JSONArray jsonArray=new JSONArray();
+
+            try {
+                int id=jsonObject1.getInt("id");
+                jsonArray.put(id);
+            }catch (Exception e){
+
+            }
+
+            jsonArray.put(order);
+
+            String name ="";
+            try {
+                name=jsonObject1.getString("name");
+                jsonArray.put(name);
+            }catch (Exception e){
+
+            }
+            Integer stockstorage =0;
+            try{
+                stockstorage= jsonObject1.getInt("stockstorage");
+                jsonArray.put(stockstorage);
+            }catch (Exception e){
+
+            }
+            Integer currentstorage=0;
+            try{
+                currentstorage= jsonObject1.getInt("storage");
+                jsonArray.put(currentstorage);
+            }catch (Exception e){
+
+            }
+            Double cost =0.0;
+            try{
+                cost=jsonObject1.getDouble("ALLCOST");
+                jsonArray.put(cost);
+            }catch (Exception e){
+
+            }
+            Integer accountcount=0;
+            try {
+                accountcount=jsonObject1.getInt("accountcount");
+                jsonArray.put(accountcount);
+            }catch (Exception e){
+
+            }
+            Integer realStorage=0;
+            try{
+                realStorage=jsonObject1.getInt("real_storage");
+                jsonArray.put(realStorage);
+            }catch (Exception e){
+
+            }
+            String img="";
+            String costText="";
+            double accountcost= (int) (accountcount*(cost/stockstorage));
+            String accountText="";
+            if(isCost) {
+                costText = "<span>成本:" + cost + "</span>";
+                accountText= "<span>成本:" + accountcost + "</span>";
+            }
+            String diffString="";
+            int diff=0;
+            diff=stockstorage-currentstorage-accountcount;
+            if(diff>0){
+                diffString="<span><font color='red' size='20'>-" + diff + "</span>";
+            }else if(diff<0){
+                diffString="<span><font color='green' size='20'>+" + diff + "</span>";
+            }
+            String diff2String="";
+            int diff2=0;
+            diff2=currentstorage-realStorage;
+            if(diff2>0){
+                diff2String="<span><font color='red' size='20'>-" + diff2 + "</span>";
+            }else if(diff2<0){
+                diff2String="<span><font color='green' size='20'>+" + diff2 + "</span>";
+            }
+
+
+            contents.add(new SectionItem(jsonArray.toString()));
         }
+
 
         return contents;
     }
@@ -546,7 +690,7 @@ public class StorageListActivity extends AppCompatActivity {
         }
         Integer currentstorage=0;
         try{
-            currentstorage= jsonObject.getInt("currentstorage");
+            currentstorage= jsonObject.getInt("storage");
         }catch (Exception e){
 
         }
@@ -562,15 +706,42 @@ public class StorageListActivity extends AppCompatActivity {
         }catch (Exception e){
 
         }
+        Integer realStorage=0;
+        try{
+            realStorage=jsonObject.getInt("real_storage");
+        }catch (Exception e){
+
+        }
         String img="";
         String costText="";
-        if(isCost)
-            costText="<span>成本:" + cost + "</span>";
+        double accountcost= (int) (accountcount*(cost/stockstorage));
+        String accountText="";
+        if(isCost) {
+            costText = "<span>成本:" + cost + "</span>";
+            accountText= "<span>成本:" + accountcost + "</span>";
+        }
+        String diffString="";
+        int diff=0;
+        diff=stockstorage-currentstorage-accountcount;
+        if(diff>0){
+            diffString="<span><font color='red' size='20'>-" + diff + "</span>";
+        }else if(diff<0){
+            diffString="<span><font color='green' size='20'>+" + diff + "</span>";
+        }
+        String diff2String="";
+        int diff2=0;
+        diff2=currentstorage-realStorage;
+        if(diff2>0){
+            diff2String="<span><font color='red' size='20'>-" + diff2 + "</span>";
+        }else if(diff2<0){
+            diff2String="<span><font color='green' size='20'>+" + diff2 + "</span>";
+        }
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货数量:" + stockstorage + "</span>&nbsp;&nbsp;"+costText+ "</block quote>"
-                + "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp<span>当前库存:" + currentstorage + "</span>&nbsp;&nbsp;<span>已销售:" + accountcount + "</block quote></p>";
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货数量:" + stockstorage + "</span>&nbsp;&nbsp;"+costText
+                +"<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;销售数量:" + accountcount +  "&nbsp;&nbsp;"+accountText+ "&nbsp;&nbsp;&nbsp;&nbsp;"+diffString
+                +"<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;当前库存:" + currentstorage +"&nbsp;&nbsp;<span>实际库存:" + realStorage + "&nbsp;&nbsp;&nbsp;&nbsp;"+diff2String;
         return s;
     }
 
@@ -592,7 +763,7 @@ public class StorageListActivity extends AppCompatActivity {
         }
         Integer currentstorage=0;
         try{
-            currentstorage= jsonObject.getInt("currentstorage");
+            currentstorage= jsonObject.getInt("storage");
         }catch (Exception e){
 
         }
@@ -608,15 +779,26 @@ public class StorageListActivity extends AppCompatActivity {
         }catch (Exception e){
 
         }
+        Integer realStorage=0;
+        try{
+            realStorage=jsonObject.getInt("real_storage");
+        }catch (Exception e){
+
+        }
         String img="";
         String costText="";
-        if(isCost)
+        double accountcost= (int) (accountcount*(cost/stockstorage));
+        String accountText="";
+        if(isCost) {
             costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
+            accountText= "<span><font color='red' size='20'>成本:" + accountcost + "</span>";
+        }
         if(img!=null&&!img.equals(""))
             img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
         String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
                 "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>进货数量:" + stockstorage + "</font>&nbsp;&nbsp;"+costText+ "</block quote>"
-                + "<p></span>&nbsp;&nbsp;<span><font color='red' size='20'></span>&nbsp;&nbsp;<span>当前库存:" + currentstorage +"</span>&nbsp;&nbsp;<span>已销售:" + accountcount + "</block quote></p>";
+                +"<p></span>&nbsp;&nbsp;<span>已销售:" + accountcount + "</span>&nbsp;&nbsp;"+accountText+ "</block quote>"
+                + "<p></span>&nbsp;&nbsp;<span><font color='red' size='20'></span>&nbsp;&nbsp;<span>当前库存:" + currentstorage +"</span>&nbsp;&nbsp;<span>实际库存:" + realStorage + "</block quote></p>";
         return s;
     }
 

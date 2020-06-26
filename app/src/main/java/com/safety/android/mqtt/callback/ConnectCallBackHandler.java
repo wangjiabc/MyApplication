@@ -2,7 +2,6 @@ package com.safety.android.mqtt.callback;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -26,12 +25,10 @@ public class ConnectCallBackHandler implements IMqttActionListener {
     @Override
     public void onSuccess(IMqttToken iMqttToken) {
         Log.d("ConnectCallBackHandler","ConnectCallBackHandler/onSuccess");
-        Toast.makeText(context,"连接成功", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
         Log.d("ConnectCallBackHandler","ConnectCallBackHandler/onFailure");
-        Toast.makeText(context,"连接失败", Toast.LENGTH_SHORT).show();
     }
 }

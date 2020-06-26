@@ -54,6 +54,9 @@ public class ChatFragment extends Fragment {
     @BindFont(R.id.lv_content)
     ListView lvContent;
 
+    @BindFont(R.id.btn_connect)
+    Button btnＣonnect;
+
     public static final String PA="PublishActivity";
     private SubcriberAdapter subcriberAdapter;
     //public static final String Topic="springboot.topic";
@@ -75,6 +78,22 @@ public class ChatFragment extends Fragment {
         btnStartPub= (Button) v.findViewById(R.id.btn_start_pub);
         lvContent= (ListView) v.findViewById(R.id.lv_content);
         edPubMessage= (EditText) v.findViewById(R.id.ed_pub_message);
+
+        btnＣonnect=v.findViewById(R.id.btn_connect);
+
+        btnＣonnect.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                MqttAndroidClient mqttAndroidClient= MqttClient.getMqttAndroidClientInstace(getContext());
+                try {
+                    client=mqttAndroidClient;
+                    client.connect();
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         ButterKnife.bind(getActivity());
         client= MqttClient.getMqttAndroidClientInstace(getContext());

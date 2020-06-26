@@ -7,7 +7,7 @@ import com.qmuiteam.qmui.widget.section.QMUISection;
 import java.util.ArrayList;
 
 public class SectionItem extends ArrayList<View> implements QMUISection.Model<SectionItem> {
-    private final String text;
+    public String text;
 
     public SectionItem(String text) {
         this.text=text;

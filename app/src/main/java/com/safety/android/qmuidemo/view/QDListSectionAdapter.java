@@ -1,33 +1,29 @@
 package com.safety.android.qmuidemo.view;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.myapplication.R;
-import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 
+import java.util.HashMap;
+
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 public class QDListSectionAdapter extends QDGridSectionAdapter {
+
+    public QDListSectionAdapter(){
+        super();
+        map=new HashMap();
+    }
 
     @NonNull
     @Override
     protected QMUIStickySectionAdapter.ViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup viewGroup) {
         Context context = viewGroup.getContext();
-        int paddingHor = QMUIDisplayHelper.dp2px(context, 24);
-        int paddingVer = QMUIDisplayHelper.dp2px(context, 16);
-        TextView tv = new TextView(context);
-        tv.setTextSize(14);
-        tv.setBackgroundColor(ContextCompat.getColor(context, R.color.qmui_config_color_gray_9));
-        tv.setTextColor(Color.DKGRAY);
-        tv.setPadding(paddingHor, paddingVer, paddingHor, paddingVer);
-        tv.setGravity(Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
-        tv.setTextAppearance(0);
-        return new QMUIStickySectionAdapter.ViewHolder(tv);
+        View view= LayoutInflater.from(context).inflate(R.layout.qmui_grouplist_view, null);
+        return new QMUIStickySectionAdapter.ViewHolder(view);
     }
 }

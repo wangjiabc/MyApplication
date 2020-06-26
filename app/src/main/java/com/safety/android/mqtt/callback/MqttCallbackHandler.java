@@ -1,9 +1,13 @@
 package com.safety.android.mqtt.callback;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
-import com.safety.android.mqtt.event.MessageEvent;
+import com.safety.android.MainActivity;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -12,7 +16,8 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.greenrobot.eventbus.EventBus;
+
+import androidx.core.app.NotificationCompat;
 
 
 /**
@@ -28,6 +33,8 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     private String clientId;
 
     public static final String Topic="topic";
+
+    private NotificationManager manager;
 
     public MqttCallbackHandler(MqttAndroidClient mqttAndroidClient, Context context, String clientId) {
         this.context=context;
@@ -56,7 +63,17 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
         Log.d("MqttCallbackHandler","MqttCallbackHandler/messageArrived="+s);
         Log.d("MqttCallbackHandler","message1="+new String(mqttMessage.getPayload()));
-        EventBus.getDefault().post(new MessageEvent(s,mqttMessage));
+
+        Intent intentGet = new Intent(MainActivity.getContext(), MainActivity.class);
+        PendingIntent pendingIntentGet = PendingIntent.getActivity(MainActivity.getContext(), 0, intentGet, 0);
+        Notification notificationGet = new NotificationCompat.Builder(MainActivity.getContext(), "subscribe")
+                .setAutoCancel(true)
+                .setContentTitle("收到订阅消息")
+                .setContentText("新闻消息")
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntentGet)
+                .build();
+        manager.notify(2, notificationGet);
     }
 
     @Override
