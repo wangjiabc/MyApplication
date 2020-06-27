@@ -230,7 +230,7 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter();
+        return new QDListSectionAdapter(1);
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {

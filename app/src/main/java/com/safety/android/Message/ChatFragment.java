@@ -15,7 +15,7 @@ import com.safety.android.mqtt.adapter.SubcriberAdapter;
 import com.safety.android.mqtt.bean.Message;
 import com.safety.android.mqtt.callback.PublishCallBackHandler;
 import com.safety.android.mqtt.callback.SubcribeCallBackHandler;
-import com.safety.android.mqtt.connect.MqttClient;
+import com.safety.android.mqtt.connect.MqttClientService;
 import com.safety.android.mqtt.event.MessageEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -85,7 +85,7 @@ public class ChatFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                MqttAndroidClient mqttAndroidClient= MqttClient.getMqttAndroidClientInstace(getContext());
+                MqttAndroidClient mqttAndroidClient= new MqttClientService().getMqttAndroidClientInstace(getContext());
                 try {
                     client=mqttAndroidClient;
                     client.connect();
@@ -96,7 +96,7 @@ public class ChatFragment extends Fragment {
         });
 
         ButterKnife.bind(getActivity());
-        client= MqttClient.getMqttAndroidClientInstace(getContext());
+        client= new MqttClientService().getMqttAndroidClientInstace(getContext());
         initDate();
 
         final String Topic=edPubTopic.getText().toString();

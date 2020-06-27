@@ -279,7 +279,7 @@ public class SaleListActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter();
+        return new QDListSectionAdapter(0);
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {

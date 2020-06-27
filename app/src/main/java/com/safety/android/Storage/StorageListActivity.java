@@ -3,12 +3,8 @@ package com.safety.android.Storage;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,11 +27,9 @@ import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
@@ -54,8 +48,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.safety.android.MainActivity.dataUrl;
 
 public class StorageListActivity extends AppCompatActivity {
 
@@ -161,7 +153,7 @@ public class StorageListActivity extends AppCompatActivity {
 
         //将adapter 添加到spinner中
         spinner.setAdapter(adapter);
-
+        spinner.setSelection(0, true);
         //添加事件Spinner事件监听
         spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
 
@@ -280,7 +272,7 @@ public class StorageListActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter();
+        return new QDListSectionAdapter(1);
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -413,37 +405,6 @@ public class StorageListActivity extends AppCompatActivity {
 
                                     }
                                 })
-                                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        JSONObject jsonObject = null;
-                                        jsonObject = selectMap.get(n);
-                                        String s = "";
-                                        if (jsonObject == null) {
-                                            jsonObject = itemMap.get(n);
-                                            try {
-                                                s = StringToHtml2(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.put(n, jsonObject);
-                                        } else {
-                                            try {
-                                                s = StringToHtml(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.remove(n);
-                                        }
-                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
-
-
-                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                                        ((TextView) holder.itemView).setText(sp);
-                                        dialogInterface.dismiss();
-                                    }
-                                })
                                 .create()
                                 .show();
 
@@ -574,233 +535,90 @@ public class StorageListActivity extends AppCompatActivity {
 
         total=result.getInt("count");
 
-        List list=new ArrayList();
-        Map map=new HashMap();
         for (int i = 0; i < records.length(); i++) {
 
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            String s=StringToHtml(jsonObject1);
 
             itemMap.put(order,jsonObject1);
 
-            JSONArray jsonArray=new JSONArray();
+            JSONObject jsonObject2=new JSONObject();
 
             try {
                 int id=jsonObject1.getInt("id");
-                jsonArray.put(id);
+                jsonObject2.put("id",id);
             }catch (Exception e){
 
             }
 
-            jsonArray.put(order);
+            jsonObject2.put("0",order);
 
             String name ="";
             try {
                 name=jsonObject1.getString("name");
-                jsonArray.put(name);
+                jsonObject2.put("name",name);
             }catch (Exception e){
 
             }
             Integer stockstorage =0;
             try{
                 stockstorage= jsonObject1.getInt("stockstorage");
-                jsonArray.put(stockstorage);
+                jsonObject2.put("3","总数："+stockstorage);
             }catch (Exception e){
 
             }
-            Integer currentstorage=0;
+            Integer storage=0;
             try{
-                currentstorage= jsonObject1.getInt("storage");
-                jsonArray.put(currentstorage);
+                storage= jsonObject1.getInt("storage");
+
             }catch (Exception e){
 
             }
+            jsonObject2.put("2","库存："+storage);
             Double cost =0.0;
-            try{
-                cost=jsonObject1.getDouble("ALLCOST");
-                jsonArray.put(cost);
-            }catch (Exception e){
+         /*   if(isCost) {
+                try {
+                    cost = jsonObject1.getDouble("ALLCOST");
+                    jsonArray.put("总成本:" + cost);
+                } catch (Exception e) {
 
-            }
+                }
+            }*/
             Integer accountcount=0;
             try {
                 accountcount=jsonObject1.getInt("accountcount");
-                jsonArray.put(accountcount);
+
             }catch (Exception e){
 
             }
+
             Integer realStorage=0;
             try{
                 realStorage=jsonObject1.getInt("real_storage");
-                jsonArray.put(realStorage);
+
             }catch (Exception e){
 
             }
+            jsonObject2.put("4","实库"+realStorage);
             String img="";
-            String costText="";
-            double accountcost= (int) (accountcount*(cost/stockstorage));
-            String accountText="";
-            if(isCost) {
-                costText = "<span>成本:" + cost + "</span>";
-                accountText= "<span>成本:" + accountcost + "</span>";
-            }
-            String diffString="";
+
             int diff=0;
-            diff=stockstorage-currentstorage-accountcount;
-            if(diff>0){
-                diffString="<span><font color='red' size='20'>-" + diff + "</span>";
-            }else if(diff<0){
-                diffString="<span><font color='green' size='20'>+" + diff + "</span>";
-            }
-            String diff2String="";
+            diff=stockstorage-storage-accountcount;
+            jsonObject2.put("diff",diff);
             int diff2=0;
-            diff2=currentstorage-realStorage;
-            if(diff2>0){
-                diff2String="<span><font color='red' size='20'>-" + diff2 + "</span>";
-            }else if(diff2<0){
-                diff2String="<span><font color='green' size='20'>+" + diff2 + "</span>";
-            }
+            diff2=storage-realStorage;
+            jsonObject2.put("diff2",diff2);
 
-
-            contents.add(new SectionItem(jsonArray.toString()));
+            jsonObject2.put("type",1);
+            contents.add(new SectionItem(jsonObject2.toString()));
         }
 
 
         return contents;
     }
 
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer stockstorage =0;
-        try{
-           stockstorage= jsonObject.getInt("stockstorage");
-        }catch (Exception e){
 
-        }
-        Integer currentstorage=0;
-        try{
-            currentstorage= jsonObject.getInt("storage");
-        }catch (Exception e){
-
-        }
-        Double cost =0.0;
-        try{
-            cost=jsonObject.getDouble("ALLCOST");
-        }catch (Exception e){
-
-        }
-        Integer accountcount=0;
-        try {
-            accountcount=jsonObject.getInt("accountcount");
-        }catch (Exception e){
-
-        }
-        Integer realStorage=0;
-        try{
-            realStorage=jsonObject.getInt("real_storage");
-        }catch (Exception e){
-
-        }
-        String img="";
-        String costText="";
-        double accountcost= (int) (accountcount*(cost/stockstorage));
-        String accountText="";
-        if(isCost) {
-            costText = "<span>成本:" + cost + "</span>";
-            accountText= "<span>成本:" + accountcost + "</span>";
-        }
-        String diffString="";
-        int diff=0;
-        diff=stockstorage-currentstorage-accountcount;
-        if(diff>0){
-            diffString="<span><font color='red' size='20'>-" + diff + "</span>";
-        }else if(diff<0){
-            diffString="<span><font color='green' size='20'>+" + diff + "</span>";
-        }
-        String diff2String="";
-        int diff2=0;
-        diff2=currentstorage-realStorage;
-        if(diff2>0){
-            diff2String="<span><font color='red' size='20'>-" + diff2 + "</span>";
-        }else if(diff2<0){
-            diff2String="<span><font color='green' size='20'>+" + diff2 + "</span>";
-        }
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货数量:" + stockstorage + "</span>&nbsp;&nbsp;"+costText
-                +"<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;销售数量:" + accountcount +  "&nbsp;&nbsp;"+accountText+ "&nbsp;&nbsp;&nbsp;&nbsp;"+diffString
-                +"<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;当前库存:" + currentstorage +"&nbsp;&nbsp;<span>实际库存:" + realStorage + "&nbsp;&nbsp;&nbsp;&nbsp;"+diff2String;
-        return s;
-    }
-
-    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='red'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer stockstorage =0;
-        try{
-            stockstorage= jsonObject.getInt("stockstorage");
-        }catch (Exception e){
-
-        }
-        Integer currentstorage=0;
-        try{
-            currentstorage= jsonObject.getInt("storage");
-        }catch (Exception e){
-
-        }
-        Double cost =0.0;
-        try{
-            cost=jsonObject.getDouble("ALLCOST");
-        }catch (Exception e){
-
-        }
-        Integer accountcount=0;
-        try {
-            accountcount=jsonObject.getInt("accountcount");
-        }catch (Exception e){
-
-        }
-        Integer realStorage=0;
-        try{
-            realStorage=jsonObject.getInt("real_storage");
-        }catch (Exception e){
-
-        }
-        String img="";
-        String costText="";
-        double accountcost= (int) (accountcount*(cost/stockstorage));
-        String accountText="";
-        if(isCost) {
-            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
-            accountText= "<span><font color='red' size='20'>成本:" + accountcost + "</span>";
-        }
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>进货数量:" + stockstorage + "</font>&nbsp;&nbsp;"+costText+ "</block quote>"
-                +"<p></span>&nbsp;&nbsp;<span>已销售:" + accountcount + "</span>&nbsp;&nbsp;"+accountText+ "</block quote>"
-                + "<p></span>&nbsp;&nbsp;<span><font color='red' size='20'></span>&nbsp;&nbsp;<span>当前库存:" + currentstorage +"</span>&nbsp;&nbsp;<span>实际库存:" + realStorage + "</block quote></p>";
-        return s;
-    }
 
 
 

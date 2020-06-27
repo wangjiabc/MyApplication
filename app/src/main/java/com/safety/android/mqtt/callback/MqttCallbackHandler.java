@@ -1,13 +1,13 @@
 package com.safety.android.mqtt.callback;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
-import com.safety.android.MainActivity;
+import com.example.myapplication.R;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -17,8 +17,9 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import androidx.core.app.NotificationCompat;
+import androidx.annotation.RequiresApi;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
  * Description :接收服务器推送过来的消息
@@ -59,21 +60,32 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
      * @param mqttMessage  内容信息
      * @throws Exception
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
         Log.d("MqttCallbackHandler","MqttCallbackHandler/messageArrived="+s);
         Log.d("MqttCallbackHandler","message1="+new String(mqttMessage.getPayload()));
 
-        Intent intentGet = new Intent(MainActivity.getContext(), MainActivity.class);
-        PendingIntent pendingIntentGet = PendingIntent.getActivity(MainActivity.getContext(), 0, intentGet, 0);
-        Notification notificationGet = new NotificationCompat.Builder(MainActivity.getContext(), "subscribe")
-                .setAutoCancel(true)
-                .setContentTitle("收到订阅消息")
-                .setContentText("新闻消息")
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(pendingIntentGet)
+        // 1. 创建一个通知(必须设置channelId)
+        //Context context = getApplicationContext();
+        String channelId = "ChannelId"; // 通知渠道
+        Notification notification = new Notification.Builder(context)
+                .setChannelId(channelId)
+                .setSmallIcon(R.mipmap.icon_grid_qq_face_view)
+                .setContentTitle("通知标题")
+                .setContentText(new String(mqttMessage.getPayload()))
                 .build();
-        manager.notify(2, notificationGet);
+// 2. 获取系统的通知管理器(必须设置channelId)
+        NotificationManager notificationManager = (NotificationManager) context
+                .getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(
+                channelId,
+                "通知的渠道名称",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        notificationManager.createNotificationChannel(channel);
+// 3. 发送通知(Notification与NotificationManager的channelId必须对应)
+        notificationManager.notify(1, notification);
+
     }
 
     @Override

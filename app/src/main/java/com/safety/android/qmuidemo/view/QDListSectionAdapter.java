@@ -14,8 +14,11 @@ import androidx.annotation.NonNull;
 
 public class QDListSectionAdapter extends QDGridSectionAdapter {
 
-    public QDListSectionAdapter(){
+    int type=0;
+
+    public QDListSectionAdapter(int type){
         super();
+        this.type=type;
         map=new HashMap();
     }
 
@@ -23,7 +26,12 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
     @Override
     protected QMUIStickySectionAdapter.ViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup viewGroup) {
         Context context = viewGroup.getContext();
-        View view= LayoutInflater.from(context).inflate(R.layout.qmui_grouplist_view, null);
+        View view;
+        if(type==0){
+            view= LayoutInflater.from(context).inflate(R.layout.item_grouplist_view, null);
+        }else {
+             view= LayoutInflater.from(context).inflate(R.layout.item_img_grouplist_view, null);
+        }
         return new QMUIStickySectionAdapter.ViewHolder(view);
     }
 }

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,6 +99,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
     private String startDate;
 
     private String endDate;
+
+    private boolean refurbish=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -262,7 +263,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter();
+        return new QDListSectionAdapter(0);
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -284,7 +285,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
     }
 
     private void initData() {
-        mAdapter = createAdapter();
+        if(refurbish)
+             mAdapter = createAdapter();
         mAdapter.setCallback(new QMUIStickySectionAdapter.Callback<SectionHeader, SectionItem>() {
             @Override
             public void loadMore(final QMUISection<SectionHeader, SectionItem> section, final boolean loadMoreBefore) {
@@ -544,6 +546,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         page=1;
         total=0;
         search="";
+        refurbish=false;
         initData();
 
     }
@@ -632,14 +635,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     }
 
-    private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
+    private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject0) throws JSONException {
 
-        JSONObject result= (JSONObject) jsonObject.get("result");
+        JSONObject result= (JSONObject) jsonObject0.get("result");
 
         JSONArray records = result.getJSONArray("records");
 
         total=result.getInt("total");
-
+/*
         for (int i = 0; i < records.length(); i++) {
 
             int order=i+1+(page-1)*10;
@@ -654,6 +657,54 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             contents.add(new SectionItem(s));
         }
+*/
+
+
+        for (int i = 0; i < records.length(); i++) {
+
+            int order=i+1+(page-1)*10;
+
+            JSONObject jsonObject = (JSONObject) records.get(i);
+
+            JSONArray jsonArray=new JSONArray();
+
+            JSONObject jsonObject2=new JSONObject();
+
+            try {
+                int id=jsonObject.getInt("id");
+                jsonObject2.put("id",id);
+            }catch (Exception e){
+
+            }
+
+            String name ="";
+            try {
+                jsonObject.getString("materialName");
+            }catch (Exception e){
+
+            }
+            jsonObject2.put("name",name);
+            String  billno = jsonObject.getString("billno");
+            jsonArray.put(order);
+            jsonObject2.put("name",billno);
+            Double totalprice = jsonObject.getDouble("totalprice");
+            jsonArray.put("totalprice："+totalprice);
+            String  count=jsonObject.getString("count");
+            jsonArray.put("count："+count);
+            String img=jsonObject.getString("img");
+            String createTime=jsonObject.getString("createTime");
+            jsonArray.put("createTime："+createTime);
+            String supplier=jsonObject.getString("supplier");
+            jsonArray.put("supplier："+supplier);
+
+
+            jsonObject2.put("jsonArray",jsonArray);
+            contents.add(new SectionItem(jsonObject2.toString()));
+
+            itemMap.put(order,jsonObject2);
+        }
+
+
 
         return contents;
     }

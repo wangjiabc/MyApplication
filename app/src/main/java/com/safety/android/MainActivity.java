@@ -23,11 +23,10 @@ import com.safety.android.SQLite3.UserLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.http.login;
-import com.safety.android.mqtt.connect.MqttClient;
+import com.safety.android.mqtt.connect.MqttClientService;
 import com.safety.android.mqtt.event.MessageEvent;
 import com.safety.android.tools.MyTestUtil;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -59,8 +58,6 @@ public class MainActivity extends AppCompatActivity{
     public static String dataUrl="";
 
     private static Context mContext;
-
-    private MqttAndroidClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +101,14 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
-        client=MqttClient.getMqttAndroidClientInstace(getBaseContext());
 
+        Intent intent = new Intent(this, MqttClientService.class);
+        //开启服务兼容
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
 
     }
 

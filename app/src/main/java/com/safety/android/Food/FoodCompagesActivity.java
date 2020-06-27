@@ -222,7 +222,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter();
+        return new QDListSectionAdapter(1);
     }
 
     @Override

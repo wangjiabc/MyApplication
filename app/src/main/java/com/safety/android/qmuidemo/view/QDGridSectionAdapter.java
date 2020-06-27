@@ -2,6 +2,7 @@ package com.safety.android.qmuidemo.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,8 @@ import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.section.QMUIDefaultStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 
-import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -89,12 +90,46 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
 
         try {
-            final JSONArray jsonArray=new JSONArray(s);
 
-            int id=0;
+            final JSONObject jsonObject=new JSONObject(s);
 
-            if(jsonArray.get(0)!=null){
-                id=jsonArray.getInt(0);
+            try {
+                int diff = jsonObject.getInt("diff");
+                if(diff!=0) {
+                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName5);
+                    if (diff > 0) {
+                        tvApplicationName.setTextColor(Color.GREEN);
+                        tvApplicationName.setText("+"+String.valueOf(diff));
+                    }else if(diff<0){
+                        tvApplicationName.setTextColor(Color.RED);
+                        tvApplicationName.setText("-"+String.valueOf(diff));
+                    }
+                }
+            }catch (Exception e){
+
+                e.printStackTrace();
+            }
+
+            try {
+                int diff2 = jsonObject.getInt("diff2");
+                if(diff2!=0) {
+                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName6);
+                    if (diff2 > 0) {
+                        tvApplicationName.setTextColor(Color.GREEN);
+                        tvApplicationName.setText("+"+String.valueOf(diff2));
+                    }else if(diff2<0){
+                        tvApplicationName.setTextColor(Color.RED);
+                        tvApplicationName.setText("-"+String.valueOf(diff2));
+                    }
+                }
+            }catch (Exception e){
+
+                e.printStackTrace();
+            }
+
+            Integer id=jsonObject.getInt("id");
+
+            if(id!=null){
                 if(map.get(id)!=null)
                     checkBox.setChecked(true);
                 else
@@ -108,42 +143,54 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 public void onClick(View v) {
                     System.out.println("click======"+itemIndex);
                     if(map.get(fId)==null)
-                        map.put(fId,jsonArray);
+                        map.put(fId,jsonObject);
                     else
                         map.remove(fId);
                 }
             });
 
-            if(jsonArray.get(1)!=null){
+            if(jsonObject.get("0")!=null){
                 TextView cId=linearLayout.findViewById(R.id.id);
-                cId.setText(String.valueOf(jsonArray.get(1)));
+                TextPaint paint = cId.getPaint();
+                paint.setFakeBoldText(true);
+                cId.setText(String.valueOf(jsonObject.get("0")));
             }
 
-            if(jsonArray.get(1)!=null) {
+            if(jsonObject.get("name")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName);
-                tvApplicationName.setText(String.valueOf(jsonArray.get(1)));
+                TextPaint paint = tvApplicationName.getPaint();
+                paint.setFakeBoldText(true);
+                tvApplicationName.setText(String.valueOf(jsonObject.get("name")));
             }
 
-            if(jsonArray.get(2)!=null) {
+            if(jsonObject.get("2")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName2);
-                tvApplicationName.setText(String.valueOf(jsonArray.get(2)));
+                tvApplicationName.setText(String.valueOf(jsonObject.get("2")));
             }
 
-            if(jsonArray.get(3)!=null) {
+            if(jsonObject.get("3")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName3);
-                tvApplicationName.setText(String.valueOf(jsonArray.get(3)));
+                tvApplicationName.setText(String.valueOf(jsonObject.get("3")));
             }
-            if(jsonArray.get(4)!=null) {
+            if(jsonObject.get("4")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName4);
-                tvApplicationName.setText(String.valueOf(jsonArray.get(4)));
+                tvApplicationName.setText(String.valueOf(jsonObject.get("4")));
             }
-            if(jsonArray.get(5)!=null) {
+            if(jsonObject.get("5")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName5);
-                tvApplicationName.setText(String.valueOf(jsonArray.get(5)));
+                tvApplicationName.setText(String.valueOf(jsonObject.get("5")));
             }
-            if(jsonArray.get(6)!=null) {
+            if(jsonObject.get("6")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName6);
-                tvApplicationName.setText(String.valueOf(jsonArray.get(6)));
+                tvApplicationName.setText(String.valueOf(jsonObject.get("6")));
+            }
+            if(jsonObject.get("7")!=null) {
+                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName7);
+                tvApplicationName.setText(String.valueOf(jsonObject.get("7")));
+            }
+            if(jsonObject.get("8")!=null) {
+                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName8);
+                tvApplicationName.setText(String.valueOf(jsonObject.get("8")));
             }
 
         } catch (JSONException e) {
