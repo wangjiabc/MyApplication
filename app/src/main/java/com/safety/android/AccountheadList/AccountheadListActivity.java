@@ -666,8 +666,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             JSONObject jsonObject = (JSONObject) records.get(i);
 
-            JSONArray jsonArray=new JSONArray();
-
             JSONObject jsonObject2=new JSONObject();
 
             try {
@@ -679,26 +677,24 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             String name ="";
             try {
-                jsonObject.getString("materialName");
+                name=jsonObject.getString("materialName");
             }catch (Exception e){
 
             }
-            jsonObject2.put("name",name);
-            String  billno = jsonObject.getString("billno");
-            jsonArray.put(order);
-            jsonObject2.put("name",billno);
-            Double totalprice = jsonObject.getDouble("totalprice");
-            jsonArray.put("totalprice："+totalprice);
-            String  count=jsonObject.getString("count");
-            jsonArray.put("count："+count);
-            String img=jsonObject.getString("img");
-            String createTime=jsonObject.getString("createTime");
-            jsonArray.put("createTime："+createTime);
             String supplier=jsonObject.getString("supplier");
-            jsonArray.put("supplier："+supplier);
+
+            jsonObject2.put("name",supplier);
+            String  billno = jsonObject.getString("billno");
+            jsonObject2.put("0",order);
+            String  totalprice = jsonObject.getString("totalprice");
+            jsonObject2.put("2",name);
+            jsonObject2.put("3",totalprice);
+            String  count=jsonObject.getString("count");
+            jsonObject2.put("5",count);
+            String createTime=jsonObject.getString("createTime");
+            jsonObject2.put("4",createTime);
 
 
-            jsonObject2.put("jsonArray",jsonArray);
             contents.add(new SectionItem(jsonObject2.toString()));
 
             itemMap.put(order,jsonObject2);

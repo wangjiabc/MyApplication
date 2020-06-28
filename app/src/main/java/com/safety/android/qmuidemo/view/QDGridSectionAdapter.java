@@ -107,7 +107,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 }
             }catch (Exception e){
 
-                e.printStackTrace();
+              //  e.printStackTrace();
             }
 
             try {
@@ -124,7 +124,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 }
             }catch (Exception e){
 
-                e.printStackTrace();
+              //  e.printStackTrace();
             }
 
             Integer id=jsonObject.getInt("id");

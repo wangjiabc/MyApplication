@@ -9,6 +9,7 @@ import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 
@@ -20,6 +21,10 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
         super();
         this.type=type;
         map=new HashMap();
+    }
+
+    public Map getSelectMap(){
+        return map;
     }
 
     @NonNull
