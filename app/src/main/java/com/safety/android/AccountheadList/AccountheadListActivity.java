@@ -1,10 +1,13 @@
 package com.safety.android.AccountheadList;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,13 +23,11 @@ import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
-import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.tools.MyTestUtil;
 import com.safety.android.util.DatePickerFragment;
 import com.safety.android.util.OnLoginInforCompleted;
 
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -101,6 +103,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
     private String endDate;
 
     private boolean refurbish=true;
+
+    private QDListSectionAdapter qdListSectionAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,29 +205,76 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "一键删除订单").setIcon(android.R.drawable.ic_lock_lock);
+        // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
+        // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
+      //  menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_lock_power_off);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         System.out.println("click");
         switch (item.getItemId()) {
-            case R.id.menu_item_add:
-                JSONArray jsonArray=new JSONArray();
-                System.out.println("selecmap==================");
-                MyTestUtil.print(selectMap);
-                for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()){
-                    jsonArray.put(map.getValue());
+            case Menu.FIRST + 1:
+                selectMap=qdListSectionAdapter.getSelectMap();
+
+                String billNo="";
+
+                for(Integer k:selectMap.keySet()){
+                    JSONObject jsonObject=selectMap.get(k);
+                    try {
+
+                        String supplier=jsonObject.getString("supplier");
+
+                        String  billno = jsonObject.getString("billno");
+
+                        billNo+=supplier+"的订单"+billno+",";
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-                JSONObject jsonObject=new JSONObject();
-                try {
-                    jsonObject.put("ids",jsonArray);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                switch (item.getItemId()) {
+                    case Menu.FIRST + 1:
+
+                        new AlertDialog.Builder(AccountheadListActivity.this)
+                                .setTitle("删除"+billNo+"?")
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        new FetchItemsTaskDel().execute();
+
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+
+                        break;
                 }
-                Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
-                intent.putExtra("jsonString", jsonObject.toString());
-                startActivityForResult(intent, 1);
+
+                break;
+            case Menu.FIRST + 2:
+
                 break;
         }
 
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
 
@@ -263,7 +314,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter(0);
+        qdListSectionAdapter=new QDListSectionAdapter(0);
+        return qdListSectionAdapter;
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -685,6 +737,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             jsonObject2.put("name",supplier);
             String  billno = jsonObject.getString("billno");
+            jsonObject2.put("supplier",supplier);
+            jsonObject2.put("billno",billno);
             jsonObject2.put("0",order);
             String  totalprice = jsonObject.getString("totalprice");
             jsonObject2.put("2",name);
@@ -736,11 +790,26 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         @Override
         protected String doInBackground(Integer... params) {
 
-            int id=params[0];
+            selectMap=qdListSectionAdapter.getSelectMap();
+
+            JSONArray jsonArray=new JSONArray();
+
+            for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                JSONObject json = sMap.getValue();
+                try {
+                    jsonArray.put(json.getInt("id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String ids= Uri.encode(jsonArray.toString());
+
+            System.out.println("ids====="+ids);
 
             JSONObject jsonObject=new JSONObject();
 
-            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/accounthead/accounthead/delete?id="+id,jsonObject,"delete");
+            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/accounthead/accounthead/deleteBatch?ids="+ids,jsonObject,"delete");
         }
 
 
@@ -757,15 +826,31 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                     String message = jsonObject.optString("message", null);
                     if(success.equals("true")) {
 
-                        ((TextView) viewHolder.itemView).setText("");
+                        selectMap=qdListSectionAdapter.getSelectMap();
 
+                        String billNo="";
+
+                        for(Integer k:selectMap.keySet()){
+                            JSONObject jsonObject1=selectMap.get(k);
+                            try {
+
+                                int position=jsonObject1.getInt("0");
+
+                                qdListSectionAdapter.notifyItemRemoved(position);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        qdListSectionAdapter.setSelectMap();
                     }
 
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
                 }
 
             }

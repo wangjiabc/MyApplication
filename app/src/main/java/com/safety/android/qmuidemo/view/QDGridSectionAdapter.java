@@ -7,6 +7,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -14,6 +15,7 @@ import com.example.myapplication.R;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.section.QMUIDefaultStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUISection;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,6 +129,19 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
               //  e.printStackTrace();
             }
 
+            try{
+                if(jsonObject.get("img")!=null&&jsonObject.get("img")!=""){
+                    ImageView mPhotoView=linearLayout.findViewById(R.id.ivLogo);
+                    String img= (String) jsonObject.get("img");
+                    Picasso.with(holder.itemView.getContext()).load(img).into(mPhotoView);
+                }
+                System.out.println("img======="+jsonObject.get("img"));
+            }catch (Exception e){
+
+                //e.printStackTrace();
+
+            }
+
             Integer id=jsonObject.getInt("id");
 
             if(id!=null){
@@ -192,6 +207,8 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName8);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("8")));
             }
+
+
 
         } catch (JSONException e) {
 

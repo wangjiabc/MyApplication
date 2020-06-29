@@ -9,8 +9,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,8 +56,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.safety.android.MainActivity.dataUrl;
 
 public class FoodListActivity extends AppCompatActivity {
 
@@ -120,7 +116,7 @@ public class FoodListActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(jsonString);
                 catalog = jsonObject.getInt("catalog");
             }else{
-                catalog=-1;
+                catalog=null;
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -783,37 +779,6 @@ public class FoodListActivity extends AppCompatActivity {
                                         dialogInterface.dismiss();
                                     }
                                 })
-                                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        JSONObject jsonObject = null;
-                                        jsonObject = selectMap.get(n);
-                                        String s = "";
-                                        if (jsonObject == null) {
-                                            jsonObject = itemMap.get(n);
-                                            try {
-                                                s = StringToHtml2(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.put(n, jsonObject);
-                                        } else {
-                                            try {
-                                                s = StringToHtml(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.remove(n);
-                                        }
-                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
-
-
-                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                                        ((TextView) holder.itemView).setText(sp);
-                                        dialogInterface.dismiss();
-                                    }
-                                })
                                 .create()
                                 .show();
 
@@ -852,11 +817,12 @@ public class FoodListActivity extends AppCompatActivity {
                 JSONObject jsonObject=new JSONObject(data.getStringExtra("value"));
                 int type=jsonObject.getInt("type");
                 System.out.println("type=========="+type);
+
                 if(type==1) {
                     ArrayList<SectionItem> contents = new ArrayList<>();
                     jsonObject.put("order", String.valueOf(mAdapter.getItemCount()));
-                    String s = StringToHtml(jsonObject);
-                    contents.add(new SectionItem(s));
+                   // String s = StringToHtml(jsonObject);
+                   // contents.add(new SectionItem(s));
                     boolean existMoreData = true;
 
                     if (total < (page * 10)) {
@@ -869,8 +835,8 @@ public class FoodListActivity extends AppCompatActivity {
                     jsonObject.put("order",position);
                     Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
                     final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
-                    String s = StringToHtml(jsonObject);
-                    ((TextView) viewHolder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
+                   // String s = StringToHtml(jsonObject);
+                  //  ((TextView) viewHolder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -985,66 +951,44 @@ public class FoodListActivity extends AppCompatActivity {
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            String s=StringToHtml(jsonObject1);
-            //String s="<p>(1).Name:&nbsp;Toking Hazard by Joking Hazard</p><p>(2).Material: Paper</p><p>(3).Package: Box</p><p><br/></p><p>50 Marijuana themed cards to heighten your Joking Hazard experience.<br/></p><p>This is an expansion pack. It requires Joking Hazard to play</p><p>In addition to the cards, there is a secret in each box!</p><p>The box is OVERSIZED to fit the surprise</p><p><br/></p>";
-            SpannableString spannableString = new SpannableString(s);
+
+            JSONObject jsonObject2=new JSONObject();
+
+            try {
+                int id=jsonObject1.getInt("id");
+                jsonObject2.put("id",id);
+            }catch (Exception e){
+
+            }
+
+            jsonObject2.put("0",order);
+
+            String name = jsonObject1.getString("name");
+            jsonObject2.put("name",name);
+            Integer storage = jsonObject1.getInt("storage");
+            jsonObject2.put("2",storage);
+            Double cost = jsonObject1.getDouble("cost");
+            Double retailprice=jsonObject1.getDouble("retailprice");
+            String img=jsonObject1.getString("img");
+            String costText="";
+            if(isCost) {
+                costText = "成本:" + cost;
+                jsonObject2.put("3",costText);
+            }
+            if(img!=null&&!img.equals("null")&&!img.equals("")) {
+                img = "http://qiniu.lzxlzc.com/compress/" + img;
+                jsonObject2.put("img",img);
+            }
 
             itemMap.put(order,jsonObject1);
 
-            contents.add(new SectionItem(s));
+            contents.add(new SectionItem(jsonObject2.toString()));
         }
 
         return contents;
     }
 
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
-        return s;
-    }
 
-    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='red'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
-        return s;
-    }
 
 
     private class FetchItemsTaskAddStorage extends AsyncTask<Map,Void,String> {
@@ -1085,8 +1029,8 @@ public class FoodListActivity extends AppCompatActivity {
                                 jsonObject1.put("storage", storage + addStorage);
                                 Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
                                 final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
-                                String s = StringToHtml(jsonObject1);
-                                ((TextView) viewHolder.itemView).setText(Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null));
+                             //   String s = StringToHtml(jsonObject1);
+                             //   ((TextView) viewHolder.itemView).setText(Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null));
                             } else {
                                 Toast.makeText(getApplication(), "批量添加库存后请刷新页面", Toast.LENGTH_SHORT).show();
                             }

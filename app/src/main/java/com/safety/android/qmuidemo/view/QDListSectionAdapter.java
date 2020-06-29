@@ -27,6 +27,11 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
         return map;
     }
 
+    public void setSelectMap(){
+        map=new HashMap();
+    }
+
+
     @NonNull
     @Override
     protected QMUIStickySectionAdapter.ViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup viewGroup) {

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -93,6 +94,10 @@ public class SaleListActivity extends AppCompatActivity {
 
     private String searchCatalog="";
 
+    private QDListSectionAdapter qdListSectionAdapter;
+
+    private boolean refurbish=true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -107,7 +112,7 @@ public class SaleListActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(jsonString);
                 catalog = jsonObject.getInt("catalog");
             }else{
-                catalog=-1;
+                catalog=null;
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -141,7 +146,7 @@ public class SaleListActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String queryText) {
 
                 System.out.println("onQueryTextChange:"+queryText);
-
+                refurbish=false;
                 return true;
             }
 
@@ -221,12 +226,15 @@ public class SaleListActivity extends AppCompatActivity {
         System.out.println("click");
         switch (item.getItemId()) {
             case R.id.menu_item_add:
+                selectMap=qdListSectionAdapter.getSelectMap();
+
                 JSONArray jsonArray=new JSONArray();
-                System.out.println("selecmap==================");
-                MyTestUtil.print(selectMap);
-                for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()){
-                    jsonArray.put(map.getValue());
+
+                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                    JSONObject json = sMap.getValue();
+                    jsonArray.put(json);
                 }
+
                 JSONObject jsonObject=new JSONObject();
                 try {
                     jsonObject.put("ids",jsonArray);
@@ -269,6 +277,7 @@ public class SaleListActivity extends AppCompatActivity {
                         page=1;
                         total=0;
                         search="";
+                        refurbish=true;
                         initData();
 
                     }
@@ -279,7 +288,8 @@ public class SaleListActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter(0);
+        qdListSectionAdapter=new QDListSectionAdapter(1);
+        return qdListSectionAdapter;
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -301,7 +311,8 @@ public class SaleListActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        mAdapter = createAdapter();
+        if(refurbish)
+            mAdapter = createAdapter();
         mAdapter.setCallback(new QMUIStickySectionAdapter.Callback<SectionHeader, SectionItem>() {
             @Override
             public void loadMore(final QMUISection<SectionHeader, SectionItem> section, final boolean loadMoreBefore) {
@@ -575,13 +586,41 @@ public class SaleListActivity extends AppCompatActivity {
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            String s=StringToHtml(jsonObject1);
+
+            JSONObject jsonObject2=new JSONObject();
+
+            try {
+                int id=jsonObject1.getInt("id");
+                jsonObject2.put("id",id);
+            }catch (Exception e){
+
+            }
+
+            jsonObject2.put("0",order);
+
+            String name = jsonObject1.getString("name");
+            jsonObject2.put("name",name);
+            Integer storage = jsonObject1.getInt("storage");
+            jsonObject2.put("2",storage);
+            Double cost = jsonObject1.getDouble("cost");
+            Double retailprice=jsonObject1.getDouble("retailprice");
+            jsonObject2.put("retailprice",retailprice);
+            String img=jsonObject1.getString("img");
+            String costText="";
+            if(isCost) {
+                costText = "成本:" + cost;
+                jsonObject2.put("3",costText);
+            }
+            if(img!=null&&!img.equals("null")&&!img.equals("")) {
+                img = "http://qiniu.lzxlzc.com/compress/" + img;
+                jsonObject2.put("img",img);
+            }
 
             itemMap.put(order,jsonObject1);
 
-            contents.add(new SectionItem(s));
+            contents.add(new SectionItem(jsonObject2.toString()));
         }
+
 
         return contents;
     }

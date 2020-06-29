@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.myapplication.R;
 import com.safety.android.http.FlickrFetch;
@@ -27,6 +28,8 @@ public class SaleClassifyActivity extends AppCompatActivity {
 
     private ViewGroup containerView;
 
+    private Button button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -36,6 +39,16 @@ public class SaleClassifyActivity extends AppCompatActivity {
 
         rootView = inflater.inflate(R.layout.fragment_default, null, false);
         containerView = (ViewGroup) rootView.findViewById(R.id.container);
+
+        button=rootView.findViewById(R.id.food_button);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), SaleListActivity.class);
+                startActivityForResult(intent, 1);
+            }
+        });
 
         new FetchItemsTask().execute();
 
