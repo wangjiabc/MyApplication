@@ -194,8 +194,8 @@ public class FoodDetailActivity extends AppCompatActivity {
 
                 map.put("name",text1);
                 if(isCost)
-                    map.put("retailprice",text2);
-                map.put("cost",text3);
+                    map.put("cost",text2);
+                map.put("retailprice",text3);
                 map.put("remark",text4);
 
                 new FetchItemsTask().execute(map);

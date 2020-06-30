@@ -93,8 +93,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="fill"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:inputType="number"
                     android:hint=""
+                    android:maxLength="20"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
                 <!--验证码-->
@@ -112,12 +112,11 @@
                 <EditText
                     android:id="@+id/food3"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
                     android:hint=""
-                    android:inputType="number"
-                    android:maxLength="40"
+                    android:maxLength="20"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
 
