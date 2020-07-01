@@ -106,12 +106,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     private QDListSectionAdapter qdListSectionAdapter;
 
+    private Map positionId=new HashMap();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_time_item, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -828,7 +830,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                         selectMap=qdListSectionAdapter.getSelectMap();
 
-                        Map delMap=new HashMap();
+                        positionId=qdListSectionAdapter.getPositionID();
 
                         for(Integer k:selectMap.keySet()){
                             JSONObject jsonObject1=selectMap.get(k);
@@ -836,22 +838,13 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                                 int id=jsonObject1.getInt("id");
 
-                                delMap.put(id,id);
+                                if(positionId.get(id)!=null){
+                                    int position= (int) positionId.get(id);
+                                    qdListSectionAdapter.notifyItemRemoved(position);
+                                }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                            }
-                        }
-
-                        int count=qdListSectionAdapter.getItemCount();
-
-                        for(int i=0;i<count;i++){
-                            SectionItem sectionItem=qdListSectionAdapter.getSectionItem(i);
-                            String text=sectionItem.getText();
-                            JSONObject jsonObject2=new JSONObject(text);
-                            int id=jsonObject2.getInt("id");
-                            if(delMap.get(id)!=null){
-                                qdListSectionAdapter.notifyItemRemoved(i);
                             }
                         }
 

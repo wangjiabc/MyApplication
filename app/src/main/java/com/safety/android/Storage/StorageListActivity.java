@@ -26,7 +26,6 @@ import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
-import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
@@ -93,6 +92,8 @@ public class StorageListActivity extends AppCompatActivity {
     private boolean refurbish=true;
 
     private QDListSectionAdapter qdListSectionAdapter;
+
+    private Map positionId=new HashMap();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

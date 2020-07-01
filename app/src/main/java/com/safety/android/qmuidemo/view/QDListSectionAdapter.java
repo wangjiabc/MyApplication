@@ -22,6 +22,7 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
         super();
         this.type=type;
         map=new HashMap();
+        positionId=new HashMap();
     }
 
     public Map getSelectMap(){
@@ -32,6 +33,9 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
         map=new HashMap();
     }
 
+    public Map getPositionID(){
+        return positionId;
+    }
 
     @NonNull
     @Override

@@ -30,6 +30,8 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
     protected Map map;
 
+    protected Map positionId;
+
     @NonNull
     @Override
     protected ViewHolder onCreateSectionHeaderViewHolder(@NonNull ViewGroup viewGroup) {
@@ -169,6 +171,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 TextPaint paint = cId.getPaint();
                 paint.setFakeBoldText(true);
                 cId.setText(String.valueOf(jsonObject.get("0")));
+                positionId.put(fId,jsonObject.getInt("0"));
             }
 
             if(jsonObject.get("name")!=null) {

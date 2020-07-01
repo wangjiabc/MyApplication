@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -114,6 +113,8 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
+        cbTest1=findViewById(R.id.cb_test1);
+
         initView();
         initBanner1();
 
@@ -131,7 +132,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onResume() {
         super.onResume();
         //开始执行轮播，并设置轮播时长
-        cbTest1.startTurning(4000);
+        cbTest1.startTurning(8000);
     }
 
     @Override
