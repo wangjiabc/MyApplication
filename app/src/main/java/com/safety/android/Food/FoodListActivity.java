@@ -828,8 +828,46 @@ public class FoodListActivity extends AppCompatActivity {
                 if(type==1) {
                     ArrayList<SectionItem> contents = new ArrayList<>();
                     jsonObject.put("order", String.valueOf(mAdapter.getItemCount()));
-                   // String s = StringToHtml(jsonObject);
-                   // contents.add(new SectionItem(s));
+                    JSONObject jsonObject2=new JSONObject();
+
+                    try {
+                        int id=jsonObject.getInt("id");
+                        jsonObject2.put("id",id);
+                    }catch (Exception e){
+
+                    }
+
+                    //jsonObject2.put("0",order);
+
+                    String name = jsonObject.getString("name");
+                    jsonObject2.put("name",name);
+                    Integer storage = jsonObject.getInt("storage");
+                    jsonObject2.put("2",storage);
+                    Double cost = 0.0;
+                    try {
+                        cost=jsonObject.getDouble("cost");
+                    }catch (Exception e){
+                        jsonObject.put("cost",0.00);
+                    }
+                    Double retailprice =0.00;
+                    try {
+                        retailprice=jsonObject.getDouble("retailprice");
+                    }catch (Exception e){
+                        jsonObject.put("retailprice",0.00);
+                    }
+                    jsonObject2.put("retailprice",retailprice);
+                    String img=jsonObject.getString("img");
+                    String costText="";
+                    if(isCost) {
+                        costText = "成本:" + cost;
+                        jsonObject2.put("3",costText);
+                    }
+                    if(img!=null&&!img.equals("null")&&!img.equals("")) {
+                        img = "http://qiniu.lzxlzc.com/compress/" + img;
+                        jsonObject2.put("img",img);
+                    }
+
+                    contents.add(new SectionItem(jsonObject2.toString()));
                     boolean existMoreData = true;
 
                     if (total < (page * 10)) {
@@ -840,10 +878,42 @@ public class FoodListActivity extends AppCompatActivity {
                 }else {
                     int position=jsonObject.getInt("position");
                     jsonObject.put("order",position);
-                    Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW,100).getGradientDrawable();
-                    final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
-                   // String s = StringToHtml(jsonObject);
-                  //  ((TextView) viewHolder.itemView).setText(Html.fromHtml(s,Html.FROM_HTML_MODE_COMPACT, imgGetter,null));
+
+                    selectMap=qdListSectionAdapter.getSelectMap();
+
+                    Map delMap=new HashMap();
+
+                    for(Integer k:selectMap.keySet()){
+                        JSONObject jsonObject1=selectMap.get(k);
+                        try {
+
+                            int id=jsonObject1.getInt("id");
+
+                            delMap.put(id,id);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    int count=qdListSectionAdapter.getItemCount();
+
+                    for(int i=0;i<count;i++){
+                        SectionItem sectionItem=qdListSectionAdapter.getSectionItem(i);
+                        String text=sectionItem.getText();
+                        JSONObject jsonObject2=new JSONObject(text);
+                        int id=jsonObject2.getInt("id");
+                        if(delMap.get(id)!=null){
+                            qdListSectionAdapter.getSectionItem(i).clear();
+                            View view=LayoutInflater.from(getApplicationContext()).inflate(R.layout.item_img_grouplist_view, null);
+                            TextView name=view.findViewById(R.id.tvApplicationName);
+                            name.setText(jsonObject.getString("name"));
+                            qdListSectionAdapter.getSectionItem(i).add(view);
+                        }
+                    }
+
+                    qdListSectionAdapter.setSelectMap();
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -924,7 +994,6 @@ public class FoodListActivity extends AppCompatActivity {
 
                     SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
-
                     list.add(section);
 
                     section.setExistAfterDataToLoad(true);
@@ -1098,7 +1167,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                     JSONObject jsonObject=new JSONObject(items);
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
-
+                    /*
                     mSearchView.clearFocus();
                     mPullRefreshLayout.finishRefresh();
                     itemMap=new HashMap<>();
@@ -1107,6 +1176,38 @@ public class FoodListActivity extends AppCompatActivity {
                     total=0;
                     search="";
                     initData();
+                    */
+
+                    selectMap=qdListSectionAdapter.getSelectMap();
+
+                    Map delMap=new HashMap();
+
+                    for(Integer k:selectMap.keySet()){
+                        JSONObject jsonObject1=selectMap.get(k);
+                        try {
+
+                            int id=jsonObject1.getInt("id");
+
+                            delMap.put(id,id);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    int count=qdListSectionAdapter.getItemCount();
+
+                    for(int i=0;i<count;i++){
+                        SectionItem sectionItem=qdListSectionAdapter.getSectionItem(i);
+                        String text=sectionItem.getText();
+                        JSONObject jsonObject2=new JSONObject(text);
+                        int id=jsonObject2.getInt("id");
+                        if(delMap.get(id)!=null){
+                            qdListSectionAdapter.notifyItemRemoved(id);
+                        }
+                    }
+
+                    qdListSectionAdapter.setSelectMap();
 
 
                 } catch (JSONException e) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
@@ -41,6 +42,10 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
             view= LayoutInflater.from(context).inflate(R.layout.item_grouplist_view, null);
         }else {
              view= LayoutInflater.from(context).inflate(R.layout.item_img_grouplist_view, null);
+             if(type==3){
+                 CheckBox checkBox=view.findViewById(R.id.checkBox);
+                 checkBox.setVisibility(View.GONE);
+             }
         }
         return new QMUIStickySectionAdapter.ViewHolder(view);
     }

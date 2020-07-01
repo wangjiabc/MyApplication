@@ -828,18 +828,30 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                         selectMap=qdListSectionAdapter.getSelectMap();
 
-                        String billNo="";
+                        Map delMap=new HashMap();
 
                         for(Integer k:selectMap.keySet()){
                             JSONObject jsonObject1=selectMap.get(k);
                             try {
 
-                                int position=jsonObject1.getInt("0");
+                                int id=jsonObject1.getInt("id");
 
-                                qdListSectionAdapter.notifyItemRemoved(position);
+                                delMap.put(id,id);
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
+                            }
+                        }
+
+                        int count=qdListSectionAdapter.getItemCount();
+
+                        for(int i=0;i<count;i++){
+                            SectionItem sectionItem=qdListSectionAdapter.getSectionItem(i);
+                            String text=sectionItem.getText();
+                            JSONObject jsonObject2=new JSONObject(text);
+                            int id=jsonObject2.getInt("id");
+                            if(delMap.get(id)!=null){
+                                qdListSectionAdapter.notifyItemRemoved(i);
                             }
                         }
 
