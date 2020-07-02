@@ -881,7 +881,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                     mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, existMoreData);
                 }else {
-                    int position=jsonObject.getInt("position");
+                   /* int position=jsonObject.getInt("position");
                     jsonObject.put("order",position);
 
                     selectMap=qdListSectionAdapter.getSelectMap();
@@ -909,7 +909,7 @@ public class FoodListActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
+*/
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1377,5 +1377,68 @@ public class FoodListActivity extends AppCompatActivity {
         }
     }
 
+    private class FetchItemsTaskUpdate extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String aSearch="";
+
+            if(searchCatalog!=null&&!searchCatalog.equals("")) {
+                aSearch+=searchCatalog;
+            }
+
+            if(search!=null&&!search.equals("")) {
+                aSearch += search2;
+            }
+
+            System.out.println("aSearch===="+aSearch);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+aSearch);
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.optString("success", null);
+                    String message = jsonObject.optString("message", null);
+                    if(success.equals("true")) {
+                        if(message.equals("添加库存成功!")) {
+                            Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+                            if (addCount == 1) {
+                                int position = currentPostion;
+                                JSONObject jsonObject1 = itemMap.get(position);
+                                Integer storage = jsonObject1.getInt("storage");
+                                jsonObject1.put("storage", storage + addStorage);
+                                Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
+                                final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
+                                //   String s = StringToHtml(jsonObject1);
+                                //   ((TextView) viewHolder.itemView).setText(Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null));
+                            } else {
+                                Toast.makeText(getApplication(), "批量添加库存后请刷新页面", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }else{
+                        Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
 
 }
