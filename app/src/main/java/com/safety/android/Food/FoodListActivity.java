@@ -3,13 +3,9 @@ package com.safety.android.Food;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,16 +22,13 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
@@ -338,6 +331,9 @@ public class FoodListActivity extends AppCompatActivity {
 
                 list.add(map0);
 
+                System.out.println("list=================");
+                MyTestUtil.print(list);
+
                 AlertDialog dialog = new AlertDialog.Builder(this).setTitle("批量添加库存")
                         .setView(validateView)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener()
@@ -349,6 +345,8 @@ public class FoodListActivity extends AppCompatActivity {
                                 JSONArray jsonArray=new JSONArray();
                                 int amount=0;
                                 for(int i=0;i<list.size();i++){
+                                    System.out.println("list i =================");
+                                    MyTestUtil.print(list.get(i));
                                     int id= (int) list.get(i).get("id");
                                     if(id!=-1) {
                                         String name = ((TextView) list.get(i).get("name")).getText().toString();
@@ -910,6 +908,8 @@ public class FoodListActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 */
+                   new FetchItemsUpdate().execute();
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1039,12 +1039,14 @@ public class FoodListActivity extends AppCompatActivity {
             jsonObject2.put("name",name);
             Integer storage = jsonObject1.getInt("storage");
             jsonObject2.put("2",storage);
+            jsonObject2.put("storage",storage);
             Double cost = 0.0;
             try {
                 cost=jsonObject1.getDouble("cost");
             }catch (Exception e){
                 jsonObject1.put("cost",0.00);
             }
+            jsonObject2.put("cost",cost);
             Double retailprice =0.00;
             try {
                  retailprice=jsonObject1.getDouble("retailprice");
@@ -1057,6 +1059,12 @@ public class FoodListActivity extends AppCompatActivity {
             if(isCost) {
                 costText = "成本:" + cost;
                 jsonObject2.put("3",costText);
+            }
+            try {
+                int combination=jsonObject1.getInt("combination");
+                jsonObject2.put("combination",combination);
+            }catch (Exception e){
+
             }
             if(img!=null&&!img.equals("null")&&!img.equals("")) {
                 img = "http://qiniu.lzxlzc.com/compress/" + img;
@@ -1085,6 +1093,8 @@ public class FoodListActivity extends AppCompatActivity {
 
             int amount= (int) map.get("amount");
 
+            addStorage=amount;
+
             String items=Uri.encode(jsonArray.toString());
 
             return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/food/material/storageAdd?items="+items+"&amount="+amount);
@@ -1100,27 +1110,37 @@ public class FoodListActivity extends AppCompatActivity {
                     JSONObject jsonObject=new JSONObject(items);
 
 
-                    String success = jsonObject.optString("success", null);
-                    String message = jsonObject.optString("message", null);
+                    String success = jsonObject.getString("success");
+                    String message = jsonObject.getString("message");
+
+                    System.out.println("success.equals(true)==="+success.equals("true"));
+                    System.out.println("message.equals(\"添加库存成功!\")==="+message.equals("添加库存成功!"));
+
                     if(success.equals("true")) {
                         if(message.equals("添加库存成功!")) {
-                            Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
-                            if (addCount == 1) {
-                                int position = currentPostion;
-                                JSONObject jsonObject1 = itemMap.get(position);
-                                Integer storage = jsonObject1.getInt("storage");
-                                jsonObject1.put("storage", storage + addStorage);
-                                Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
-                             //   String s = StringToHtml(jsonObject1);
-                             //   ((TextView) viewHolder.itemView).setText(Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null));
-                            } else {
-                                Toast.makeText(getApplication(), "批量添加库存后请刷新页面", Toast.LENGTH_SHORT).show();
-                            }
+
+                                selectMap=qdListSectionAdapter.getSelectMap();
+
+                                MyTestUtil.print(selectMap);
+
+                                for(Integer key:selectMap.keySet()){
+
+                                    JSONObject jsonObject1=selectMap.get(key);
+                                    int order=jsonObject1.getInt("0");
+                                    JSONObject jsonObject2=itemMap.get(order);
+                                    int storage=jsonObject1.getInt("storage");
+                                    jsonObject2.put("storage", storage + addStorage);
+
+                                    itemMap.put(order,jsonObject2);
+                                }
+
+                                new FetchItemsUpdate().execute();
+
+
                         }
-                    }else{
-                        Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
                     }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1377,7 +1397,7 @@ public class FoodListActivity extends AppCompatActivity {
         }
     }
 
-    private class FetchItemsTaskUpdate extends AsyncTask<Void,Void,String> {
+    private class FetchItemsUpdate extends AsyncTask<Void,Void,String> {
 
         @Override
         protected String doInBackground(Void... params) {
@@ -1405,34 +1425,57 @@ public class FoodListActivity extends AppCompatActivity {
             if(items!=null){
                 try {
 
-                    JSONObject jsonObject=new JSONObject(items);
-
-
-                    String success = jsonObject.optString("success", null);
-                    String message = jsonObject.optString("message", null);
-                    if(success.equals("true")) {
-                        if(message.equals("添加库存成功!")) {
-                            Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
-                            if (addCount == 1) {
-                                int position = currentPostion;
-                                JSONObject jsonObject1 = itemMap.get(position);
-                                Integer storage = jsonObject1.getInt("storage");
-                                jsonObject1.put("storage", storage + addStorage);
-                                Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) viewHolder.itemView, MainActivity.dataUrl, defaultDrawable);
-                                //   String s = StringToHtml(jsonObject1);
-                                //   ((TextView) viewHolder.itemView).setText(Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null));
-                            } else {
-                                Toast.makeText(getApplication(), "批量添加库存后请刷新页面", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }else{
-                        Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+                    try {
+                        JSONObject jsonObject=new JSONObject(items);
+                        JSONObject jsonObject1=jsonObject.getJSONObject("result");
+                        allCost=jsonObject1.getDouble("ALLCOST");
+                        System.out.println("allCost============"+allCost);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        allCost=0;
                     }
+
+                    ArrayList<QMUISection<SectionHeader, SectionItem>> list = new ArrayList<>();
+
+                    ArrayList<SectionItem> contents = new ArrayList<>();
+
+                    JSONArray records = new JSONArray();
+
+                    for(int key:itemMap.keySet()) {
+                        JSONObject jsonObject=itemMap.get(key);
+                        records.put(jsonObject);
+                    }
+
+                    JSONObject result= new JSONObject();
+
+
+                    result.put("records",records);
+
+                    result.put("total",total);
+
+                    JSONObject jsonObject1= new JSONObject();
+
+                    jsonObject1.put("result",result);
+
+
+                    contents = addContents2(contents, jsonObject1);
+
+                    BigDecimal bigDecimal = new BigDecimal(allCost/10000);
+                    double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点;
+                    String rs = String.valueOf(f1);
+
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
+                    QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
+                    section.setExistAfterDataToLoad(true);
+                    list.add(section);
+                    qdListSectionAdapter.setData(list);
+                    qdListSectionAdapter.notifyDataSetChanged();
+
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -1440,5 +1483,65 @@ public class FoodListActivity extends AppCompatActivity {
         }
 
     }
+
+    private ArrayList<SectionItem> addContents2(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
+
+        JSONObject result= (JSONObject) jsonObject.get("result");
+
+        JSONArray records = result.getJSONArray("records");
+
+        total=result.getInt("total");
+
+        for (int i = 0; i < records.length(); i++) {
+
+            int order=i+1;
+
+            JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+            JSONObject jsonObject2=new JSONObject();
+
+            try {
+                int id=jsonObject1.getInt("id");
+                jsonObject2.put("id",id);
+            }catch (Exception e){
+
+            }
+
+            jsonObject2.put("0",order);
+
+            String name = jsonObject1.getString("name");
+            jsonObject2.put("name",name);
+            Integer storage = jsonObject1.getInt("storage");
+            jsonObject2.put("2",storage);
+            Double cost = 0.0;
+            try {
+                cost=jsonObject1.getDouble("cost");
+            }catch (Exception e){
+                jsonObject1.put("cost",0.00);
+            }
+            Double retailprice =0.00;
+            try {
+                retailprice=jsonObject1.getDouble("retailprice");
+            }catch (Exception e){
+                jsonObject1.put("retailprice",0.00);
+            }
+            jsonObject2.put("retailprice",retailprice);
+            String img=jsonObject1.getString("img");
+            String costText="";
+            if(isCost) {
+                costText = "成本:" + cost;
+                jsonObject2.put("3",costText);
+            }
+            if(img!=null&&!img.equals("null")&&!img.equals("")) {
+                img = "http://qiniu.lzxlzc.com/compress/" + img;
+                jsonObject2.put("img",img);
+            }
+
+            contents.add(new SectionItem(jsonObject2.toString()));
+        }
+
+        return contents;
+    }
+
 
 }
