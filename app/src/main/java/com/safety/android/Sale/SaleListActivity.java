@@ -40,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -97,6 +98,8 @@ public class SaleListActivity extends AppCompatActivity {
     private QDListSectionAdapter qdListSectionAdapter;
 
     private boolean refurbish=true;
+
+    private Integer currentPostion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -383,14 +386,11 @@ public class SaleListActivity extends AppCompatActivity {
                         JSONObject jsonObject = null;
 
                         final int n=holder.getAdapterPosition();
+                        currentPostion=n;
 
                         jsonObject = selectMap.get(holder.getAdapterPosition());
-                        String buttonText;
                         if (jsonObject == null) {
                             jsonObject = itemMap.get(holder.getAdapterPosition());
-                            buttonText="选择";
-                        }else{
-                            buttonText="取消选择";
                         }
 
                         final JSONObject finalJsonObject = jsonObject;
@@ -418,37 +418,6 @@ public class SaleListActivity extends AppCompatActivity {
                                         intent.putExtra("jsonString", jsonObject.toString());
                                         startActivityForResult(intent, 1);
 
-                                    }
-                                })
-                                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        JSONObject jsonObject = null;
-                                        jsonObject = selectMap.get(n);
-                                        String s = "";
-                                        if (jsonObject == null) {
-                                            jsonObject = itemMap.get(n);
-                                            try {
-                                                s = StringToHtml2(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.put(n, jsonObject);
-                                        } else {
-                                            try {
-                                                s = StringToHtml(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.remove(n);
-                                        }
-                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
-
-
-                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                                        ((TextView) holder.itemView).setText(sp);
-                                        dialogInterface.dismiss();
                                     }
                                 })
                                 .create()
@@ -485,14 +454,42 @@ public class SaleListActivity extends AppCompatActivity {
             return;
         }else if(requestCode==1){
 
-            mSearchView.clearFocus();
-            mPullRefreshLayout.finishRefresh();
-            itemMap=new HashMap<>();
-            selectMap=new HashMap<>();
-            page=1;
-            total=0;
-            search="";
-            initData();
+            if(currentPostion!=null)
+                selectMap.put(currentPostion,itemMap.get(currentPostion));
+
+            selectMap=qdListSectionAdapter.getSelectMap();
+
+            try {
+
+                JSONArray jsonArray=new JSONArray(data.getStringExtra("value"));
+
+                for (Integer key : selectMap.keySet()) {
+
+                    JSONObject jsonObject1 = selectMap.get(key);
+                    int order = jsonObject1.getInt("0");
+                    int id = jsonObject1.getInt("id");
+                    JSONObject jsonObject2 = itemMap.get(order);
+                    int storage = jsonObject1.getInt("storage");
+                    int addStorage=0;
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        int rid=jsonObject.getInt("id");
+                        if(rid==id){
+                            addStorage=jsonObject.getInt("number");
+                            continue;
+                        }
+
+                    }
+
+                    jsonObject2.put("storage", storage - addStorage);
+
+                    itemMap.put(order, jsonObject2);
+                }
+            }catch (Exception e){
+
+            }
+
+            new FetchItemsUpdate().execute();
 
         }
 
@@ -587,34 +584,7 @@ public class SaleListActivity extends AppCompatActivity {
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
 
-            JSONObject jsonObject2=new JSONObject();
-
-            try {
-                int id=jsonObject1.getInt("id");
-                jsonObject2.put("id",id);
-            }catch (Exception e){
-
-            }
-
-            jsonObject2.put("0",order);
-
-            String name = jsonObject1.getString("name");
-            jsonObject2.put("name",name);
-            Integer storage = jsonObject1.getInt("storage");
-            jsonObject2.put("2",storage);
-            Double cost = jsonObject1.getDouble("cost");
-            Double retailprice=jsonObject1.getDouble("retailprice");
-            jsonObject2.put("retailprice",retailprice);
-            String img=jsonObject1.getString("img");
-            String costText="";
-            if(isCost) {
-                costText = "成本:" + cost;
-                jsonObject2.put("3",costText);
-            }
-            if(img!=null&&!img.equals("null")&&!img.equals("")) {
-                img = "http://qiniu.lzxlzc.com/compress/" + img;
-                jsonObject2.put("img",img);
-            }
+            JSONObject jsonObject2=process(order,jsonObject1);
 
             itemMap.put(order,jsonObject1);
 
@@ -625,56 +595,150 @@ public class SaleListActivity extends AppCompatActivity {
         return contents;
     }
 
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
-        return s;
+
+    private class FetchItemsUpdate extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String aSearch="";
+
+            if(searchCatalog!=null&&!searchCatalog.equals("")) {
+                aSearch+=searchCatalog;
+            }
+
+            if(search!=null&&!search.equals("")) {
+                aSearch += search2;
+            }
+
+            System.out.println("aSearch===="+aSearch);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+aSearch);
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    try {
+                        JSONObject jsonObject=new JSONObject(items);
+                        JSONObject jsonObject1=jsonObject.getJSONObject("result");
+                        allCost=jsonObject1.getDouble("ALLCOST");
+                        System.out.println("allCost============"+allCost);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        allCost=0;
+                    }
+
+                    ArrayList<QMUISection<SectionHeader, SectionItem>> list = new ArrayList<>();
+
+                    ArrayList<SectionItem> contents = new ArrayList<>();
+
+                    JSONArray records = new JSONArray();
+
+                    for(int key:itemMap.keySet()) {
+                        JSONObject jsonObject=itemMap.get(key);
+                        records.put(jsonObject);
+                    }
+
+                    JSONObject result= new JSONObject();
+
+
+                    result.put("records",records);
+
+                    result.put("total",total);
+
+                    JSONObject jsonObject1= new JSONObject();
+
+                    jsonObject1.put("result",result);
+
+
+                    contents = addContents2(contents, jsonObject1);
+
+                    BigDecimal bigDecimal = new BigDecimal(allCost/10000);
+                    double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点;
+                    String rs = String.valueOf(f1);
+
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
+                    QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
+                    section.setExistAfterDataToLoad(true);
+                    list.add(section);
+                    qdListSectionAdapter.setData(list);
+                    qdListSectionAdapter.notifyDataSetChanged();
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
     }
 
-    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='red'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
+    private JSONObject process(int order,JSONObject jsonObject1) throws JSONException {
+
+        JSONObject jsonObject2=new JSONObject();
+
+        try {
+            int id=jsonObject1.getInt("id");
+            jsonObject2.put("id",id);
+        }catch (Exception e){
+
+        }
+
+        jsonObject2.put("0",order);
+
+        String name = jsonObject1.getString("name");
+        jsonObject2.put("name",name);
+        Integer storage = jsonObject1.getInt("storage");
+        jsonObject2.put("2",storage);
+        Double cost = jsonObject1.getDouble("cost");
+        Double retailprice=jsonObject1.getDouble("retailprice");
+        jsonObject2.put("retailprice",retailprice);
+        String img=jsonObject1.getString("img");
         String costText="";
-        if(isCost)
-            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
-        return s;
+        if(isCost) {
+            costText = "成本:" + cost;
+            jsonObject2.put("3",costText);
+        }
+        if(img!=null&&!img.equals("null")&&!img.equals("")) {
+            img = "http://qiniu.lzxlzc.com/compress/" + img;
+            jsonObject2.put("img",img);
+        }
+
+        return jsonObject2;
+
     }
 
+    private ArrayList<SectionItem> addContents2(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
 
+        JSONObject result= (JSONObject) jsonObject.get("result");
 
+        JSONArray records = result.getJSONArray("records");
+
+        total=result.getInt("total");
+
+        for (int i = 0; i < records.length(); i++) {
+
+            int order=i+1;
+
+            JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+            JSONObject jsonObject2=process(order,jsonObject1);
+
+            contents.add(new SectionItem(jsonObject2.toString()));
+        }
+
+        return contents;
+    }
 
 }
 

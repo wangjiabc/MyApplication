@@ -68,6 +68,8 @@ public class SaleActivity extends AppCompatActivity {
 
     private View view;
 
+    private JSONArray returnArray;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -274,6 +276,8 @@ public class SaleActivity extends AppCompatActivity {
 
                         Iterator<Map<String, Object>> iterator = list.iterator();
 
+                        returnArray=new JSONArray();
+
                         while (iterator.hasNext()) {
 
                             Map<String, Object> map = iterator.next();
@@ -329,6 +333,18 @@ public class SaleActivity extends AppCompatActivity {
 
 
                             jsonArray1.add(jsonObject);
+
+                            JSONObject jsonObject1=new JSONObject();
+
+                            try {
+                                jsonObject1.put("id",id);
+                                jsonObject1.put("number",number);
+                                returnArray.put(jsonObject1);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
 
                         }
 
@@ -599,7 +615,7 @@ public class SaleActivity extends AppCompatActivity {
                     if (success.equals("true")) {
 
                         Intent intent = new Intent();
-                        intent.putExtra("value", jsonObject.toString());
+                        intent.putExtra("value", returnArray.toString());
                         setResult(SaleListActivity.RESULT_OK, intent);
                         finish();
 

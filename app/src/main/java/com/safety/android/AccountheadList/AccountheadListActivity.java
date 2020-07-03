@@ -11,8 +11,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -107,6 +112,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
     private QDListSectionAdapter qdListSectionAdapter;
 
     private Map positionId=new HashMap();
+
+    private Integer type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -419,12 +426,12 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         final JSONObject finaljsonObject=jsonObject;
 
                         Integer id=jsonObject.getInt("id");
-
+/*
                         Intent intent = new Intent(getApplicationContext(), AccountheadActivity.class);
                         intent.putExtra("jsonString", id);
                         startActivityForResult(intent, 2);
+*/
 
-                        /*
                         LayoutInflater inflater = getLayoutInflater();
                         View validateView = inflater.inflate(
                                 R.layout.dialog_validate, null);
@@ -459,7 +466,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                             sMap=new HashMap();
                             sMap.put("详情",detail);
                             list.add(sMap);
-                            String img=jsonObject.getString("img");
                             String createTime=jsonObject.getString("createTime");
                             sMap=new HashMap();
                             sMap.put("时间:",createTime);
@@ -490,10 +496,32 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                             }
                         }
 
+                        Spinner spinner;
+                        //private Spinner spinner2;
+                        spinner = validateView.findViewById(R.id.Spinner01);
+
+                        String[] m={"微信支付","现金","支付宝", "银联"};
+
+                        ArrayAdapter<String> adapter;
+
+                        //将可选内容与ArrayAdapter连接起来
+                        adapter = new ArrayAdapter<String>(AccountheadListActivity.this,android.R.layout.simple_spinner_item,m);
+
+                        //设置下拉列表的风格
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                        //将adapter 添加到spinner中
+                        spinner.setAdapter(adapter);
+
+                        //添加事件Spinner事件监听
+                        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                        //设置默认值
+                        spinner.setVisibility(View.VISIBLE);
 
                         AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this)
                                 .setView(validateView)
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                                .setPositiveButton("收款", new DialogInterface.OnClickListener()
                                 {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which)
@@ -502,45 +530,10 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                         dialog.dismiss();
                                     }
 
-                                }).setNegativeButton("删除", new DialogInterface.OnClickListener()
-                                {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        dialog.dismiss();
-                                        try {
-                                            new AlertDialog.Builder(AccountheadListActivity.this)
-                                                    .setTitle("删除商品"+finaljsonObject.getString("materialName")+"销售记录,订单号:"+finaljsonObject.getString("billno")+"?")
-                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                                            try {
-                                                                new FetchItemsTaskDel().execute(finaljsonObject.getInt("id"));
-                                                            } catch (JSONException e) {
-                                                                e.printStackTrace();
-                                                            }
-
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .create()
-                                                    .show();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-
-                                    }
                                 }).create();
+
                         dialog.show();
-                       */
+
 
 
                     } catch (ClassCastException | JSONException e) {
@@ -552,7 +545,24 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                JSONObject jsonObject = null;
+
+                final int n=holder.getAdapterPosition();
+
+                jsonObject=itemMap.get(n);
+
+                final JSONObject finaljsonObject=jsonObject;
+
+                Integer id= null;
+                try {
+                    id = jsonObject.getInt("id");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent(getApplicationContext(), AccountheadActivity.class);
+                intent.putExtra("jsonString", id);
+                startActivityForResult(intent, 2);
                 return true;
             }
         });
@@ -562,6 +572,20 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         new FetchItemsTask().execute();
 
 
+    }
+
+    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            System.out.println("arg2="+arg2);
+
+            type=arg2;
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
     }
 
     @Override
@@ -696,23 +720,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         JSONArray records = result.getJSONArray("records");
 
         total=result.getInt("total");
-/*
-        for (int i = 0; i < records.length(); i++) {
-
-            int order=i+1+(page-1)*10;
-
-            JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            String s=StringToHtml(jsonObject1);
-            //String s="<p>(1).Name:&nbsp;Toking Hazard by Joking Hazard</p><p>(2).Material: Paper</p><p>(3).Package: Box</p><p><br/></p><p>50 Marijuana themed cards to heighten your Joking Hazard experience.<br/></p><p>This is an expansion pack. It requires Joking Hazard to play</p><p>In addition to the cards, there is a secret in each box!</p><p>The box is OVERSIZED to fit the surprise</p><p><br/></p>";
-            SpannableString spannableString = new SpannableString(s);
-
-            itemMap.put(order,jsonObject1);
-
-            contents.add(new SectionItem(s));
-        }
-*/
-
 
         for (int i = 0; i < records.length(); i++) {
 
@@ -720,36 +727,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             JSONObject jsonObject = (JSONObject) records.get(i);
 
-            JSONObject jsonObject2=new JSONObject();
-
-            try {
-                int id=jsonObject.getInt("id");
-                jsonObject2.put("id",id);
-            }catch (Exception e){
-
-            }
-
-            String name ="";
-            try {
-                name=jsonObject.getString("materialName");
-            }catch (Exception e){
-
-            }
-            String supplier=jsonObject.getString("supplier");
-
-            jsonObject2.put("name",supplier);
-            String  billno = jsonObject.getString("billno");
-            jsonObject2.put("supplier",supplier);
-            jsonObject2.put("billno",billno);
-            jsonObject2.put("0",order);
-            String  totalprice = jsonObject.getString("totalprice");
-            jsonObject2.put("2",name);
-            jsonObject2.put("3",totalprice);
-            String  count=jsonObject.getString("count");
-            jsonObject2.put("5",count);
-            String createTime=jsonObject.getString("createTime");
-            jsonObject2.put("4",createTime);
-
+            JSONObject jsonObject2=process(order,jsonObject);
 
             contents.add(new SectionItem(jsonObject2.toString()));
 
@@ -759,31 +737,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
 
         return contents;
-    }
-
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("materialName");
-        String  billno = jsonObject.getString("billno");
-        Double totalprice = jsonObject.getDouble("totalprice");
-        String  count=jsonObject.getString("count");
-        String img=jsonObject.getString("img");
-        String createTime=jsonObject.getString("createTime");
-        String supplier=jsonObject.getString("supplier");
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;订单号:" + billno + "</p>"+
-                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;数量"+count+ "</span>&nbsp;&nbsp;<span>金额:" + totalprice + "</block quote></p>"+
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;客户"+supplier+ "</span>&nbsp;&nbsp"+"</span>&nbsp;&nbsp;<span>时间:" + createTime + "</block quote>";
-        return s;
     }
 
 
@@ -840,7 +793,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                                 if(positionId.get(id)!=null){
                                     int position= (int) positionId.get(id);
-                                    qdListSectionAdapter.notifyItemRemoved(position);
+                                    itemMap.remove(position);
                                 }
 
                             } catch (JSONException e) {
@@ -849,6 +802,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         }
 
                         qdListSectionAdapter.setSelectMap();
+
+                        new FetchItemsUpdate().execute();
                     }
 
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
@@ -864,5 +819,153 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     }
 
+    private class FetchItemsUpdate extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String aSearch="";
+
+            if(search!=null&&!search.equals("")) {
+                aSearch += search2;
+            }
+
+            if(startDate!=null&&!startDate.equals("")) {
+                aSearch+="&startDate=" + startDate;
+            }
+            if(endDate!=null&&!endDate.equals("")) {
+                aSearch+="&endDate=" + endDate;
+            }
+
+            System.out.println("aSearch===="+aSearch);
+
+            return  new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/getAllAccount?"+aSearch);
+
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    try {
+                        JSONObject jsonObject=new JSONObject(items);
+                        JSONObject jsonObject1=jsonObject.getJSONObject("result");
+                        allAccount=jsonObject1.getDouble("ALLACCOUNT");
+                        System.out.println("allAccount============"+allAccount);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        allAccount=0;
+                    }
+
+                    ArrayList<QMUISection<SectionHeader, SectionItem>> list = new ArrayList<>();
+
+                    ArrayList<SectionItem> contents = new ArrayList<>();
+
+                    JSONArray records = new JSONArray();
+
+                    for(int key:itemMap.keySet()) {
+                        JSONObject jsonObject=itemMap.get(key);
+                        records.put(jsonObject);
+                    }
+
+                    JSONObject result= new JSONObject();
+
+
+                    result.put("records",records);
+
+                    result.put("total",total);
+
+                    JSONObject jsonObject1= new JSONObject();
+
+                    jsonObject1.put("result",result);
+
+
+                    contents = addContents2(contents, jsonObject1);
+
+                    BigDecimal bigDecimal = new BigDecimal(allAccount/10000);
+                    double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点;
+                    String rs = String.valueOf(f1);
+
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
+                    QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
+                    section.setExistAfterDataToLoad(true);
+                    list.add(section);
+                    qdListSectionAdapter.setData(list);
+                    qdListSectionAdapter.notifyDataSetChanged();
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
+
+    private JSONObject process(int order,JSONObject jsonObject) throws JSONException {
+
+        JSONObject jsonObject2=new JSONObject();
+
+        try {
+            int id=jsonObject.getInt("id");
+            jsonObject2.put("id",id);
+        }catch (Exception e){
+
+        }
+
+        String name ="";
+        try {
+            name=jsonObject.getString("materialName");
+        }catch (Exception e){
+
+        }
+        String supplier=jsonObject.getString("supplier");
+
+        jsonObject2.put("name",supplier);
+        String  billno = jsonObject.getString("billno");
+        jsonObject2.put("supplier",supplier);
+        jsonObject2.put("billno",billno);
+        jsonObject2.put("0",order);
+        String  totalprice = jsonObject.getString("totalprice");
+        jsonObject2.put("2",name);
+        jsonObject2.put("3",totalprice);
+        String  count=jsonObject.getString("count");
+        jsonObject2.put("5",count);
+        String createTime=jsonObject.getString("createTime");
+        jsonObject2.put("4",createTime);
+
+        return jsonObject2;
+
+    }
+
+    private ArrayList<SectionItem> addContents2(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
+
+        JSONObject result= (JSONObject) jsonObject.get("result");
+
+        JSONArray records = result.getJSONArray("records");
+
+        total=result.getInt("total");
+
+        for (int i = 0; i < records.length(); i++) {
+
+            int order=i+1;
+
+            JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+            JSONObject jsonObject2=process(order,jsonObject1);
+
+            contents.add(new SectionItem(jsonObject2.toString()));
+        }
+
+        return contents;
+    }
 
 }
