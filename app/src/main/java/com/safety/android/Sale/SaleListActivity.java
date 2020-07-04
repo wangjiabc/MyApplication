@@ -3,13 +3,8 @@ package com.safety.android.Sale;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,11 +23,9 @@ import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
@@ -53,8 +46,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.safety.android.MainActivity.dataUrl;
 
 public class SaleListActivity extends AppCompatActivity {
 
@@ -231,22 +222,24 @@ public class SaleListActivity extends AppCompatActivity {
             case R.id.menu_item_add:
                 selectMap=qdListSectionAdapter.getSelectMap();
 
-                JSONArray jsonArray=new JSONArray();
+                if(selectMap.size()>0) {
+                    JSONArray jsonArray = new JSONArray();
 
-                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
-                    JSONObject json = sMap.getValue();
-                    jsonArray.put(json);
-                }
+                    for (Map.Entry<Integer, org.json.JSONObject> sMap : selectMap.entrySet()) {
+                        JSONObject json = sMap.getValue();
+                        jsonArray.put(json);
+                    }
 
-                JSONObject jsonObject=new JSONObject();
-                try {
-                    jsonObject.put("ids",jsonArray);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("ids", jsonArray);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
+                    intent.putExtra("jsonString", jsonObject.toString());
+                    startActivityForResult(intent, 1);
                 }
-                Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
-                intent.putExtra("jsonString", jsonObject.toString());
-                startActivityForResult(intent, 1);
                 break;
         }
 
@@ -378,7 +371,6 @@ public class SaleListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
                 viewHolder=holder;
                 if(position!=0) {
                     try {
@@ -398,7 +390,7 @@ public class SaleListActivity extends AppCompatActivity {
                         new AlertDialog.Builder(SaleListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
-                                .setNegativeButton("出售", new DialogInterface.OnClickListener() {
+                                .setPositiveButton("出售", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -419,6 +411,11 @@ public class SaleListActivity extends AppCompatActivity {
                                         startActivityForResult(intent, 1);
 
                                     }
+                                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
                                 })
                                 .create()
                                 .show();
@@ -454,14 +451,26 @@ public class SaleListActivity extends AppCompatActivity {
             return;
         }else if(requestCode==1){
 
-            if(currentPostion!=null)
-                selectMap.put(currentPostion,itemMap.get(currentPostion));
-
             selectMap=qdListSectionAdapter.getSelectMap();
 
+            if(currentPostion!=null) {
+                JSONObject jsonObject1=itemMap.get(currentPostion);
+                try {
+                    JSONArray jsonArray=new JSONArray(data.getStringExtra("value"));
+                    int storage = jsonObject1.getInt("storage");
+                    JSONObject jsonObject11=jsonArray.getJSONObject(0);
+                    jsonObject1.put("storage",storage-jsonObject11.getInt("number"));
+                    itemMap.put(currentPostion,jsonObject1);
+                    currentPostion=null;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
             try {
 
                 JSONArray jsonArray=new JSONArray(data.getStringExtra("value"));
+                System.out.println("jsonarray=========================================");
+                MyTestUtil.print(jsonArray);
 
                 for (Integer key : selectMap.keySet()) {
 
@@ -469,11 +478,15 @@ public class SaleListActivity extends AppCompatActivity {
                     int order = jsonObject1.getInt("0");
                     int id = jsonObject1.getInt("id");
                     JSONObject jsonObject2 = itemMap.get(order);
-                    int storage = jsonObject1.getInt("storage");
+                    System.out.println("order=============="+order);
+                    System.out.println("id=============="+id);
+                    MyTestUtil.print(jsonObject2);
+                    int storage = jsonObject2.getInt("storage");
                     int addStorage=0;
                     for(int i=0;i<jsonArray.length();i++){
                         JSONObject jsonObject=jsonArray.getJSONObject(i);
                         int rid=jsonObject.getInt("id");
+                        System.out.println("rid========================"+rid);
                         if(rid==id){
                             addStorage=jsonObject.getInt("number");
                             continue;
@@ -481,12 +494,16 @@ public class SaleListActivity extends AppCompatActivity {
 
                     }
 
+                    System.out.println("addStorage========================"+addStorage);
+
                     jsonObject2.put("storage", storage - addStorage);
+
+                    MyTestUtil.print(jsonObject2);
 
                     itemMap.put(order, jsonObject2);
                 }
             }catch (Exception e){
-
+                    e.printStackTrace();
             }
 
             new FetchItemsUpdate().execute();
@@ -699,15 +716,34 @@ public class SaleListActivity extends AppCompatActivity {
         String name = jsonObject1.getString("name");
         jsonObject2.put("name",name);
         Integer storage = jsonObject1.getInt("storage");
-        jsonObject2.put("2",storage);
-        Double cost = jsonObject1.getDouble("cost");
-        Double retailprice=jsonObject1.getDouble("retailprice");
+        jsonObject2.put("2","库存:"+storage);
+        jsonObject2.put("storage",storage);
+        Double cost = 0.0;
+        try {
+            cost=jsonObject1.getDouble("cost");
+        }catch (Exception e){
+            jsonObject1.put("cost",0.00);
+        }
+        jsonObject2.put("cost",cost);
+        Double retailprice =0.00;
+        try {
+            retailprice=jsonObject1.getDouble("retailprice");
+        }catch (Exception e){
+            jsonObject1.put("retailprice",0.00);
+        }
         jsonObject2.put("retailprice",retailprice);
+        jsonObject2.put("3","价格:"+retailprice);
         String img=jsonObject1.getString("img");
         String costText="";
         if(isCost) {
             costText = "成本:" + cost;
-            jsonObject2.put("3",costText);
+            jsonObject2.put("4",costText);
+        }
+        try {
+            int combination=jsonObject1.getInt("combination");
+            jsonObject2.put("combination",combination);
+        }catch (Exception e){
+
         }
         if(img!=null&&!img.equals("null")&&!img.equals("")) {
             img = "http://qiniu.lzxlzc.com/compress/" + img;

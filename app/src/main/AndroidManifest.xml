@@ -57,96 +57,115 @@
         <activity
             android:name="com.safety.android.MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name="com.safety.android.http.login"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Sale.SaleListActivity"
             android:label="销售/开单"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.AccountheadList.AccountheadListActivity"
             android:label="销售记录"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodListActivity"
             android:label="商品管理"
-            android:parentActivityName="com.safety.android.Food.FoodClassifyActivity" >
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.SafeList.SafeListActivity"
             android:label="销售/开单"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Sale.SaleClassifyActivity" >
         </activity>
         <activity
             android:name="com.safety.android.SafeList.SafePagerActivity"
             android:label="Safety"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.SafeList.SafeListActivity" >
         </activity>
         <activity
             android:name="com.safety.android.PhotoGallery.PhotoGalleryActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Message.Chat2Activity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodDetailActivity"
             android:label="商品管理"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodCompagesActivity"
             android:label="组合商品"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodCompagesListActivity"
             android:label="添加组合商品"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Food.FoodCompagesActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Sale.SaleActivity"
             android:label="销售/开单"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Sale.SaleListActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Storage.StorageListActivity"
             android:label="实库"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Storage.StorageLogListActivity"
             android:label="进货记录"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodClassifyActivity"
             android:label="选择分类"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodCatalogListActivity"
             android:label="添加商品到分类"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Food.FoodListActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Sale.SaleClassifyActivity"
             android:label="选择分类"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.AccountheadList.AccountheadActivity"
             android:label="销售详情"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.AccountheadList.AccountheadListActivity" >
         </activity>
     </application>

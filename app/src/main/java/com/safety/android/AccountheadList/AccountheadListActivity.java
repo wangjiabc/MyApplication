@@ -40,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -244,7 +245,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                         String  billno = jsonObject.getString("billno");
 
-                        billNo+=supplier+"的订单"+billno+",";
+                        billNo+=supplier+"的订单"+billno+",\n";
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -254,8 +255,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                 switch (item.getItemId()) {
                     case Menu.FIRST + 1:
 
-                        new AlertDialog.Builder(AccountheadListActivity.this)
-                                .setTitle("删除"+billNo+"?")
+                        AlertDialog builder = new AlertDialog.Builder(AccountheadListActivity.this)
+                                .setTitle("删除订单")
+                                .setMessage(billNo)
                                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -271,8 +273,30 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                         dialogInterface.dismiss();
                                     }
                                 })
-                                .create()
                                 .show();
+
+                        try {
+                            //获取mAlert对象
+                            Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
+                            mAlert.setAccessible(true);
+                            Object mAlertController = mAlert.get(builder);
+
+                            //获取mTitleView并设置大小颜色
+                            Field mTitle = mAlertController.getClass().getDeclaredField("mTitleView");
+                            mTitle.setAccessible(true);
+                            TextView mTitleView = (TextView) mTitle.get(mAlertController);
+
+
+                            //获取mMessageView并设置大小颜色
+                            Field mMessage = mAlertController.getClass().getDeclaredField("mMessageView");
+                            mMessage.setAccessible(true);
+                            TextView mMessageView = (TextView) mMessage.get(mAlertController);
+
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
 
                         break;
                 }
@@ -496,11 +520,15 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                             }
                         }
 
+                        View spinnerView=inflater.inflate(R.layout.spinner_accept, null);
+
+                        layout_validate.addView(spinnerView);
+
                         Spinner spinner;
                         //private Spinner spinner2;
                         spinner = validateView.findViewById(R.id.Spinner01);
 
-                        String[] m={"微信支付","现金","支付宝", "银联"};
+                        String[] m={"微信支付","现金","支付宝", "银行卡"};
 
                         ArrayAdapter<String> adapter;
 
@@ -519,9 +547,11 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         //设置默认值
                         spinner.setVisibility(View.VISIBLE);
 
+                        String title="收款";
+                        title="";
                         AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this)
                                 .setView(validateView)
-                                .setPositiveButton("收款", new DialogInterface.OnClickListener()
+                                .setPositiveButton(title, new DialogInterface.OnClickListener()
                                 {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which)
@@ -530,6 +560,12 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                         dialog.dismiss();
                                     }
 
+                                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
                                 }).create();
 
                         dialog.show();
@@ -927,20 +963,32 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         }catch (Exception e){
 
         }
+
         String supplier=jsonObject.getString("supplier");
 
+        jsonObject2.put("materialName",name);
         jsonObject2.put("name",supplier);
         String  billno = jsonObject.getString("billno");
         jsonObject2.put("supplier",supplier);
         jsonObject2.put("billno",billno);
         jsonObject2.put("0",order);
         String  totalprice = jsonObject.getString("totalprice");
+        jsonObject2.put("totalprice",totalprice);
         jsonObject2.put("2",name);
         jsonObject2.put("3",totalprice);
         String  count=jsonObject.getString("count");
+        jsonObject2.put("count",count);
         jsonObject2.put("5",count);
         String createTime=jsonObject.getString("createTime");
         jsonObject2.put("4",createTime);
+        jsonObject2.put("createTime",createTime);
+        String detail = "";
+        try {
+             detail=jsonObject.getString("detail");
+        }catch (Exception e){
+
+        }
+        jsonObject2.put("detail",detail);
 
         return jsonObject2;
 

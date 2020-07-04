@@ -1,23 +1,16 @@
 package com.safety.android.Food;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -29,11 +22,9 @@ import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,12 +38,9 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.safety.android.MainActivity.dataUrl;
 
 public class FoodCatalogListActivity extends AppCompatActivity {
     QMUIPullRefreshLayout mPullRefreshLayout;
@@ -87,6 +75,8 @@ public class FoodCatalogListActivity extends AppCompatActivity {
     private Button foodButton;
 
     private Integer catalog;
+
+    QDListSectionAdapter qdListSectionAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,7 +220,8 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter(1);
+        qdListSectionAdapter=new QDListSectionAdapter(1);
+        return qdListSectionAdapter;
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -313,75 +304,9 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
                 viewHolder=holder;
                 if(position!=0) {
-                    try {
 
-                        JSONObject jsonObject = null;
-
-                        final int n=holder.getAdapterPosition();
-
-                        jsonObject = selectMap.get(holder.getAdapterPosition());
-                        String buttonText;
-                        if (jsonObject == null) {
-                            jsonObject = itemMap.get(holder.getAdapterPosition());
-                            buttonText="选择";
-                        }else{
-                            buttonText="取消选择";
-                        }
-
-                        final JSONObject finalJsonObject = jsonObject;
-
-                        new AlertDialog.Builder(FoodCatalogListActivity.this)
-                                .setTitle(finalJsonObject.getString("name"))
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(FoodCatalogListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        JSONObject jsonObject = null;
-                                        jsonObject = selectMap.get(n);
-                                        String s = "";
-                                        if (jsonObject == null) {
-                                            jsonObject = itemMap.get(n);
-                                            try {
-                                                s = StringToHtml2(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.put(n, jsonObject);
-                                        } else {
-                                            try {
-                                                s = StringToHtml(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.remove(n);
-                                        }
-                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
-
-
-                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                                        ((TextView) holder.itemView).setText(sp);
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .create()
-                                .show();
-
-
-
-                    } catch (ClassCastException | JSONException e) {
-                        e.printStackTrace();
-                        ((TextView) holder.itemView).setText("");
-                    }
                 }
             }
 
@@ -428,7 +353,6 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
                     SectionHeader header = new SectionHeader("共"+total+"条");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
-
                     list.add(section);
 
                     section.setExistAfterDataToLoad(true);
@@ -444,6 +368,7 @@ public class FoodCatalogListActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
 
         }
 
@@ -462,67 +387,72 @@ public class FoodCatalogListActivity extends AppCompatActivity {
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            String s=StringToHtml(jsonObject1);
-            //String s="<p>(1).Name:&nbsp;Toking Hazard by Joking Hazard</p><p>(2).Material: Paper</p><p>(3).Package: Box</p><p><br/></p><p>50 Marijuana themed cards to heighten your Joking Hazard experience.<br/></p><p>This is an expansion pack. It requires Joking Hazard to play</p><p>In addition to the cards, there is a secret in each box!</p><p>The box is OVERSIZED to fit the surprise</p><p><br/></p>";
-            SpannableString spannableString = new SpannableString(s);
+
+            JSONObject jsonObject2=process(order,jsonObject1);
 
             itemMap.put(order,jsonObject1);
 
-            contents.add(new SectionItem(s));
+            contents.add(new SectionItem(jsonObject2.toString()));
+
         }
 
         return contents;
     }
 
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s = "<p>"+first+img+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;库存:" + storage + "</span>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span>售价:" + retailprice + "</block quote>";
-        return s;
-    }
 
-    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='red'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer storage = jsonObject.getInt("storage");
-        Double cost = jsonObject.getDouble("cost");
-        Double retailprice=jsonObject.getDouble("retailprice");
-        String img=jsonObject.getString("img");
-        String costText="";
-        if(isCost)
-            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";
-        String s ="<p>"+first+img+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>库存:" + storage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>售价:" + retailprice + "</block quote>";
-        return s;
-    }
+    private JSONObject process(int order,JSONObject jsonObject1) throws JSONException {
 
+        JSONObject jsonObject2=new JSONObject();
+
+        try {
+            int id=jsonObject1.getInt("id");
+            jsonObject2.put("id",id);
+        }catch (Exception e){
+
+        }
+
+        jsonObject2.put("0",order);
+
+        String name = jsonObject1.getString("name");
+        jsonObject2.put("name",name);
+        Integer storage = jsonObject1.getInt("storage");
+        jsonObject2.put("2","库存:"+storage);
+        jsonObject2.put("storage",storage);
+        Double cost = 0.0;
+        try {
+            cost=jsonObject1.getDouble("cost");
+        }catch (Exception e){
+            jsonObject1.put("cost",0.00);
+        }
+        jsonObject2.put("cost",cost);
+        Double retailprice =0.00;
+        try {
+            retailprice=jsonObject1.getDouble("retailprice");
+        }catch (Exception e){
+            jsonObject1.put("retailprice",0.00);
+        }
+        jsonObject2.put("retailprice",retailprice);
+        jsonObject2.put("3","价格:"+retailprice);
+        String img=jsonObject1.getString("img");
+        String costText="";
+        if(isCost) {
+            costText = "成本:" + cost;
+            jsonObject2.put("4",costText);
+        }
+        try {
+            int combination=jsonObject1.getInt("combination");
+            jsonObject2.put("combination",combination);
+        }catch (Exception e){
+
+        }
+        if(img!=null&&!img.equals("null")&&!img.equals("")) {
+            img = "http://qiniu.lzxlzc.com/compress/" + img;
+            jsonObject2.put("img",img);
+        }
+
+        return jsonObject2;
+
+    }
 
     private class FetchItemsUpdateTask extends AsyncTask<Void,Void,String> {
 
@@ -531,6 +461,8 @@ public class FoodCatalogListActivity extends AppCompatActivity {
 
 
             JSONArray jsonArray=new JSONArray();
+
+            selectMap=qdListSectionAdapter.getSelectMap();
 
             for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                 JSONObject json = sMap.getValue();

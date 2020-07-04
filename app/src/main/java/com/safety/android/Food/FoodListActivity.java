@@ -96,8 +96,6 @@ public class FoodListActivity extends AppCompatActivity {
 
     QDListSectionAdapter qdListSectionAdapter;
 
-    private Map positionId=new HashMap();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -241,10 +239,10 @@ public class FoodListActivity extends AppCompatActivity {
         if(delete)
             menu.add(Menu.NONE, Menu.FIRST + 3, 3, "删除商品").setIcon(android.R.drawable.ic_delete);
 
-        menu.add(Menu.NONE,Menu.FIRST+4,4,"添加商品到分类").setIcon(android.R.drawable.ic_menu_add);
-
-        menu.add(Menu.NONE,Menu.FIRST+5,5,"从分类删除商品").setIcon(android.R.drawable.ic_menu_delete);
-
+        if(catalog!=null) {
+            menu.add(Menu.NONE, Menu.FIRST + 4, 4, "添加商品到分类").setIcon(android.R.drawable.ic_menu_add);
+            menu.add(Menu.NONE, Menu.FIRST + 5, 5, "从分类删除商品").setIcon(android.R.drawable.ic_menu_delete);
+        }
         return true;
 
     }
@@ -283,113 +281,112 @@ public class FoodListActivity extends AppCompatActivity {
 
                 int i=0;
                 selectMap=qdListSectionAdapter.getSelectMap();
-                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
-                    Map<String,Object> map = new HashMap<String, Object>();
+                if(selectMap.size()>0) {
+                    for (Map.Entry<Integer, org.json.JSONObject> sMap : selectMap.entrySet()) {
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                        validateItem.setTag(i);
+                        layout_validate.addView(validateItem);
+                        TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                        EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                        TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                        JSONObject jsonObject = sMap.getValue();
+                        try {
+                            tv_validateName.setText(jsonObject.getString("name"));
+                            et_validate.setText(jsonObject.getString("cost"));
+                            if (!isCost) {
+                                et_validateText.setVisibility(View.GONE);
+                                et_validate.setVisibility(View.GONE);
+                            }
+                            map.put("id", jsonObject.getInt("id"));
+                            map.put("name", tv_validateName);
+                            map.put("value", et_validate);
+                            map.put("combination", jsonObject.getInt("combination"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        list.add(map);
+
+                        i++;
+                    }
+
                     View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
                     validateItem.setTag(i);
                     layout_validate.addView(validateItem);
                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                    TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
-                    JSONObject jsonObject=sMap.getValue();
-                    try {
-                        tv_validateName.setText(jsonObject.getString("name"));
-                        et_validate.setText(jsonObject.getString("cost"));
-                        if(!isCost) {
-                            et_validateText.setVisibility(View.GONE);
-                            et_validate.setVisibility(View.GONE);
-                        }
-                        map.put("id",jsonObject.getInt("id"));
-                        map.put("name", tv_validateName);
-                        map.put("value", et_validate);
-                        map.put("combination",jsonObject.getInt("combination"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+
+                    tv_validateName.setText("进货数量");
+                    et_validateText.setText("");
+                    et_validate.setText("1");
+
+                    Map<String, Object> map0 = new HashMap<String, Object>();
+                    map0.put("id", -1);
+                    map0.put("name", tv_validateName);
+                    map0.put("value", et_validate);
+
+                    list.add(map0);
+
+                    System.out.println("list=================");
+                    MyTestUtil.print(list);
 
 
-                    list.add(map);
-
-                    i++;
-                }
-
-                View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
-                validateItem.setTag(i);
-                layout_validate.addView(validateItem);
-                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
-
-                tv_validateName.setText("进货数量");
-                et_validateText.setText("");
-                et_validate.setText("1");
-
-                Map<String,Object> map0 = new HashMap<String, Object>();
-                map0.put("id",-1);
-                map0.put("name", tv_validateName);
-                map0.put("value", et_validate);
-
-                list.add(map0);
-
-                System.out.println("list=================");
-                MyTestUtil.print(list);
-
-                AlertDialog dialog = new AlertDialog.Builder(this).setTitle("批量添加库存")
-                        .setView(validateView)
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                StringBuffer stringBuffer = new StringBuffer();
-                                JSONArray jsonArray=new JSONArray();
-                                int amount=0;
-                                for(int i=0;i<list.size();i++){
-                                    System.out.println("list i =================");
-                                    MyTestUtil.print(list.get(i));
-                                    int id= (int) list.get(i).get("id");
-                                    if(id!=-1) {
-                                        String name = ((TextView) list.get(i).get("name")).getText().toString();
-                                        String cost = ((EditText) list.get(i).get("value")).getText().toString();
-                                        int combination = (int) list.get(i).get("combination");
-                                        JSONObject jsonObject = new JSONObject();
-                                        try {
-                                            jsonObject.put("id",id);
-                                            jsonObject.put("name",name);
-                                            jsonObject.put("cost",cost);
-                                            jsonObject.put("combination",combination);
-                                            jsonArray.put(jsonObject);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                    AlertDialog dialog = new AlertDialog.Builder(this).setTitle("批量添加库存")
+                            .setView(validateView)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    StringBuffer stringBuffer = new StringBuffer();
+                                    JSONArray jsonArray = new JSONArray();
+                                    int amount = 0;
+                                    for (int i = 0; i < list.size(); i++) {
+                                        System.out.println("list i =================");
+                                        MyTestUtil.print(list.get(i));
+                                        int id = (int) list.get(i).get("id");
+                                        if (id != -1) {
+                                            String name = ((TextView) list.get(i).get("name")).getText().toString();
+                                            String cost = ((EditText) list.get(i).get("value")).getText().toString();
+                                            int combination = (int) list.get(i).get("combination");
+                                            JSONObject jsonObject = new JSONObject();
+                                            try {
+                                                jsonObject.put("id", id);
+                                                jsonObject.put("name", name);
+                                                jsonObject.put("cost", cost);
+                                                jsonObject.put("combination", combination);
+                                                jsonArray.put(jsonObject);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            String amountString = ((EditText) list.get(i).get("value")).getText().toString();
+                                            amount = Integer.parseInt(amountString);
                                         }
-                                    }else{
-                                        String amountString= ((EditText) list.get(i).get("value")).getText().toString();
-                                        amount=Integer.parseInt(amountString);
+                                        Map map = new HashMap();
+                                        map.put("jsonArray", jsonArray);
+                                        map.put("amount", amount);
+
+                                        addCount = list.size();
+
+                                        new FetchItemsTaskAddStorage().execute(map);
                                     }
-                                    Map map=new HashMap();
-                                    map.put("jsonArray",jsonArray);
-                                    map.put("amount",amount);
 
-                                    addCount=list.size();
+                                    System.out.println(stringBuffer);
 
-                                    new FetchItemsTaskAddStorage().execute(map);
+                                    dialog.dismiss();
                                 }
 
-                                System.out.println(stringBuffer);
+                            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
-                                dialog.dismiss();
-                            }
-
-                        }).setNegativeButton("取消", new DialogInterface.OnClickListener()
-                        {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                dialog.dismiss();
-                            }
-                        }).create();
-                dialog.show();
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            }).create();
+                    dialog.show();
+                }
 
                 break;
             case Menu.FIRST + 2:
@@ -428,7 +425,7 @@ public class FoodListActivity extends AppCompatActivity {
                     }
                 }
 
-
+                if(selectMap.size()>0)
                 new AlertDialog.Builder(FoodListActivity.this)
                         .setTitle("删除"+delName.substring(0,delName.length()-1)+"?")
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -459,6 +456,8 @@ public class FoodListActivity extends AppCompatActivity {
             case Menu.FIRST + 5:
                 String delClassName="";
 
+                selectMap=qdListSectionAdapter.getSelectMap();
+
                 for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                     JSONObject json = sMap.getValue();
                     try {
@@ -468,7 +467,7 @@ public class FoodListActivity extends AppCompatActivity {
                     }
                 }
 
-
+                if(selectMap.size()>0)
                 new AlertDialog.Builder(FoodListActivity.this)
                         .setTitle("从当前分类中删除"+delClassName.substring(0,delClassName.length()-1)+"?")
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -649,135 +648,99 @@ public class FoodListActivity extends AppCompatActivity {
                         final JSONObject finalJsonObject = jsonObject;
 
                         if(jsonObject.getInt("combination")==0) {
-                            new AlertDialog.Builder(FoodListActivity.this)
-                                    .setTitle(finalJsonObject.getString("name"))
-                                    .setMessage("零售价:" + finalJsonObject.getDouble("retailprice"))
-                                    .setNegativeButton("添加库存", new DialogInterface.OnClickListener() {
+
+                            LayoutInflater inflater = getLayoutInflater();
+                            View validateView = inflater.inflate(
+                                    R.layout.dialog_validate, null);
+                            final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                            layout_validate.removeAllViews();
+                            final List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+                            View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                            validateItem.setTag(0);
+                            layout_validate.addView(validateItem);
+                            TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                            EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                            TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                            Map<String, Object> map = new HashMap<String, Object>();
+                            try {
+                                tv_validateName.setText(finalJsonObject.getString("name"));
+                                et_validate.setText(finalJsonObject.getString("cost"));
+                                if (!isCost) {
+                                    et_validateText.setVisibility(View.GONE);
+                                    et_validate.setVisibility(View.GONE);
+                                }
+                                map.put("id", finalJsonObject.getInt("id"));
+                                map.put("name", tv_validateName);
+                                map.put("value", et_validate);
+                                map.put("combination", finalJsonObject.getInt("combination"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
+                            list.add(map);
+
+                            View validateItem2 = inflater.inflate(R.layout.item_validate_enter, null);
+                            validateItem2.setTag(1);
+                            layout_validate.addView(validateItem2);
+                            TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
+                            EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+                            TextView et_validateText2 = validateItem2.findViewById(R.id.et_validate_text);
+                            Map<String, Object> map2 = new HashMap<String, Object>();
+                            tv_validateName2.setText("数量");
+                            et_validateText2.setText("");
+                            et_validate2.setText("1");
+
+                            map2.put("name", tv_validateName2);
+                            map2.put("value", et_validate2);
+
+                            list.add(map2);
+
+                            AlertDialog dialog = new AlertDialog.Builder(FoodListActivity.this).setTitle("添加库存")
+                                    .setView(validateView)
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                         @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                            dialogInterface.dismiss();
-
-                                            LayoutInflater inflater = getLayoutInflater();
-                                            View validateView = inflater.inflate(
-                                                    R.layout.dialog_validate, null);
-                                            final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                                            layout_validate.removeAllViews();
-                                            final List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-
-                                            View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
-                                            validateItem.setTag(0);
-                                            layout_validate.addView(validateItem);
-                                            TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                                            EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                                            TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                                            Map<String, Object> map = new HashMap<String, Object>();
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            JSONArray jsonArray = new JSONArray();
+                                            int amount = 0;
+                                            int id = (int) list.get(0).get("id");
+                                            String name = ((TextView) list.get(0).get("name")).getText().toString();
+                                            String cost = ((EditText) list.get(0).get("value")).getText().toString();
+                                            int combination = (int) list.get(0).get("combination");
+                                            JSONObject jsonObject = new JSONObject();
                                             try {
-                                                tv_validateName.setText(finalJsonObject.getString("name"));
-                                                et_validate.setText(finalJsonObject.getString("cost"));
-                                                if (!isCost) {
-                                                    et_validateText.setVisibility(View.GONE);
-                                                    et_validate.setVisibility(View.GONE);
-                                                }
-                                                map.put("id", finalJsonObject.getInt("id"));
-                                                map.put("name", tv_validateName);
-                                                map.put("value", et_validate);
-                                                map.put("combination", finalJsonObject.getInt("combination"));
+                                                jsonObject.put("id", id);
+                                                jsonObject.put("name", name);
+                                                jsonObject.put("cost", cost);
+                                                jsonObject.put("combination", combination);
+                                                jsonArray.put(jsonObject);
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
 
+                                            String amountString = ((EditText) list.get(1).get("value")).getText().toString();
+                                            amount = Integer.parseInt(amountString);
 
-                                            list.add(map);
+                                            addStorage = amount;
+                                            addCount = 1;
+                                            Map map = new HashMap();
+                                            map.put("jsonArray", jsonArray);
+                                            map.put("amount", amount);
+                                            new FetchItemsTaskAddStorageOne().execute(map);
 
-                                            View validateItem2 = inflater.inflate(R.layout.item_validate_enter, null);
-                                            validateItem2.setTag(1);
-                                            layout_validate.addView(validateItem2);
-                                            TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
-                                            EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
-                                            TextView et_validateText2 = validateItem2.findViewById(R.id.et_validate_text);
-                                            Map<String, Object> map2 = new HashMap<String, Object>();
-                                            tv_validateName2.setText("数量");
-                                            et_validateText2.setText("");
-                                            et_validate2.setText("1");
-
-                                            map2.put("name", tv_validateName2);
-                                            map2.put("value", et_validate2);
-
-                                            list.add(map2);
-
-                                            AlertDialog dialog = new AlertDialog.Builder(FoodListActivity.this).setTitle("添加库存")
-                                                    .setView(validateView)
-                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            JSONArray jsonArray = new JSONArray();
-                                                            int amount = 0;
-                                                            int id = (int) list.get(0).get("id");
-                                                            String name = ((TextView) list.get(0).get("name")).getText().toString();
-                                                            String cost = ((EditText) list.get(0).get("value")).getText().toString();
-                                                            int combination = (int) list.get(0).get("combination");
-                                                            JSONObject jsonObject = new JSONObject();
-                                                            try {
-                                                                jsonObject.put("id", id);
-                                                                jsonObject.put("name", name);
-                                                                jsonObject.put("cost", cost);
-                                                                jsonObject.put("combination", combination);
-                                                                jsonArray.put(jsonObject);
-                                                            } catch (JSONException e) {
-                                                                e.printStackTrace();
-                                                            }
-
-                                                            String amountString = ((EditText) list.get(1).get("value")).getText().toString();
-                                                            amount = Integer.parseInt(amountString);
-
-                                                            addStorage = amount;
-                                                            addCount = 1;
-                                                            Map map = new HashMap();
-                                                            map.put("jsonArray", jsonArray);
-                                                            map.put("amount", amount);
-                                                            new FetchItemsTaskAddStorageOne().execute(map);
-
-                                                            dialog.dismiss();
-                                                        }
-
-                                                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            dialog.dismiss();
-                                                        }
-                                                    }).create();
-                                            dialog.show();
-
+                                            dialog.dismiss();
                                         }
-                                    })
-                                    .setNeutralButton("编辑", new DialogInterface.OnClickListener() {
+
+                                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
                                         @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                            final JSONObject json = itemMap.get(n);
-                                            int combination = 0;
-                                            try {
-                                                json.put("position", position);
-                                                combination = json.getInt("combination");
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            if (combination == 0) {
-                                                Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
-                                                intent.putExtra("jsonString", json.toString());
-                                                startActivityForResult(intent, 1);
-                                            } else if (combination == 1) {
-                                                Intent intent = new Intent(getApplicationContext(), FoodCompagesActivity.class);
-                                                intent.putExtra("jsonString", json.toString());
-                                                startActivityForResult(intent, 1);
-                                            }
-                                            dialogInterface.dismiss();
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
                                         }
-                                    })
-                                    .create()
-                                    .show();
+                                    }).create();
+                            dialog.show();
+
                         }else{
 
                             new FetchItemsDetail().execute(jsonObject);
@@ -794,7 +757,28 @@ public class FoodListActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+
+                final int n=holder.getAdapterPosition();
+                currentPostion = n;
+
+                final JSONObject json = itemMap.get(n);
+                int combination = 0;
+                try {
+                    json.put("position", position);
+                    combination = json.getInt("combination");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (combination == 0) {
+                    Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
+                    intent.putExtra("jsonString", json.toString());
+                    startActivityForResult(intent, 1);
+                } else if (combination == 1) {
+                    Intent intent = new Intent(getApplicationContext(), FoodCompagesActivity.class);
+                    intent.putExtra("jsonString", json.toString());
+                    startActivityForResult(intent, 1);
+                }
+
                 return true;
             }
         });
@@ -1102,7 +1086,7 @@ public class FoodListActivity extends AppCompatActivity {
                         if(message.equals("添加库存成功!")) {
 
                             JSONObject jsonObject1=itemMap.get(currentPostion);
-                            int order=jsonObject1.getInt("0");
+                            int order=currentPostion;
                             JSONObject jsonObject2=itemMap.get(order);
                             int storage=jsonObject1.getInt("storage");
                             jsonObject2.put("storage", storage + addStorage);
@@ -1157,36 +1141,22 @@ public class FoodListActivity extends AppCompatActivity {
 
                     JSONObject jsonObject=new JSONObject(items);
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
-                    /*
-                    mSearchView.clearFocus();
-                    mPullRefreshLayout.finishRefresh();
-                    itemMap=new HashMap<>();
-                    selectMap=new HashMap<>();
-                    page=1;
-                    total=0;
-                    search="";
-                    initData();
-                    */
 
                     selectMap=qdListSectionAdapter.getSelectMap();
-
-                    positionId=qdListSectionAdapter.getPositionID();
 
                     for(Integer k:selectMap.keySet()){
                         JSONObject jsonObject1=selectMap.get(k);
                         try {
 
-                            int id=jsonObject1.getInt("id");
-
-                            if(positionId.get(id)!=null){
-                                int position= (int) positionId.get(id);
-                                qdListSectionAdapter.notifyItemRemoved(position);
-                            }
+                            int order=jsonObject1.getInt("0");
+                            itemMap.remove(order);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
+
+                    new FetchItemsUpdate().execute();
 
                     qdListSectionAdapter.setSelectMap();
 
@@ -1284,7 +1254,7 @@ public class FoodListActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/compages/materialCompages/queryByMaterialCompagesId?mCompagesId="+id);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/querydDetailById?id="+id);
 
         }
 
@@ -1299,6 +1269,8 @@ public class FoodListActivity extends AppCompatActivity {
 
                 String success = jsonObject.optString("success", null);
 
+                MyTestUtil.print(jsonObject);
+
                 if (success.equals("true")) {
 
 
@@ -1306,26 +1278,18 @@ public class FoodListActivity extends AppCompatActivity {
 
                     String s="";
                     String NAME="";
+                    JSONObject j=itemMap.get(currentPostion);
+                    NAME=j.getString("name");
                     for (int i = 0; i < jsonArray.length(); i++) {
 
-                        JSONObject jsonObject1= (JSONObject) jsonArray.get(i);
+                            JSONObject jsonObject1= (JSONObject) jsonArray.get(i);
 
-                        Integer MATERIAL_COMPAGES_ID=null;
-                        try {
-                            MATERIAL_COMPAGES_ID=jsonObject1.getInt("MATERIAL_COMPAGES_ID");
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
+                            String name=jsonObject1.getString("name");
+                            Integer amount=jsonObject1.getInt("unit");
+                            Integer storage=jsonObject1.getInt("storage");
+                            s+=i+"."+name+", 数量 "+amount+", 库存 "+storage+" ,\n";
 
-                        if(MATERIAL_COMPAGES_ID!=null){
 
-                            String name=jsonObject1.getString("NAME");
-                            Integer amount=jsonObject1.getInt("AMOUNT");
-                            s+=i+"."+name+"  数量 "+amount+" ,\n";
-
-                        }else{
-                            NAME=jsonObject1.getString("NAME");
-                        }
 
                     }
 
@@ -1333,31 +1297,6 @@ public class FoodListActivity extends AppCompatActivity {
                             .setTitle(NAME+"(组合)")
                             .setMessage(s)
                             .setPositiveButton("确定", null)
-                            .setNegativeButton("编辑", new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final JSONObject json = itemMap.get(currentPostion);
-                                    int combination = 0;
-                                    try {
-                                        json.put("position", currentPostion);
-                                        combination = json.getInt("combination");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    if (combination == 0) {
-                                        Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
-                                        intent.putExtra("jsonString", json.toString());
-                                        startActivityForResult(intent, 1);
-                                    } else if (combination == 1) {
-                                        Intent intent = new Intent(getApplicationContext(), FoodCompagesActivity.class);
-                                        intent.putExtra("jsonString", json.toString());
-                                        startActivityForResult(intent, 1);
-                                    }
-                                    dialog.dismiss();
-                                }
-
-                            })
                             .show();
                     try {
                         //获取mAlert对象
@@ -1512,12 +1451,12 @@ public class FoodListActivity extends AppCompatActivity {
             jsonObject1.put("retailprice",0.00);
         }
         jsonObject2.put("retailprice",retailprice);
-        jsonObject2.put("4","价格:"+retailprice);
+        jsonObject2.put("3","价格:"+retailprice);
         String img=jsonObject1.getString("img");
         String costText="";
         if(isCost) {
             costText = "成本:" + cost;
-            jsonObject2.put("3",costText);
+            jsonObject2.put("4",costText);
         }
         try {
             int combination=jsonObject1.getInt("combination");
