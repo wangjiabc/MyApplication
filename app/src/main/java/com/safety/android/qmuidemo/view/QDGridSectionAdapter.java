@@ -99,8 +99,8 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
             try {
                 int diff = jsonObject.getInt("diff");
+                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName5);
                 if(diff!=0) {
-                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName5);
                     if (diff > 0) {
                         tvApplicationName.setTextColor(Color.GREEN);
                         tvApplicationName.setText("+"+String.valueOf(diff));
@@ -108,16 +108,18 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                         tvApplicationName.setTextColor(Color.RED);
                         tvApplicationName.setText("-"+String.valueOf(diff));
                     }
+                }else {
+                    tvApplicationName.setText("");
                 }
             }catch (Exception e){
 
-              //  e.printStackTrace();
+               // e.printStackTrace();
             }
 
             try {
                 int diff2 = jsonObject.getInt("diff2");
+                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName6);
                 if(diff2!=0) {
-                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName6);
                     if (diff2 > 0) {
                         tvApplicationName.setTextColor(Color.GREEN);
                         tvApplicationName.setText("+"+String.valueOf(diff2));
@@ -125,10 +127,12 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                         tvApplicationName.setTextColor(Color.RED);
                         tvApplicationName.setText("-"+String.valueOf(diff2));
                     }
+                }else{
+                    tvApplicationName.setText("");
                 }
             }catch (Exception e){
 
-              //  e.printStackTrace();
+                //e.printStackTrace();
             }
 
             try{
@@ -140,7 +144,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 System.out.println("img======="+jsonObject.get("img"));
             }catch (Exception e){
 
-                //e.printStackTrace();
+               // e.printStackTrace();
 
             }
 
@@ -174,26 +178,40 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 positionId.put(fId,jsonObject.getInt("0"));
             }
 
+            String name="";
+
             if(jsonObject.get("name")!=null) {
+                name=jsonObject.getString("name");
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName);
                 TextPaint paint = tvApplicationName.getPaint();
                 paint.setFakeBoldText(true);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("name")));
             }
 
+            String t2="";
+
             if(jsonObject.get("2")!=null) {
+                t2=jsonObject.get("2").toString();
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName2);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("2")));
             }
 
+            String t3="";
+
             if(jsonObject.get("3")!=null) {
+                t3=jsonObject.get("3").toString();
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName3);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("3")));
             }
+            String t4="";
             if(jsonObject.get("4")!=null) {
+                t4=jsonObject.get("4").toString();
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName4);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("4")));
             }
+
+            System.out.println("name=="+name+"    stroge==="+t2+"   realstorge===="+t4+"    diff==="+jsonObject.getInt("diff"));
+
             if(jsonObject.get("5")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName5);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("5")));

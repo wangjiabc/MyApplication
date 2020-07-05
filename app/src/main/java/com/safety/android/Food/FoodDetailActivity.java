@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import okhttp3.FormBody;
 
 import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
 
@@ -120,6 +120,7 @@ public class FoodDetailActivity extends AppCompatActivity {
 
         mPhotoButton.setOnClickListener(new View.OnClickListener(){
 
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
 
@@ -147,30 +148,46 @@ public class FoodDetailActivity extends AppCompatActivity {
 
         String jsonString=intent.getStringExtra("jsonString");
 
+        Integer catalog = null;
+
         if(jsonString!=null&&!jsonString.equals("")){
-            foodValidateinfo.setText("编辑商品");
-            isEdit=true;
+
             try {
 
                 JSONObject jsonObject = new JSONObject(jsonString);
 
-                id=jsonObject.getInt("id");
-                position=jsonObject.getInt("position");
-                String name = jsonObject.getString("name");
-                Double cost = jsonObject.getDouble("cost");
-                Double retailprice = jsonObject.getDouble("retailprice");
-                String remark = jsonObject.getString("remark");
-                String thisImg=jsonObject.getString("img");
-                if(thisImg!=null)
-                    updatePhotoView("http://qiniu.lzxlzc.com/"+thisImg);
+                int detailtype=jsonObject.getInt("detailtype");
 
-                editText1.setText(name);
-                editText2.setText(String.valueOf(cost));
-                editText3.setText(String.valueOf(retailprice));
-                editText4.setText(remark);
+                if(detailtype==1) {
+                    isEdit=true;
+                    foodValidateinfo.setText("编辑商品");
 
+                    id = jsonObject.getInt("id");
+                    position = jsonObject.getInt("position");
+                    String name = jsonObject.getString("name");
+                    Double cost = jsonObject.getDouble("cost");
+                    Double retailprice = jsonObject.getDouble("retailprice");
+                    String remark = jsonObject.getString("remark");
+                    String thisImg = jsonObject.getString("img");
+                    if (thisImg != null)
+                        updatePhotoView("http://qiniu.lzxlzc.com/" + thisImg);
 
+                    editText1.setText(name);
+                    editText2.setText(String.valueOf(cost));
+                    editText3.setText(String.valueOf(retailprice));
+                    editText4.setText(remark);
 
+                }else{
+
+                    foodValidateinfo.setText("编辑商品");
+
+                }
+
+                try {
+                    catalog = jsonObject.getInt("catalog");
+                }catch (JSONException e){
+
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -178,6 +195,13 @@ public class FoodDetailActivity extends AppCompatActivity {
         }else {
             foodValidateinfo.setText("新建商品");
         }
+
+        final String fcatalog;
+
+        if(catalog!=null)
+            fcatalog=String.valueOf(catalog);
+        else
+            fcatalog=null;
 
         foodButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,6 +221,9 @@ public class FoodDetailActivity extends AppCompatActivity {
                     map.put("cost",text2);
                 map.put("retailprice",text3);
                 map.put("remark",text4);
+
+                if(fcatalog!=null)
+                    map.put("catalog",fcatalog);
 
                 new FetchItemsTask().execute(map);
 
@@ -241,8 +268,6 @@ public class FoodDetailActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Map<String,String>... params) {
-
-            FormBody.Builder builder = new FormBody.Builder();
 
             JSONObject jsonObject=new JSONObject();
 
@@ -322,8 +347,8 @@ public class FoodDetailActivity extends AppCompatActivity {
                     }
                     jsonObject1.put("storage",storage);
                     jsonObject1.put("name",text1);
-                    jsonObject1.put("retailprice",text2);
-                    jsonObject1.put("cost",text3);
+                    jsonObject1.put("cost",text2);
+                    jsonObject1.put("retailprice",text3);
                     jsonObject1.put("remark",text4);
 
                     if(img!=null) {

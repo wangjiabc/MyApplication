@@ -491,6 +491,16 @@ public class FoodListActivity extends AppCompatActivity {
                 break;
             case R.id.menu_item_add:
                 Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
+                JSONObject json=new JSONObject();
+                if(catalog!=null) {
+                    try {
+                        json.put("catalog",catalog);
+                        json.put("detailtype",0);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                intent.putExtra("jsonString", json.toString());
                 startActivityForResult(intent,1);
                 //Toast.makeText(this, "添加被点击了", Toast.LENGTH_LONG).show();
                 break;
@@ -771,6 +781,11 @@ public class FoodListActivity extends AppCompatActivity {
                 }
                 if (combination == 0) {
                     Intent intent = new Intent(getApplicationContext(), FoodDetailActivity.class);
+                    try {
+                        json.put("detailtype",1);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     intent.putExtra("jsonString", json.toString());
                     startActivityForResult(intent, 1);
                 } else if (combination == 1) {
@@ -805,48 +820,45 @@ public class FoodListActivity extends AppCompatActivity {
 
                 ArrayList<SectionItem> contents = new ArrayList<>();
                 int order=mAdapter.getItemCount();
-                JSONObject jsonObject2=process(order,jsonObject);
+
+                System.out.println("jsonObject2============================");
+                MyTestUtil.print(jsonObject);
 
                 if(type==1) {
 
-                    contents.add(new SectionItem(jsonObject2.toString()));
-                    boolean existMoreData = true;
+                    mSearchView.clearFocus();
+                    mPullRefreshLayout.finishRefresh();
+                    itemMap=new HashMap<>();
+                    selectMap=new HashMap<>();
+                    page=1;
+                    total=0;
+                    search="";
+                    initData();
 
-                    if (total < (page * 10)) {
-                        existMoreData = false;
-                    }
-
-                    mAdapter.finishLoadMore(mAdapter.getSection(mAdapter.getItemCount()), contents, true, existMoreData);
                 }else {
-                   /* int position=jsonObject.getInt("position");
+                    int position=jsonObject.getInt("position");
                     jsonObject.put("order",position);
 
-                    selectMap=qdListSectionAdapter.getSelectMap();
+                    JSONObject jsonObject2=itemMap.get(position);
 
-                    positionId=qdListSectionAdapter.getPositionID();
+                    try {
+                        jsonObject2.put("name", jsonObject.getString("name"));
+                    }catch (Exception e){
 
-                        try {
+                    }
+                    try {
+                        jsonObject2.put("retailprice", jsonObject.getString("retailprice"));
+                    }catch (Exception e){
 
-                            System.out.println("position="+position);
+                    }
+                    try {
+                        jsonObject2.put("cost", jsonObject.getString("cost"));
+                    }catch (Exception e){
 
-                            SectionHeader header = new SectionHeader("aaaaaaaaaaa");
-                            QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
-                            List list=new ArrayList();
-                            list.add(section);
+                    }
 
-                            qdListSectionAdapter.setData(list);
-                            //qdListSectionAdapter.setDataWithoutDiff(list,false);
+                    itemMap.put(position,jsonObject2);
 
-                            LinearLayout linearLayout=((LinearLayout) viewHolder.itemView);
-                            TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName);
-                            TextPaint paint = tvApplicationName.getPaint();
-                            paint.setFakeBoldText(true);
-                            tvApplicationName.setText(String.valueOf(jsonObject.get("name")));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-*/
                    new FetchItemsUpdate().execute();
 
                 }
@@ -1452,7 +1464,12 @@ public class FoodListActivity extends AppCompatActivity {
         }
         jsonObject2.put("retailprice",retailprice);
         jsonObject2.put("3","价格:"+retailprice);
-        String img=jsonObject1.getString("img");
+        String img=null;
+        try {
+            img=jsonObject1.getString("img");
+        }catch (Exception e){
+
+        }
         String costText="";
         if(isCost) {
             costText = "成本:" + cost;

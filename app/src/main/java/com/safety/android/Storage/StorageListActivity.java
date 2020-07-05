@@ -714,10 +714,10 @@ public class StorageListActivity extends AppCompatActivity {
             Integer stockstorage =0;
             try{
                 stockstorage= jsonObject1.getInt("stockstorage");
-                jsonObject2.put("3","总数："+stockstorage);
             }catch (Exception e){
-
+               // e.printStackTrace();
             }
+            jsonObject2.put("3","总数："+stockstorage);
             Integer storage=0;
             try{
                 storage= jsonObject1.getInt("storage");
@@ -743,7 +743,7 @@ public class StorageListActivity extends AppCompatActivity {
                 accountcount=jsonObject1.getInt("accountcount");
 
             }catch (Exception e){
-
+              //  e.printStackTrace();
             }
 
             Integer realStorage=0;
@@ -765,6 +765,7 @@ public class StorageListActivity extends AppCompatActivity {
             jsonObject2.put("diff2",diff2);
 
             jsonObject2.put("type",1);
+            System.out.println("name=="+name+"       stroge=="+storage+"             realstorge==="+realStorage+"   diff=="+diff);
             contents.add(new SectionItem(jsonObject2.toString()));
         }
 

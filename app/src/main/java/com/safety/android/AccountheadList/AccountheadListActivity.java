@@ -468,28 +468,30 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                         try {
                             String name = jsonObject.getString("materialName");
-                            sMap.put("商品名称:",name);
+                            String supplier=jsonObject.getString("supplier");
+                            sMap=new HashMap();
+                            sMap.put("客户名称:",supplier);
                             list.add(sMap);
                             String  billno = jsonObject.getString("billno");
                             sMap=new HashMap();
                             sMap.put("订单号:",billno);
                             list.add(sMap);
-                            String supplier=jsonObject.getString("supplier");
                             sMap=new HashMap();
-                            sMap.put("客户名称:",supplier);
+                            sMap.put("商品名称:",name);
                             list.add(sMap);
                             Double totalprice = jsonObject.getDouble("totalprice");
                             sMap=new HashMap();
                             sMap.put("销售金额:",totalprice);
                             list.add(sMap);
+                            sMap=new HashMap();
                             String  count=jsonObject.getString("count");
                             sMap=new HashMap();
                             sMap.put("数量:",count);
                             list.add(sMap);
-                            String detail=jsonObject.getString("detail");
+                           /* String detail=jsonObject.getString("detail");
                             sMap=new HashMap();
                             sMap.put("详情",detail);
-                            list.add(sMap);
+                            list.add(sMap);*/
                             String createTime=jsonObject.getString("createTime");
                             sMap=new HashMap();
                             sMap.put("时间:",createTime);
@@ -974,13 +976,13 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         jsonObject2.put("0",order);
         String  totalprice = jsonObject.getString("totalprice");
         jsonObject2.put("totalprice",totalprice);
-        jsonObject2.put("2",name);
-        jsonObject2.put("3",totalprice);
+        jsonObject2.put("2","商品:"+name);
+        jsonObject2.put("3","金额:"+totalprice+"元");
         String  count=jsonObject.getString("count");
         jsonObject2.put("count",count);
-        jsonObject2.put("5",count);
+        jsonObject2.put("4","数量:"+count);
         String createTime=jsonObject.getString("createTime");
-        jsonObject2.put("4",createTime);
+        jsonObject2.put("5","日期:"+createTime);
         jsonObject2.put("createTime",createTime);
         String detail = "";
         try {
