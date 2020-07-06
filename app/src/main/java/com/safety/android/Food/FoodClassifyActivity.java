@@ -1,14 +1,18 @@
 package com.safety.android.Food;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.myapplication.R;
+import com.safety.android.AccountheadList.AccountheadActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch2;
 import com.safety.android.tools.MyHolder;
@@ -19,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class FoodClassifyActivity extends AppCompatActivity {
@@ -56,6 +61,35 @@ public class FoodClassifyActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        menu.add(Menu.NONE,Menu.FIRST+1,1,"分类设置").setIcon(android.R.drawable.edit_text);
+
+        return true;
+
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // TODO Auto-generated method stub
+        if(item.getItemId() == android.R.id.home)
+        {
+            finish();
+            return true;
+        }
+
+        switch (item.getItemId()) {
+            case Menu.FIRST + 1:
+
+
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private class FetchItemsTask extends AsyncTask<Void,Void,String> {
 

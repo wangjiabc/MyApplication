@@ -31,6 +31,8 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
+import com.safety.android.SQLite3.PermissionInfo;
+import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
@@ -47,10 +49,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -84,6 +88,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
     private boolean isEdit=false;
 
     private Map<Integer,JSONObject> itemMap=new HashMap<>();
+
+    private boolean isCost=false;
 
     private RecyclerView.LayoutManager mLayoutManager;
     protected QMUIStickySectionAdapter<SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> mAdapter;
@@ -163,6 +169,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
         mPhotoButton.setOnClickListener(new View.OnClickListener(){
 
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
 
@@ -198,6 +205,26 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
             }
         });
+
+        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
+
+        Iterator<PermissionInfo> iterator=list.iterator();
+
+        while (iterator.hasNext()){
+
+            PermissionInfo permissionInfo=iterator.next();
+
+            String action=permissionInfo.getAction();
+            String component=permissionInfo.getComponent();
+
+            if(action!=null){
+                if(action.equals("materialList:cost")){
+                    isCost=true;
+                    continue;
+                }
+            }
+
+        }
 
         setContentView(view);
     }
@@ -701,25 +728,25 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
 
-
         JSONArray records = jsonObject.getJSONArray("result");
 
-        for (int i = 0; i < records.length()-1; i++) {
+        for (int i = 0; i < records.length(); i++) {
 
             int order=i+1;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            jsonObject1.put("id",jsonObject1.getInt("MATERIAL_ID"));
-            String s=StringToHtml(jsonObject1);
+
+            JSONObject jsonObject2=process(order,jsonObject1);
 
             itemMap.put(order,jsonObject1);
 
-            contents.add(new SectionItem(s));
+            contents.add(new SectionItem(jsonObject2.toString()));
+
         }
 
         return contents;
     }
+
 
     private ArrayList<SectionItem> addContentsNew(ArrayList<SectionItem> contents) throws JSONException {
 
@@ -730,8 +757,9 @@ public class FoodCompagesActivity extends AppCompatActivity {
         for(Map.Entry<Integer,org.json.JSONObject> map:itemMap.entrySet()){
             JSONObject jsonObject1=map.getValue();
             jsonObject1.put("order",String.valueOf(i));
-            String s=StringToHtml(jsonObject1);
-            contents.add(new SectionItem(s));
+            JSONObject jsonObject2=process(i,jsonObject1);
+
+            contents.add(new SectionItem(jsonObject2.toString()));
             itemMap2.put(i,jsonObject1);
             i++;
         }
@@ -741,24 +769,6 @@ public class FoodCompagesActivity extends AppCompatActivity {
         return contents;
     }
 
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("NAME");
-        Integer amount = jsonObject.getInt("AMOUNT");
-       /* String img=jsonObject.getString("img");
-        if(img!=null&&!img.equals(""))
-            img="<img src='http://qiniu.lzxlzc.com/compress/"+img+"'/>";*/
-        String s = ""+first+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;数量:"+amount;
-        return s;
-    }
 
 
     @Override
@@ -796,6 +806,65 @@ public class FoodCompagesActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
+    }
+
+    private JSONObject process(int order,JSONObject jsonObject1) throws JSONException {
+
+        JSONObject jsonObject2=new JSONObject();
+
+        try {
+            int id=jsonObject1.getInt("id");
+            jsonObject2.put("id",id);
+        }catch (Exception e){
+
+        }
+
+        jsonObject2.put("0",order);
+
+        String name = jsonObject1.getString("name");
+        jsonObject2.put("name",name);
+        Integer storage = jsonObject1.getInt("storage");
+        jsonObject2.put("2","库存:"+storage);
+        jsonObject2.put("storage",storage);
+        Double cost = 0.0;
+        try {
+            cost=jsonObject1.getDouble("cost");
+        }catch (Exception e){
+            jsonObject1.put("cost",0.00);
+        }
+        jsonObject2.put("cost",cost);
+        Double retailprice =0.00;
+        try {
+            retailprice=jsonObject1.getDouble("retailprice");
+        }catch (Exception e){
+            jsonObject1.put("retailprice",0.00);
+        }
+        jsonObject2.put("retailprice",retailprice);
+        jsonObject2.put("3","价格:"+retailprice);
+        String img=null;
+        try {
+            img=jsonObject1.getString("img");
+        }catch (Exception e){
+
+        }
+        String costText="";
+        if(isCost) {
+            costText = "成本:" + cost;
+            jsonObject2.put("4",costText);
+        }
+        try {
+            int combination=jsonObject1.getInt("combination");
+            jsonObject2.put("combination",combination);
+        }catch (Exception e){
+
+        }
+        if(img!=null&&!img.equals("null")&&!img.equals("")) {
+            img = "http://qiniu.lzxlzc.com/compress/" + img;
+            jsonObject2.put("img",img);
+        }
+
+        return jsonObject2;
 
     }
 

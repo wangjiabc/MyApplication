@@ -3,14 +3,10 @@ package com.safety.android.Food;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +14,11 @@ import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
@@ -28,11 +29,9 @@ import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,14 +45,8 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+public class ClassifyActivity extends AppCompatActivity {
 
-import static com.safety.android.MainActivity.dataUrl;
-
-public class FoodCompagesListActivity extends AppCompatActivity {
     QMUIPullRefreshLayout mPullRefreshLayout;
 
     QMUIStickySectionLayout mSectionLayout;
@@ -83,8 +76,6 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
     private boolean isCost=false;
 
-    private Button foodButton;
-
     QDListSectionAdapter qdListSectionAdapter;
 
     @Override
@@ -92,7 +83,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.food_compages_list, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.class_compages_list, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -135,29 +126,6 @@ public class FoodCompagesListActivity extends AppCompatActivity {
             }
         });
 
-        foodButton=view.findViewById(R.id.food_button);
-
-        foodButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                selectMap=qdListSectionAdapter.getSelectMap();
-
-                JSONArray jsonArray=new JSONArray();
-
-                for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()) {
-                    JSONObject jsonObject = map.getValue();
-                    jsonArray.put(jsonObject);
-                }
-
-                Intent intent = new Intent();
-                intent.putExtra("value", jsonArray.toString());
-                setResult(Activity.RESULT_OK, intent);
-                finish();
-
-            }
-        });
-
         List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
 
         Iterator<PermissionInfo> iterator=list.iterator();
@@ -181,6 +149,16 @@ public class FoodCompagesListActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        menu.add(Menu.NONE,Menu.FIRST+1,1,"新建目录").setIcon(android.R.drawable.ic_menu_add);
+
+        return true;
+
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         // TODO Auto-generated method stub
@@ -189,6 +167,14 @@ public class FoodCompagesListActivity extends AppCompatActivity {
             finish();
             return true;
         }
+
+        switch (item.getItemId()) {
+            case Menu.FIRST + 1:
+
+
+                break;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -268,7 +254,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+"&combination=0"+cSearch);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/tree/tree/list?order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -329,12 +315,12 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
                         final JSONObject finalJsonObject = jsonObject;
 
-                        new AlertDialog.Builder(FoodCompagesListActivity.this)
+                        new AlertDialog.Builder(ClassifyActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(FoodCompagesListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ClassifyActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
                                         dialogInterface.dismiss();
                                     }
                                 })
@@ -371,7 +357,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
             String cSearch="";
             if(search!=null&&!search.equals(""))
                 cSearch=search;
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+"&combination=0"+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/tree/tree/list?order=asc&pageNo=" + page + "&pageSize"+size+"&combination=0"+cSearch);
         }
 
 
@@ -423,11 +409,27 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
         total=result.getInt("total");
 
+        Map pName=new HashMap();
+
         for (int i = 0; i < records.length(); i++) {
 
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+            int id=jsonObject1.getInt("id");
+
+            String name=jsonObject1.getString("username");
+
+            pName.put(id,name);
+
+            try{
+                int pId=jsonObject1.getInt("pid");
+                name= (String) pName.get(pId);
+                jsonObject1.put("pName",name);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             JSONObject jsonObject2=process(order,jsonObject1);
 
@@ -454,52 +456,18 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
         jsonObject2.put("0",order);
 
-        String name = jsonObject1.getString("name");
+        String name = jsonObject1.getString("username");
         jsonObject2.put("name",name);
-        Integer storage = jsonObject1.getInt("storage");
-        jsonObject2.put("2","库存:"+storage);
-        jsonObject2.put("storage",storage);
-        Double cost = 0.0;
-        try {
-            cost=jsonObject1.getDouble("cost");
-        }catch (Exception e){
-            jsonObject1.put("cost",0.00);
-        }
-        jsonObject2.put("cost",cost);
-        Double retailprice =0.00;
-        try {
-            retailprice=jsonObject1.getDouble("retailprice");
-        }catch (Exception e){
-            jsonObject1.put("retailprice",0.00);
-        }
-        jsonObject2.put("retailprice",retailprice);
-        jsonObject2.put("3","价格:"+retailprice);
-        String img=null;
-        try {
-            img=jsonObject1.getString("img");
+
+        try{
+            String pName=jsonObject1.getString("pName");
+            jsonObject2.put("2","上级目录:"+pName);
         }catch (Exception e){
 
-        }
-        String costText="";
-        if(isCost) {
-            costText = "成本:" + cost;
-            jsonObject2.put("4",costText);
-        }
-        try {
-            int combination=jsonObject1.getInt("combination");
-            jsonObject2.put("combination",combination);
-        }catch (Exception e){
-
-        }
-        if(img!=null&&!img.equals("null")&&!img.equals("")) {
-            img = "http://qiniu.lzxlzc.com/compress/" + img;
-            jsonObject2.put("img",img);
         }
 
         return jsonObject2;
 
     }
-
-
 
 }
