@@ -1,22 +1,15 @@
 package com.safety.android.Food;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -28,11 +21,9 @@ import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
-import com.safety.android.qmuidemo.view.HtmlImageGetter;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.qmuidemo.view.getGradientDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,12 +37,9 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.safety.android.MainActivity.dataUrl;
 
 public class FoodCompagesListActivity extends AppCompatActivity {
     QMUIPullRefreshLayout mPullRefreshLayout;
@@ -147,6 +135,13 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
                 for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()) {
                     JSONObject jsonObject = map.getValue();
+                    try {
+                        int id=jsonObject.getInt("id");
+                        jsonObject.put("ID",id);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     jsonArray.put(jsonObject);
                 }
 
@@ -312,42 +307,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
-                viewHolder=holder;
-                if(position!=0) {
-                    try {
 
-                        JSONObject jsonObject = null;
-
-                        final int n=holder.getAdapterPosition();
-
-                        jsonObject = selectMap.get(holder.getAdapterPosition());
-                        String buttonText;
-                        if (jsonObject == null) {
-                            jsonObject = itemMap.get(holder.getAdapterPosition());
-                        }
-
-                        final JSONObject finalJsonObject = jsonObject;
-
-                        new AlertDialog.Builder(FoodCompagesListActivity.this)
-                                .setTitle(finalJsonObject.getString("name"))
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(FoodCompagesListActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .create()
-                                .show();
-
-
-
-                    } catch (ClassCastException | JSONException e) {
-                        e.printStackTrace();
-                        ((TextView) holder.itemView).setText("");
-                    }
-                }
             }
 
             @Override

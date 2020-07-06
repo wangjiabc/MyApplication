@@ -1,8 +1,6 @@
 package com.safety.android.Food;
 
-import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,15 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
@@ -44,6 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ClassifyActivity extends AppCompatActivity {
 
@@ -214,7 +210,7 @@ public class ClassifyActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        qdListSectionAdapter=new QDListSectionAdapter(1);
+        qdListSectionAdapter=new QDListSectionAdapter(3);
         return qdListSectionAdapter;
     }
 
@@ -316,7 +312,7 @@ public class ClassifyActivity extends AppCompatActivity {
                         final JSONObject finalJsonObject = jsonObject;
 
                         new AlertDialog.Builder(ClassifyActivity.this)
-                                .setTitle(finalJsonObject.getString("name"))
+                                .setTitle(finalJsonObject.getString("username"))
                                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -331,7 +327,7 @@ public class ClassifyActivity extends AppCompatActivity {
 
                     } catch (ClassCastException | JSONException e) {
                         e.printStackTrace();
-                        ((TextView) holder.itemView).setText("");
+
                     }
                 }
             }
@@ -461,7 +457,8 @@ public class ClassifyActivity extends AppCompatActivity {
 
         try{
             String pName=jsonObject1.getString("pName");
-            jsonObject2.put("2","上级目录:"+pName);
+            jsonObject2.put("2","上级目录:");
+            jsonObject2.put("4",pName);
         }catch (Exception e){
 
         }

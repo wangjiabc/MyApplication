@@ -154,21 +154,30 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 if(map.get(id)!=null)
                     checkBox.setChecked(true);
                 else
-                    checkBox.setChecked(false);
+                    try {
+                        checkBox.setChecked(false);
+                    }catch (Exception e){
+
+                    }
+
             }
 
             final int fId=id;
 
-            checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    System.out.println("click======"+itemIndex);
-                    if(map.get(fId)==null)
-                        map.put(fId,jsonObject);
-                    else
-                        map.remove(fId);
-                }
-            });
+            try {
+                checkBox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        System.out.println("click======" + itemIndex);
+                        if (map.get(fId) == null)
+                            map.put(fId, jsonObject);
+                        else
+                            map.remove(fId);
+                    }
+                });
+            }catch (Exception e){
+
+            }
 
             if(jsonObject.get("0")!=null){
                 TextView cId=linearLayout.findViewById(R.id.id);
@@ -190,20 +199,30 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
             String t2="";
 
-            if(jsonObject.get("2")!=null) {
-                t2=jsonObject.get("2").toString();
-                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName2);
-                tvApplicationName.setText(String.valueOf(jsonObject.get("2")));
+            try {
+                if (jsonObject.get("2") != null) {
+                    t2 = jsonObject.get("2").toString();
+                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName2);
+                    tvApplicationName.setText(String.valueOf(jsonObject.get("2")));
+                }
+            }catch (Exception e){
+
             }
 
             String t3="";
 
-            if(jsonObject.get("3")!=null) {
-                t3=jsonObject.get("3").toString();
-                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName3);
-                tvApplicationName.setText(String.valueOf(jsonObject.get("3")));
+            try {
+                if (jsonObject.get("3") != null) {
+                    t3 = jsonObject.get("3").toString();
+                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName3);
+                    tvApplicationName.setText(String.valueOf(jsonObject.get("3")));
+                }
+            }catch (Exception e){
+
             }
+
             String t4="";
+
             if(jsonObject.get("4")!=null) {
                 t4=jsonObject.get("4").toString();
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName4);

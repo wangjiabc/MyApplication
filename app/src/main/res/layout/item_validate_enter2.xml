@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="fill"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:hint="请输入2到20位字符"
+                    android:inputType="number"
                     android:maxLength="20"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />

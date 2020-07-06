@@ -306,7 +306,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
+
                 try {
 
                     JSONObject jsonObject = null;
@@ -337,7 +337,117 @@ public class FoodCompagesActivity extends AppCompatActivity {
                         tv_validateName.setText(finalJsonObject.getString("NAME"));
                         et_validate.setText(finalJsonObject.getString("AMOUNT"));
 
-                        map.put("id",finalJsonObject.getInt("id"));
+                        map.put("id",finalJsonObject.getInt("ID"));
+                        map.put("name", tv_validateName);
+                        map.put("value", et_validate);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    list.add(map);
+
+
+                    AlertDialog dialog = new AlertDialog.Builder(FoodCompagesActivity.this).setTitle("设置组合数量")
+                            .setView(validateView)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    StringBuffer stringBuffer = new StringBuffer();
+                                    for(int i=0;i<list.size();i++){
+                                        System.out.println("list i====================");
+                                        MyTestUtil.print(list.get(i));
+                                        int id= (int) list.get(i).get("id");
+                                        String name = ((TextView)list.get(i).get("name")).getText().toString();
+                                        String value = ((EditText)list.get(i).get("value")).getText().toString();
+                                        int amount=Integer.parseInt(value);
+                                        try {
+                                            finalJsonObject.put("AMOUNT",amount);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        itemMap.put(n,finalJsonObject);
+                                        initDataNew();
+                                        stringBuffer.append(id+"  "+name+"  "+value+",");
+                                    }
+
+                                    System.out.println(stringBuffer);
+
+                                    dialog.dismiss();
+                                }
+
+                            }).setNegativeButton("删除", new DialogInterface.OnClickListener()
+                            {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    itemMap.remove(n);
+                                    initDataNew();
+                                    dialog.dismiss();
+                                }
+                            }).create();
+                    dialog.show();
+
+                }catch (ClassCastException e){
+                    e.printStackTrace();
+                    ((TextView) holder.itemView).setText("");
+                }
+            }
+
+            @Override
+            public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
+                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        mSectionLayout.setAdapter(mAdapter, true);
+        new FetchItemsTask().execute();
+    }
+
+    private void initDataNew() {
+        mAdapter = createAdapter();
+        mAdapter.setCallback(new QMUIStickySectionAdapter.Callback<SectionHeader, SectionItem>() {
+            @Override
+            public void loadMore(final QMUISection<SectionHeader, SectionItem> section, final boolean loadMoreBefore) {
+
+            }
+
+            @Override
+            public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, int position) {
+
+                try {
+
+                    JSONObject jsonObject = null;
+
+                    jsonObject = itemMap.get(holder.getAdapterPosition());
+
+                    final JSONObject finalJsonObject = jsonObject;
+
+                    final int n=holder.getAdapterPosition();
+
+                    LayoutInflater inflater = getLayoutInflater();
+                    View validateView = inflater.inflate(
+                            R.layout.dialog_validate, null);
+                    final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                    layout_validate.removeAllViews();
+                    final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+
+                    Map<String,Object> map = new HashMap<String, Object>();
+                    View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                    validateItem.setTag(1);
+                    layout_validate.addView(validateItem);
+                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                    TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                    try {
+                        tv_validateName.setText(finalJsonObject.getString("NAME"));
+                        et_validate.setText(finalJsonObject.getString("AMOUNT"));
+
+                        map.put("id",finalJsonObject.getInt("ID"));
                         map.put("name", tv_validateName);
                         map.put("value", et_validate);
                     } catch (JSONException e) {
@@ -397,113 +507,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-        mSectionLayout.setAdapter(mAdapter, true);
-        new FetchItemsTask().execute();
-    }
 
-    private void initDataNew() {
-        mAdapter = createAdapter();
-        mAdapter.setCallback(new QMUIStickySectionAdapter.Callback<SectionHeader, SectionItem>() {
-            @Override
-            public void loadMore(final QMUISection<SectionHeader, SectionItem> section, final boolean loadMoreBefore) {
-
-            }
-
-            @Override
-            public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
-                try {
-
-                    JSONObject jsonObject = null;
-
-                    jsonObject = itemMap.get(holder.getAdapterPosition());
-
-                    final JSONObject finalJsonObject = jsonObject;
-
-                    final int n=holder.getAdapterPosition();
-
-                    LayoutInflater inflater = getLayoutInflater();
-                    View validateView = inflater.inflate(
-                            R.layout.dialog_validate, null);
-                    final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                    layout_validate.removeAllViews();
-                    final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-
-
-                    Map<String,Object> map = new HashMap<String, Object>();
-                    View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
-                    validateItem.setTag(1);
-                    layout_validate.addView(validateItem);
-                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                    TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
-                    try {
-                        tv_validateName.setText(finalJsonObject.getString("NAME"));
-                        et_validate.setText(finalJsonObject.getString("AMOUNT"));
-
-                        map.put("id",finalJsonObject.getInt("id"));
-                        map.put("name", tv_validateName);
-                        map.put("value", et_validate);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    list.add(map);
-
-
-                    AlertDialog dialog = new AlertDialog.Builder(FoodCompagesActivity.this).setTitle("设置组合数量")
-                            .setView(validateView)
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    StringBuffer stringBuffer = new StringBuffer();
-                                    for(int i=0;i<list.size();i++){
-                                        int id= (int) list.get(i).get("id");
-                                        String name = ((TextView)list.get(i).get("name")).getText().toString();
-                                        String value = ((EditText)list.get(i).get("value")).getText().toString();
-                                        int amount=Integer.parseInt(value);
-                                        try {
-                                            finalJsonObject.put("AMOUNT",amount);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                        itemMap.put(n,finalJsonObject);
-                                        initDataNew();
-                                        stringBuffer.append(id+"  "+name+"  "+value+",");
-                                    }
-
-                                    System.out.println(stringBuffer);
-
-                                    dialog.dismiss();
-                                }
-
-                            }).setNegativeButton("取消", new DialogInterface.OnClickListener()
-                            {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    dialog.dismiss();
-                                }
-                            }).create();
-                    dialog.show();
-
-                }catch (ClassCastException e){
-                    e.printStackTrace();
-                    ((TextView) holder.itemView).setText("");
-                }
-            }
-
-            @Override
-            public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -559,7 +563,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                 JSONObject jsonObject = new JSONObject(json);
                 String success = jsonObject.optString("success", null);
-
+                System.out.println("jsonobject======================");
+                MyTestUtil.print(jsonObject);
                 if(success.equals("true")){
 
                     contents=addContents(contents,jsonObject);
@@ -609,8 +614,11 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                 com.alibaba.fastjson.JSONObject jsonObject1=new com.alibaba.fastjson.JSONObject();
 
+                System.out.println("jsongobject=================");
+                MyTestUtil.print(jsonObject);
+
                 try {
-                    jsonObject1.put("id",jsonObject.get("id"));
+                    jsonObject1.put("id",jsonObject.get("ID"));
                     jsonObject1.put("number",jsonObject.get("AMOUNT"));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -736,6 +744,13 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
 
+            try {
+                int id = jsonObject1.getInt("MATERIAL_ID");
+                jsonObject1.put("ID", id);
+            }catch (Exception e){
+                continue;
+            }
+
             JSONObject jsonObject2=process(order,jsonObject1);
 
             itemMap.put(order,jsonObject1);
@@ -817,52 +832,18 @@ public class FoodCompagesActivity extends AppCompatActivity {
             int id=jsonObject1.getInt("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
-
+            int id=jsonObject1.getInt("ID");
+            jsonObject2.put("id",id);
+                e.printStackTrace();
         }
 
         jsonObject2.put("0",order);
-
-        String name = jsonObject1.getString("name");
+        MyTestUtil.print(jsonObject1);
+        String name = jsonObject1.getString("NAME");
         jsonObject2.put("name",name);
-        Integer storage = jsonObject1.getInt("storage");
-        jsonObject2.put("2","库存:"+storage);
-        jsonObject2.put("storage",storage);
-        Double cost = 0.0;
-        try {
-            cost=jsonObject1.getDouble("cost");
-        }catch (Exception e){
-            jsonObject1.put("cost",0.00);
-        }
-        jsonObject2.put("cost",cost);
-        Double retailprice =0.00;
-        try {
-            retailprice=jsonObject1.getDouble("retailprice");
-        }catch (Exception e){
-            jsonObject1.put("retailprice",0.00);
-        }
-        jsonObject2.put("retailprice",retailprice);
-        jsonObject2.put("3","价格:"+retailprice);
-        String img=null;
-        try {
-            img=jsonObject1.getString("img");
-        }catch (Exception e){
-
-        }
-        String costText="";
-        if(isCost) {
-            costText = "成本:" + cost;
-            jsonObject2.put("4",costText);
-        }
-        try {
-            int combination=jsonObject1.getInt("combination");
-            jsonObject2.put("combination",combination);
-        }catch (Exception e){
-
-        }
-        if(img!=null&&!img.equals("null")&&!img.equals("")) {
-            img = "http://qiniu.lzxlzc.com/compress/" + img;
-            jsonObject2.put("img",img);
-        }
+        Integer amount = jsonObject1.getInt("AMOUNT");
+        jsonObject2.put("2","数量:"+amount);
+        jsonObject2.put("amount",amount);
 
         return jsonObject2;
 
