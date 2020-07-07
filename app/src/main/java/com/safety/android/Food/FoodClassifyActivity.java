@@ -82,7 +82,7 @@ public class FoodClassifyActivity extends AppCompatActivity {
             case Menu.FIRST + 1:
 
                 Intent intent = new Intent(getApplicationContext(), ClassifyActivity.class);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, 0);
                 break;
         }
 

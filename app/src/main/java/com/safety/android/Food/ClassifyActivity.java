@@ -1,6 +1,8 @@
 package com.safety.android.Food;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,7 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -16,18 +21,23 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
+import com.safety.android.LunchActivity;
+import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
+import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
+import com.safety.android.tools.MyTestUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -147,31 +157,102 @@ public class ClassifyActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        menu.add(Menu.NONE,Menu.FIRST+1,1,"新建目录").setIcon(android.R.drawable.ic_menu_add);
+        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
+
+        Iterator<PermissionInfo> iterator=list.iterator();
+
+        getMenuInflater().inflate(R.menu.menu_main, menu);
 
         return true;
 
     }
 
+    /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
+     * 让菜单同时显示图标和文字
+     */
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        if (menu != null) {
+            if (menu.getClass().getSimpleName().equalsIgnoreCase("MenuBuilder")) {
+                try {
+                    Method method = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
+                    method.setAccessible(true);
+                    method.invoke(menu, true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return super.onMenuOpened(featureId, menu);
+    }
+
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // TODO Auto-generated method stub
-        if(item.getItemId() == android.R.id.home)
-        {
-            finish();
-            return true;
-        }
-
+    public boolean onOptionsItemSelected(MenuItem item) {
+        System.out.println("click");
         switch (item.getItemId()) {
-            case Menu.FIRST + 1:
+            case R.id.menu_item_add:
+
+                LayoutInflater inflater = getLayoutInflater();
+                View validateView = inflater.inflate(
+                        R.layout.dialog_validate, null);
+                final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                layout_validate.removeAllViews();
+                final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+
+                Map<String,Object> map = new HashMap<String, Object>();
+                View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                validateItem.setTag(0);
+                layout_validate.addView(validateItem);
+                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                et_validateText.setText("");
+
+                tv_validateName.setText("目录名称");
+
+                map.put("name", tv_validateName);
+                map.put("value", et_validate);
+
+                list.add(map);
+
+
+                AlertDialog dialog = new AlertDialog.Builder(ClassifyActivity.this).setTitle("新建目录")
+                        .setView(validateView)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                StringBuffer stringBuffer = new StringBuffer();
+
+                                MyTestUtil.print(list);
+
+                                Map map=list.get(0);
+
+
+                                new FetchItemsTaskAdd().execute(map);
+
+                                dialog.dismiss();
+                            }
+
+                        }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                        {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        }).create();
+                dialog.show();
 
 
                 break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     private void initRefreshLayout() {
@@ -313,11 +394,78 @@ public class ClassifyActivity extends AppCompatActivity {
 
                         new AlertDialog.Builder(ClassifyActivity.this)
                                 .setTitle(finalJsonObject.getString("username"))
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                .setNegativeButton("删除", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(ClassifyActivity.this, "点击了取消按钮", Toast.LENGTH_SHORT).show();
+
                                         dialogInterface.dismiss();
+                                    }
+                                })
+                                .setPositiveButton("添加子目录", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        dialogInterface.dismiss();
+
+                                        LayoutInflater inflater = getLayoutInflater();
+                                        View validateView = inflater.inflate(
+                                                R.layout.dialog_validate, null);
+                                        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                                        layout_validate.removeAllViews();
+                                        final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+
+                                        Map<String,Object> map = new HashMap<String, Object>();
+                                        View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                                        validateItem.setTag(0);
+                                        layout_validate.addView(validateItem);
+                                        TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                                        EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                                        TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                                        et_validateText.setText("");
+
+                                        tv_validateName.setText("目录名称");
+
+                                        map.put("name", tv_validateName);
+                                        map.put("value", et_validate);
+
+                                        list.add(map);
+
+
+                                        AlertDialog dialog = new AlertDialog.Builder(ClassifyActivity.this).setTitle("新建目录")
+                                                .setView(validateView)
+                                                .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                                                {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which)
+                                                    {
+                                                        StringBuffer stringBuffer = new StringBuffer();
+
+                                                        MyTestUtil.print(list);
+
+                                                        Map map=list.get(0);
+                                                        try {
+                                                            map.put("PId",finalJsonObject.get("id"));
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+
+                                                        new FetchItemsTaskAddPId().execute(map);
+
+                                                        dialog.dismiss();
+                                                    }
+
+                                                }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                                                {
+
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which)
+                                                    {
+                                                        dialog.dismiss();
+                                                    }
+                                                }).create();
+                                        dialog.show();
+
                                     }
                                 })
                                 .create()
@@ -464,6 +612,117 @@ public class ClassifyActivity extends AppCompatActivity {
         }
 
         return jsonObject2;
+
+    }
+
+
+    private class FetchItemsTaskAdd extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+            Map map=params[0];
+
+            String username= (String) map.get("value");
+
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/tree/tree/addRootTree?userName="+username);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.getString("success");
+                    String message = jsonObject.getString("message");
+
+
+                    if(success.equals("true")) {
+
+
+                        mSearchView.clearFocus();
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        selectMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        search="";
+                        initData();
+
+                    }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
+
+
+    private class FetchItemsTaskAddPId extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+            Map map=params[0];
+
+            String username= (String) map.get("value");
+
+            Integer pId= (Integer) map.get("pId");
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/tree/tree/addTree?userName="+username+"&pId="+pId);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.getString("success");
+                    String message = jsonObject.getString("message");
+
+
+                    if(success.equals("true")) {
+
+
+                        mSearchView.clearFocus();
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        selectMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        search="";
+                        initData();
+
+                    }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
 
     }
 

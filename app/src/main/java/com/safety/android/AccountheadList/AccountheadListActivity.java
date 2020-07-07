@@ -550,7 +550,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         spinner.setVisibility(View.VISIBLE);
 
                         String title="收款";
-                        title="";
                         AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this)
                                 .setView(validateView)
                                 .setPositiveButton(title, new DialogInterface.OnClickListener()
