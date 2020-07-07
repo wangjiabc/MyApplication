@@ -530,7 +530,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         //private Spinner spinner2;
                         spinner = validateView.findViewById(R.id.Spinner01);
 
-                        String[] m={"微信支付","现金","支付宝", "银行卡"};
+                        final String[] m={"微信支付","现金","支付宝", "银行卡"};
 
                         ArrayAdapter<String> adapter;
 
@@ -558,6 +558,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                     public void onClick(DialogInterface dialog, int which)
                                     {
 
+                                        Map map=new HashMap();
+                                        try {
+                                            String  billno = finaljsonObject.getString("billno");
+                                            map.put("billno",billno);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        new FetchItemsTaskIncome().execute(map);
                                         dialog.dismiss();
                                     }
 
@@ -983,6 +991,15 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         String createTime=jsonObject.getString("createTime");
         jsonObject2.put("5","日期:"+createTime);
         jsonObject2.put("createTime",createTime);
+        Integer income=jsonObject.getInt("income");
+        System.out.println("income===="+income);
+        String come="";
+        if(income==0){
+            come="未收";
+        }else if(income==1){
+            come="已收";
+        }
+        jsonObject2.put("6",come);
         String detail = "";
         try {
              detail=jsonObject.getString("detail");
@@ -1015,6 +1032,51 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         }
 
         return contents;
+    }
+
+
+    private class FetchItemsTaskIncome extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+            Map map=params[0];
+
+            String billno= (String) map.get("billno");
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.optString("success", null);
+                    String message = jsonObject.optString("message", null);
+                    if(success.equals("true")) {
+
+
+
+                        new FetchItemsUpdate().execute();
+                    }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
     }
 
 }

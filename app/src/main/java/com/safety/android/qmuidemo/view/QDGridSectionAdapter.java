@@ -229,19 +229,27 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 tvApplicationName.setText(String.valueOf(jsonObject.get("4")));
             }
 
-            System.out.println("name=="+name+"    stroge==="+t2+"   realstorge===="+t4+"    diff==="+jsonObject.getInt("diff"));
+           // System.out.println("name=="+name+"    stroge==="+t2+"   realstorge===="+t4+"    diff==="+jsonObject.getInt("diff"));
 
             if(jsonObject.get("5")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName5);
                 tvApplicationName.setText(String.valueOf(jsonObject.get("5")));
             }
-            if(jsonObject.get("6")!=null) {
-                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName6);
-                tvApplicationName.setText(String.valueOf(jsonObject.get("6")));
+            try {
+                if (jsonObject.get("6") != null) {
+                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName6);
+                    tvApplicationName.setText(String.valueOf(jsonObject.get("6")));
+                }
+            }catch (Exception e){
+
             }
-            if(jsonObject.get("7")!=null) {
-                TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName7);
-                tvApplicationName.setText(String.valueOf(jsonObject.get("7")));
+            try {
+                if (jsonObject.get("7") != null) {
+                    TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName7);
+                    tvApplicationName.setText(String.valueOf(jsonObject.get("7")));
+                }
+            }catch (Exception e){
+
             }
             if(jsonObject.get("8")!=null) {
                 TextView tvApplicationName = linearLayout.findViewById(R.id.tvApplicationName8);
@@ -251,7 +259,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
 
         } catch (JSONException e) {
-
+                e.printStackTrace();
         }
 
     }

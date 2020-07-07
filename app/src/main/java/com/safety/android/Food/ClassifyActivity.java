@@ -1,8 +1,6 @@
 package com.safety.android.Food;
 
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,11 +19,8 @@ import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.LunchActivity;
-import com.safety.android.MainActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
-import com.safety.android.Sale.SaleActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
@@ -416,13 +411,13 @@ public class ClassifyActivity extends AppCompatActivity {
 
 
                                         Map<String,Object> map = new HashMap<String, Object>();
-                                        View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                                        View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
                                         validateItem.setTag(0);
                                         layout_validate.addView(validateItem);
                                         TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                                         EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                                         TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
-                                        et_validateText.setText("");
+                                        et_validateText.setVisibility(View.GONE);
 
                                         tv_validateName.setText("目录名称");
 
@@ -443,7 +438,12 @@ public class ClassifyActivity extends AppCompatActivity {
 
                                                         MyTestUtil.print(list);
 
-                                                        Map map=list.get(0);
+                                                        Map map=new HashMap();
+
+                                                        String username = ((EditText) list.get(0).get("value")).getText().toString();
+
+                                                        map.put("username",username);
+
                                                         try {
                                                             map.put("PId",finalJsonObject.get("id"));
                                                         } catch (JSONException e) {
@@ -678,9 +678,9 @@ public class ClassifyActivity extends AppCompatActivity {
 
             Map map=params[0];
 
-            String username= (String) map.get("value");
+            String username= (String) map.get("username");
 
-            Integer pId= (Integer) map.get("pId");
+            Integer pId= (Integer) map.get("PId");
 
             return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/tree/tree/addTree?userName="+username+"&pId="+pId);
         }
