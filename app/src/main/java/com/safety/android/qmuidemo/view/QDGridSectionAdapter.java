@@ -259,7 +259,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
 
         } catch (JSONException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
         }
 
     }

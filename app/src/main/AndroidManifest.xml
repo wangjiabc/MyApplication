@@ -136,7 +136,7 @@
             android:name="com.safety.android.Storage.StorageListActivity"
             android:label="实库"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.safety.android.MainActivity" >
+            android:parentActivityName="com.safety.android.Storage.StorageClassActivity" >
         </activity>
         <activity
             android:name="com.safety.android.Storage.StorageLogListActivity"
@@ -173,6 +173,12 @@
             android:label="分类设置"
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Food.FoodClassifyActivity" >
+        </activity>
+        <activity
+            android:name="com.safety.android.Storage.StorageClassActivity"
+            android:label="选择分类"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
     </application>
 

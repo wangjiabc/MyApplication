@@ -233,7 +233,7 @@ public class AccountheadActivity extends AppCompatActivity {
                             saleall4.setText(jsonObject0.getString("allTotalprice"));
                             phoneNum.setText(jsonObject0.getString("phone"));
                             orderNumber.setText(jsonObject0.getString("billno"));
-                            atv_content.setText(jsonObject0.getString("realname"));
+                            atv_content.setText(jsonObject0.getString("supplier"));
                             sale_title.setText(jsonObject0.getString("email") + "销售单");
 
                             billNo=jsonObject0.getString("billno");

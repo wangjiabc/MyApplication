@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <LinearLayout
+  <!--  <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -40,14 +40,14 @@
             android:textSize="23sp"
             android:text="1.开始订阅" />
 
-    </LinearLayout>
+    </LinearLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
-        <LinearLayout
+  <!--      <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="horizontal"
@@ -68,7 +68,7 @@
                 android:text="general"
                 android:textSize="23sp"
                 />
-        </LinearLayout>
+        </LinearLayout>-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                 android:id="@+id/tv_message"
                 android:layout_width="100sp"
                 android:layout_height="match_parent"
-                android:text="内容消息:"
+                android:text="消息内容:"
                 android:gravity="center"
                 android:textSize="20sp"
                 android:layout_marginRight="20dp"
@@ -100,24 +100,8 @@
             android:textSize="23sp"
             android:text="2.开始发布" />
 
-        <Button
-            android:id="@+id/btn_connect"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:textSize="23sp"
-            android:text="connect" />
     </LinearLayout>
 
-
-
-    <ListView
-        android:id="@+id/lv_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:dividerHeight="0dp"
-        android:divider="#ffffff"
-        >
-    </ListView>
 
 </LinearLayout>
 

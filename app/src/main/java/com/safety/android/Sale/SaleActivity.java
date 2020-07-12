@@ -1,5 +1,6 @@
 package com.safety.android.Sale;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -39,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SaleActivity extends AppCompatActivity {
@@ -70,6 +72,8 @@ public class SaleActivity extends AppCompatActivity {
 
     private JSONArray returnArray;
 
+    private TextView atvNew;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -88,6 +92,8 @@ public class SaleActivity extends AppCompatActivity {
         orderNumber=view.findViewById(R.id.orderNumber);
 
         saleButon=view.findViewById(R.id.sale_button);
+
+        atvNew=view.findViewById(R.id.atv_new);
 
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");//设置日期格式
         final String newsNo = df.format(new Date())+String.valueOf((int)(Math.random()*9+1)*1000);
@@ -379,6 +385,115 @@ public class SaleActivity extends AppCompatActivity {
         spinner2.setVisibility(View.VISIBLE);
 */
 
+
+        atvNew.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                LayoutInflater inflater = getLayoutInflater();
+                View validateView = inflater.inflate(
+                        R.layout.dialog_validate, null);
+                final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                layout_validate.removeAllViews();
+                final List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+                View validateItem = inflater.inflate(R.layout.item_validate_enter3, null);
+                validateItem.setTag(0);
+                layout_validate.addView(validateItem);
+                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                Map<String, Object> map = new HashMap<String, Object>();
+
+                    tv_validateName.setText("客户名称");
+                    et_validate.setText("");
+
+                    map.put("name", tv_validateName);
+                    map.put("value", et_validate);
+
+
+
+                list.add(map);
+
+                View validateItem2 = inflater.inflate(R.layout.item_validate_enter3, null);
+                validateItem2.setTag(1);
+                layout_validate.addView(validateItem2);
+                TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
+                EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+                Map<String, Object> map2 = new HashMap<String, Object>();
+                tv_validateName2.setText("客户电话");
+                et_validate2.setText("");
+
+                map2.put("name", tv_validateName2);
+                map2.put("value", et_validate2);
+
+                list.add(map2);
+
+                View validateItem3 = inflater.inflate(R.layout.item_validate_enter3, null);
+                validateItem3.setTag(2);
+                layout_validate.addView(validateItem3);
+                TextView tv_validateName3 = (TextView) validateItem3.findViewById(R.id.tv_validateName);
+                EditText et_validate3 = (EditText) validateItem3.findViewById(R.id.et_validate);
+                Map<String, Object> map3 = new HashMap<String, Object>();
+                tv_validateName3.setText("客户地址");
+                et_validate3.setText("");
+
+                map3.put("name", tv_validateName3);
+                map3.put("value", et_validate3);
+
+                list.add(map3);
+
+                AlertDialog dialog = new AlertDialog.Builder(SaleActivity.this).setTitle("新建客户")
+                        .setView(validateView)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                String name = ((EditText) list.get(0).get("value")).getText().toString();
+                                String phone = ((EditText) list.get(1).get("value")).getText().toString();
+                                String address = ((EditText) list.get(2).get("value")).getText().toString();
+
+                                if(name==null||name.equals("")){
+
+                                    Toast.makeText(SaleActivity.this, "客户名称不能空", Toast.LENGTH_LONG).show();
+
+                                }else if(phone==null||phone.equals("")){
+
+                                    Toast.makeText(SaleActivity.this, "客户电话不能空", Toast.LENGTH_LONG).show();
+
+                                }else {
+
+                                    JSONObject jsonObject = new JSONObject();
+                                    try {
+                                        jsonObject.put("supplier", name);
+                                        jsonObject.put("phonenum", phone);
+                                        jsonObject.put("address", address);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    new FetchItemsTaskAdd().execute(jsonObject);
+
+                                    dialog.dismiss();
+
+                                }
+
+
+                            }
+
+                        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+                dialog.show();
+
+            }
+        });
+
+
         new FetchItemsTask().execute();
 
         setContentView(view);
@@ -505,6 +620,18 @@ public class SaleActivity extends AppCompatActivity {
 
                                 if(username.equals(data[i])){
                                     arg=i;
+
+                                    try {
+
+                                        JSONObject jsonObject = (JSONObject) jsonArray.get(arg);
+
+                                        phoneNum.setText(jsonObject.getString("PHONENUM"));
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    continue;
                                 }
 
                             }
@@ -547,15 +674,7 @@ public class SaleActivity extends AppCompatActivity {
 
             arg=arg2;
 
-            try {
 
-                JSONObject jsonObject = (JSONObject) jsonArray.get(arg2);
-
-                phoneNum.setText(jsonObject.getString("PHONENUM"));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
         }
 
@@ -630,5 +749,43 @@ public class SaleActivity extends AppCompatActivity {
 
     }
 
+    private class FetchItemsTaskAdd extends AsyncTask<JSONObject,Void,String> {
+
+        @Override
+        protected String doInBackground(JSONObject... params) {
+
+            MyTestUtil.print(params);
+
+            JSONObject jsonObject=params[0];
+
+
+            return new OKHttpFetch(getApplicationContext()).post(FlickrFetch.base + "/supplier/supplier/add",jsonObject,"post");
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(json);
+                String success = jsonObject.optString("success", null);
+
+                Toast.makeText(SaleActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                if(success.equals("true")){
+                    System.out.println("success==="+success);
+                    new FetchItemsTask().execute();
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
 
 }

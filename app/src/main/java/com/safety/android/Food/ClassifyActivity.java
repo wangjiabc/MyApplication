@@ -226,6 +226,9 @@ public class ClassifyActivity extends AppCompatActivity {
 
                                 Map map=list.get(0);
 
+                                String username = ((EditText) list.get(0).get("value")).getText().toString();
+
+                                map.put("value",username);
 
                                 new FetchItemsTaskAdd().execute(map);
 
@@ -392,6 +395,36 @@ public class ClassifyActivity extends AppCompatActivity {
                                 .setNegativeButton("删除", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        AlertDialog builder;
+
+                                        try {
+                                            builder = new AlertDialog.Builder(ClassifyActivity.this)
+                                                    .setTitle("删除分类"+ finalJsonObject.getString("username"))
+                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            dialogInterface.dismiss();
+                                                        }
+                                                    })
+                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                            try {
+                                                                int id=finalJsonObject.getInt("id");
+                                                                new FetchItemsTaskDel().execute(id);
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
+                                                            }
+
+                                                            dialogInterface.dismiss();
+                                                        }
+                                                    })
+                                                    .show();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
 
                                         dialogInterface.dismiss();
                                     }
@@ -725,5 +758,60 @@ public class ClassifyActivity extends AppCompatActivity {
         }
 
     }
+
+
+
+    private class FetchItemsTaskDel extends AsyncTask<Integer,Void,String> {
+
+        @Override
+        protected String doInBackground(Integer... params) {
+
+
+            Integer id= params[0];
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/tree/tree/delChildTree?id="+id);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.getString("success");
+
+                    if(success.equals("true")) {
+
+
+                        mSearchView.clearFocus();
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        selectMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        search="";
+                        initData();
+
+                    }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+
+
+        }
+
+    }
+
 
 }

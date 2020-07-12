@@ -331,7 +331,7 @@ public class FoodCatalogListActivity extends AppCompatActivity {
             String cSearch="&catalog=0";
             if(search!=null&&!search.equals(""))
                 cSearch+=search;
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+"&combination=0"+cSearch);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/list?column=storage&order=asc&pageNo=" + page + "&pageSize"+size+cSearch);
         }
 
 

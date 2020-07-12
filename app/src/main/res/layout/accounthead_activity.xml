@@ -54,29 +54,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/qmui_list_item_height"
                     android:layout_gravity="center_horizontal"
-                    android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"
-                    android:text="客户电话 : "
-                    android:textColor="?attr/qmui_config_color_gray_1"
-                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
-
-                <TextView
-                    android:id="@+id/phoneNum"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/qmui_list_item_height"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginRight="@dimen/common_content_spacing"
-                    android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:gravity="center_vertical"
-                    android:text=""
-                    android:textColor="?attr/qmui_config_color_gray_1"
-                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/qmui_list_item_height"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="@dimen/common_content_spacing"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
                     android:gravity="center_vertical"
@@ -103,40 +80,52 @@
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
-                <LinearLayout
+
+                <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:text="客户名称 :"
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/qmui_list_item_height"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_weight="1"
-                        android:background="@drawable/qmui_divider_bottom_bitmap"
-                        android:gravity="center_vertical"
-                        android:text="客户名称 :"
-                        android:textColor="?attr/qmui_config_color_gray_1"
-                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/atv_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginRight="@dimen/common_content_spacing"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:gravity="center_vertical"
+                    android:text=""
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:text="客户电话 : "
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
 
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/atv_content"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:completionHint="请输入客户名称"
-                        android:completionThreshold="1"
-                        android:dropDownHorizontalOffset="5dp" />
-
-
-                </LinearLayout>
-
+                <TextView
+                    android:id="@+id/phoneNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginRight="@dimen/common_content_spacing"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:gravity="center_vertical"
+                    android:autoLink="phone"
+                    android:text=""
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
 
             </LinearLayout>
 

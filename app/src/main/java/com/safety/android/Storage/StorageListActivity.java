@@ -95,10 +95,35 @@ public class StorageListActivity extends AppCompatActivity {
 
     private Map positionId=new HashMap();
 
+    Integer catalog = null;
+
+    private String searchCatalog="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        Intent intent=getIntent();
+
+        String jsonString=intent.getStringExtra("jsonString");
+
+        try {
+            if(jsonString!=null) {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                catalog = jsonObject.getInt("catalog");
+            }else{
+                catalog=null;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("catalog11======="+catalog);
+
+        if(catalog!=null){
+            searchCatalog="&catalog="+catalog;
+        }
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.storage_list_item, null);
 
@@ -414,6 +439,8 @@ public class StorageListActivity extends AppCompatActivity {
                                     cSearch+=search;
                                 if(diff!=null)
                                     cSearch+="&diff="+diff;
+                                if(searchCatalog!=null&&!searchCatalog.equals(""))
+                                    cSearch+=searchCatalog;
                                 String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog//getStorage?column=storage&order=asc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
@@ -618,6 +645,11 @@ public class StorageListActivity extends AppCompatActivity {
             if(diff!=null) {
                 cSearch += "&diff=" + diff;
                 aSearch += "&diff=" + diff;
+            }
+
+            if(searchCatalog!=null&&!searchCatalog.equals("")) {
+                cSearch += searchCatalog;
+                aSearch+=searchCatalog;
             }
 
             System.out.println("aSearch===="+aSearch);

@@ -13,10 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +33,7 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
+import com.safety.android.tools.MyTestUtil;
 import com.safety.android.util.DatePickerFragment;
 import com.safety.android.util.OnLoginInforCompleted;
 
@@ -80,7 +81,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     private View view;
 
-    private SearchView mSearchView;
+   // private SearchView mSearchView;
 
     private String search="";
 
@@ -116,6 +117,16 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     private Integer type;
 
+    private Integer income=null;
+
+    private AutoCompleteTextView atv_content;
+
+    private JSONArray jsonArray;
+
+    private Integer arg;
+
+    private Spinner spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -135,7 +146,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
         setContentView(view);
 
-        mSearchView = findViewById(R.id.search);
+      /*  mSearchView = findViewById(R.id.search);
         mSearchView.setIconifiedByDefault(true);
         mSearchView.setFocusable(false);
         mSearchView.clearFocus();
@@ -154,7 +165,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                 search="&materialName=*"+queryText+"*";
                 search2="&name="+queryText;
-                mSearchView.clearFocus();
                 mPullRefreshLayout.finishRefresh();
                 page=1;
                 total=0;
@@ -164,7 +174,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                 return true;
             }
         });
-
+*/
 
         mDateButton= (Button) view.findViewById(R.id.time_picker);
 
@@ -212,6 +222,55 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
         }
 
+        spinner = view.findViewById(R.id.Spinner01);
+
+        String[] m={"全部","已收","未收"};
+
+        ArrayAdapter<String> adapter2;
+
+        //将可选内容与ArrayAdapter连接起来
+        adapter2 = new ArrayAdapter<String>(AccountheadListActivity.this,android.R.layout.simple_spinner_item,m);
+
+        //设置下拉列表的风格
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        //将adapter 添加到spinner中
+        spinner.setAdapter(adapter2);
+
+        //添加事件Spinner事件监听
+        spinner.setOnItemSelectedListener(new SpinnerSelectedListener2());
+
+        //设置默认值
+        spinner.setVisibility(View.VISIBLE);
+
+        new FetchItemsTaskSupplier().execute();
+
+    }
+
+    class SpinnerSelectedListener2 implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            if(arg2==0){
+                income=null;
+            }else if(arg2==1){
+                income=1;
+            }else if(arg2==2){
+                income=0;
+            }
+            System.out.println("income="+income);
+
+            mPullRefreshLayout.finishRefresh();
+            itemMap=new HashMap<>();
+            selectMap=new HashMap<>();
+            page=1;
+            total=0;
+            initData();
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
     }
 
     @Override
@@ -255,26 +314,45 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                 switch (item.getItemId()) {
                     case Menu.FIRST + 1:
 
-                        AlertDialog builder = new AlertDialog.Builder(AccountheadListActivity.this)
-                                .setTitle("删除订单")
-                                .setMessage(billNo)
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
+                        selectMap=qdListSectionAdapter.getSelectMap();
 
-                                        new FetchItemsTaskDel().execute();
+                        AlertDialog builder;
 
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .show();
+                        if(selectMap.size()==0){
 
+                           builder  = new AlertDialog.Builder(AccountheadListActivity.this)
+                                    .setTitle("请选择要删除的订单!")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .show();
+
+                        }else {
+
+                            builder = new AlertDialog.Builder(AccountheadListActivity.this)
+                                    .setTitle("删除订单")
+                                    .setMessage(billNo)
+                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                            new FetchItemsTaskDel().execute();
+
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .show();
+                        }
                         try {
                             //获取mAlert对象
                             Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
@@ -330,7 +408,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                     @Override
                     public void run() {
 
-                        mSearchView.clearFocus();
+                        //mSearchView.clearFocus();
                         mPullRefreshLayout.finishRefresh();
                         itemMap=new HashMap<>();
                         selectMap=new HashMap<>();
@@ -392,6 +470,11 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                     cSearch+="&startDate="+startDate;
                                 if(endDate!=null&&!endDate.equals(""))
                                     cSearch+="&endDate="+endDate;
+
+                                if(income!=null) {
+                                    cSearch += "&income=" + income;
+                                }
+
                                 String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/listUnite?column=createTime&order=desc&pageNo=" + page + "&pageSize="+size+cSearch);
 
                                 try {
@@ -450,136 +533,135 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         final JSONObject finaljsonObject=jsonObject;
 
                         Integer id=jsonObject.getInt("id");
-/*
-                        Intent intent = new Intent(getApplicationContext(), AccountheadActivity.class);
-                        intent.putExtra("jsonString", id);
-                        startActivityForResult(intent, 2);
-*/
 
-                        LayoutInflater inflater = getLayoutInflater();
-                        View validateView = inflater.inflate(
-                                R.layout.dialog_validate, null);
-                        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                        layout_validate.removeAllViews();
+                        if(jsonObject.getInt("income")==1) {
+                            Intent intent = new Intent(getApplicationContext(), AccountheadActivity.class);
+                            intent.putExtra("jsonString", id);
+                            startActivityForResult(intent, 2);
+                        }else {
 
-                        Map<String,Object> sMap=new HashMap();
+                            LayoutInflater inflater = getLayoutInflater();
+                            View validateView = inflater.inflate(
+                                    R.layout.dialog_validate, null);
+                            final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                            layout_validate.removeAllViews();
 
-                        List list=new ArrayList();
+                            Map<String, Object> sMap = new HashMap();
 
-                        try {
-                            String name = jsonObject.getString("materialName");
-                            String supplier=jsonObject.getString("supplier");
-                            sMap=new HashMap();
-                            sMap.put("客户名称:",supplier);
-                            list.add(sMap);
-                            String  billno = jsonObject.getString("billno");
-                            sMap=new HashMap();
-                            sMap.put("订单号:",billno);
-                            list.add(sMap);
-                            sMap=new HashMap();
-                            sMap.put("商品名称:",name);
-                            list.add(sMap);
-                            Double totalprice = jsonObject.getDouble("totalprice");
-                            sMap=new HashMap();
-                            sMap.put("销售金额:",totalprice);
-                            list.add(sMap);
-                            sMap=new HashMap();
-                            String  count=jsonObject.getString("count");
-                            sMap=new HashMap();
-                            sMap.put("数量:",count);
-                            list.add(sMap);
+                            List list = new ArrayList();
+
+                            try {
+                                String name = jsonObject.getString("materialName");
+                                String supplier = jsonObject.getString("supplier");
+                                sMap = new HashMap();
+                                sMap.put("客户名称:", supplier);
+                                list.add(sMap);
+                                String billno = jsonObject.getString("billno");
+                                sMap = new HashMap();
+                                sMap.put("订单号:", billno);
+                                list.add(sMap);
+                                sMap = new HashMap();
+                                sMap.put("商品名称:", name);
+                                list.add(sMap);
+                                Double totalprice = jsonObject.getDouble("totalprice");
+                                sMap = new HashMap();
+                                sMap.put("销售金额:", totalprice);
+                                list.add(sMap);
+                                sMap = new HashMap();
+                                String count = jsonObject.getString("count");
+                                sMap = new HashMap();
+                                sMap.put("数量:", count);
+                                list.add(sMap);
                            /* String detail=jsonObject.getString("detail");
                             sMap=new HashMap();
                             sMap.put("详情",detail);
                             list.add(sMap);*/
-                            String createTime=jsonObject.getString("createTime");
-                            sMap=new HashMap();
-                            sMap.put("时间:",createTime);
-                            list.add(sMap);
+                                String createTime = jsonObject.getString("createTime");
+                                sMap = new HashMap();
+                                sMap.put("时间:", createTime);
+                                list.add(sMap);
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        int i=0;
-                        Iterator iterator=list.iterator();
-                        while (iterator.hasNext()) {
-                            Map<String, Object> cMap= (Map) iterator.next();
-                            for (Map.Entry<String, Object> map : cMap.entrySet()) {
-
-                                View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
-                                validateItem.setTag(i);
-                                layout_validate.addView(validateItem);
-                                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                                TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                                et_validate.setVisibility(View.GONE);
-
-                                tv_validateName.setText(map.getKey());
-                                et_validateText.setText(map.getValue().toString());
-
-                                i++;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        }
 
-                        View spinnerView=inflater.inflate(R.layout.spinner_accept, null);
+                            int i = 0;
+                            Iterator iterator = list.iterator();
+                            while (iterator.hasNext()) {
+                                Map<String, Object> cMap = (Map) iterator.next();
+                                for (Map.Entry<String, Object> map : cMap.entrySet()) {
 
-                        layout_validate.addView(spinnerView);
+                                    View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                                    validateItem.setTag(i);
+                                    layout_validate.addView(validateItem);
+                                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                                    TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                                    et_validate.setVisibility(View.GONE);
 
-                        Spinner spinner;
-                        //private Spinner spinner2;
-                        spinner = validateView.findViewById(R.id.Spinner01);
+                                    tv_validateName.setText(map.getKey());
+                                    et_validateText.setText(map.getValue().toString());
 
-                        final String[] m={"微信支付","现金","支付宝", "银行卡"};
+                                    i++;
+                                }
+                            }
 
-                        ArrayAdapter<String> adapter;
+                            View spinnerView = inflater.inflate(R.layout.spinner_accept, null);
 
-                        //将可选内容与ArrayAdapter连接起来
-                        adapter = new ArrayAdapter<String>(AccountheadListActivity.this,android.R.layout.simple_spinner_item,m);
+                            layout_validate.addView(spinnerView);
 
-                        //设置下拉列表的风格
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            Spinner spinner;
+                            //private Spinner spinner2;
+                            spinner = validateView.findViewById(R.id.Spinner01);
 
-                        //将adapter 添加到spinner中
-                        spinner.setAdapter(adapter);
+                            final String[] m = {"微信支付", "现金", "支付宝", "银行卡"};
 
-                        //添加事件Spinner事件监听
-                        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+                            ArrayAdapter<String> adapter;
 
-                        //设置默认值
-                        spinner.setVisibility(View.VISIBLE);
+                            //将可选内容与ArrayAdapter连接起来
+                            adapter = new ArrayAdapter<String>(AccountheadListActivity.this, android.R.layout.simple_spinner_item, m);
 
-                        String title="收款";
-                        AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this)
-                                .setView(validateView)
-                                .setPositiveButton(title, new DialogInterface.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
+                            //设置下拉列表的风格
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-                                        Map map=new HashMap();
-                                        try {
-                                            String  billno = finaljsonObject.getString("billno");
-                                            map.put("billno",billno);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                            //将adapter 添加到spinner中
+                            spinner.setAdapter(adapter);
+
+                            //添加事件Spinner事件监听
+                            spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                            //设置默认值
+                            spinner.setVisibility(View.VISIBLE);
+
+                            String title = "收款";
+                            AlertDialog dialog = new AlertDialog.Builder(AccountheadListActivity.this)
+                                    .setView(validateView)
+                                    .setPositiveButton(title, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            Map map = new HashMap();
+                                            try {
+                                                String billno = finaljsonObject.getString("billno");
+                                                map.put("billno", billno);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            new FetchItemsTaskIncome().execute(map);
+                                            dialog.dismiss();
                                         }
-                                        new FetchItemsTaskIncome().execute(map);
-                                        dialog.dismiss();
-                                    }
 
-                                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                }).create();
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    }).create();
 
-                        dialog.show();
+                            dialog.show();
 
-
+                        }
 
                     } catch (ClassCastException | JSONException e) {
                         e.printStackTrace();
@@ -641,7 +723,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
             return;
         }else if(requestCode==1||requestCode==2){
 
-            mSearchView.clearFocus();
+           // mSearchView.clearFocus();
             mPullRefreshLayout.finishRefresh();
             itemMap=new HashMap<>();
             selectMap=new HashMap<>();
@@ -663,12 +745,11 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
             mDateButton2.setText(date);
         }
 
-        mSearchView.clearFocus();
+        //mSearchView.clearFocus();
         mPullRefreshLayout.finishRefresh();
         itemMap=new HashMap<>();
         page=1;
         total=0;
-        search="";
         refurbish=false;
         initData();
 
@@ -696,8 +777,13 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                 aSearch+="&endDate=" + endDate;
             }
 
-            System.out.println("aSearch===="+aSearch);
+            if(income!=null) {
+                cSearch += "&income=" + income;
+                aSearch += "&income=" + income;
+            }
 
+            System.out.println("aSearch===="+aSearch);
+            System.out.println("cSearch===="+cSearch);
             String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/getAllAccount?"+aSearch);
 
             try {
@@ -882,6 +968,10 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                 aSearch+="&endDate=" + endDate;
             }
 
+            if(income!=null){
+                aSearch += "&income=" + income;
+            }
+
             System.out.println("aSearch===="+aSearch);
 
             return  new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/accounthead/accounthead/getAllAccount?"+aSearch);
@@ -999,6 +1089,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         }else if(income==1){
             come="已收";
         }
+        jsonObject2.put("income",income);
         jsonObject2.put("6",come);
         String detail = "";
         try {
@@ -1061,7 +1152,29 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                     String message = jsonObject.optString("message", null);
                     if(success.equals("true")) {
 
+                        int n = viewHolder.getAdapterPosition();
 
+                        JSONObject jsonObject2 = itemMap.get(n);
+                        jsonObject2.put("income", 1);
+
+                        itemMap.put(n, jsonObject2);
+
+                        if(income!=null&&income==0) {
+                            itemMap.remove(n);
+                            total--;
+                            System.out.println("itemMap==========");
+                            MyTestUtil.print(itemMap);
+                            Map<Integer,JSONObject> iMap=new HashMap<>();
+                            int i=0;
+                            for(int key:itemMap.keySet()) {
+                                JSONObject jsonObject3=itemMap.get(key);
+                                iMap.put(i,jsonObject3);
+                                i++;
+                            }
+                            System.out.println("iMap===========");
+                            MyTestUtil.print(iMap);
+                            itemMap=iMap;
+                        }
 
                         new FetchItemsUpdate().execute();
                     }
@@ -1078,5 +1191,116 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         }
 
     }
+
+
+    private class FetchItemsTaskSupplier extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/supplier/supplier/selectGroupUser");
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(json);
+                String success = jsonObject.optString("success", null);
+
+                if(success.equals("true")){
+
+                    jsonArray=jsonObject.getJSONArray("result");
+
+                    final String[] data =new String[jsonArray.length()];
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+
+                        JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+
+                        String name=jsonObject1.getString("SUPPLIER");
+
+                        data[i]=name;
+
+                    }
+
+                    atv_content = (AutoCompleteTextView) view.findViewById(R.id.atv_content);
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(AccountheadListActivity.
+                            this, android.R.layout.simple_dropdown_item_1line, data);
+                    atv_content.setAdapter(adapter);
+
+                    System.out.println(data);
+
+                    atv_content.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                            Object obj = parent.getItemAtPosition(position);
+
+                            String username= (String) obj;
+
+                            for(int i=0;i<data.length;i++){
+
+                                if(username.equals(data[i])){
+                                    arg=i;
+
+                                    try {
+
+                                        JSONObject jsonObject = (JSONObject) jsonArray.get(arg);
+
+                                        int supplierId=jsonObject.getInt("ID");
+                                        String supplier=jsonObject.getString("SUPPLIER");
+
+                                        search="&supplierId="+supplierId;
+                                        search2="&supplierId="+supplierId;
+                                        mPullRefreshLayout.finishRefresh();
+                                        page=1;
+                                        total=0;
+                                        itemMap=new HashMap<>();
+                                        selectMap=new HashMap<>();
+                                        initData();
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    continue;
+                                }
+
+                            }
+                        }
+                    });
+                    /*
+                    //将可选内容与ArrayAdapter连接起来
+                    adapter = new ArrayAdapter<String>(SaleActivity.this,android.R.layout.simple_spinner_item,m);
+
+                    //设置下拉列表的风格
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                    //将adapter 添加到spinner中
+                    spinner.setAdapter(adapter);
+
+                    //添加事件Spinner事件监听
+                    spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                    //设置默认值
+                    spinner.setVisibility(View.VISIBLE);
+                    */
+
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
 
 }

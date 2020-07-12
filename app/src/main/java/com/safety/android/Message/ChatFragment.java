@@ -7,14 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.safety.android.mqtt.adapter.SubcriberAdapter;
 import com.safety.android.mqtt.bean.Message;
 import com.safety.android.mqtt.callback.PublishCallBackHandler;
-import com.safety.android.mqtt.callback.SubcribeCallBackHandler;
 import com.safety.android.mqtt.connect.MqttClientService;
 import com.safety.android.mqtt.event.MessageEvent;
 
@@ -26,7 +24,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
@@ -39,23 +36,23 @@ import butterknife.ButterKnife;
 
 public class ChatFragment extends Fragment {
     /**订阅*/
-    @BindFont(R.id.ed_topic)
+
     EditText edTopic;
-    @BindFont(R.id.btn_start_sub)
-    Button btnStartSub;
+   // @BindFont(R.id.btn_start_sub)
+  //  Button btnStartSub;
     /**发布*/
-    @BindFont(R.id.ed_pub_topic)
-    EditText edPubTopic;
+  //  @BindFont(R.id.ed_pub_topic)
+  //  EditText edPubTopic;
     @BindFont(R.id.ed_pub_message)
     EditText edPubMessage;
     @BindFont(R.id.btn_start_pub)
     Button btnStartPub;
     /**记录*/
-    @BindFont(R.id.lv_content)
-    ListView lvContent;
+  //  @BindFont(R.id.lv_content)
+  //  ListView lvContent;
 
-    @BindFont(R.id.btn_connect)
-    Button btnＣonnect;
+  //  @BindFont(R.id.btn_connect)
+  //  Button btnＣonnect;
 
     public static final String PA="PublishActivity";
     private SubcriberAdapter subcriberAdapter;
@@ -73,15 +70,15 @@ public class ChatFragment extends Fragment {
         final View v=inflater.inflate(R.layout.activity_chat,container,false);
 
         btnStartPub= (Button) v.findViewById(R.id.btn_start_pub);
-        edPubTopic= (EditText) v.findViewById(R.id.ed_topic);
-        btnStartSub= (Button) v.findViewById(R.id.btn_start_sub);
+       // edPubTopic= (EditText) v.findViewById(R.id.ed_topic);
+      //  btnStartSub= (Button) v.findViewById(R.id.btn_start_sub);
         btnStartPub= (Button) v.findViewById(R.id.btn_start_pub);
-        lvContent= (ListView) v.findViewById(R.id.lv_content);
+      //  lvContent= (ListView) v.findViewById(R.id.lv_content);
         edPubMessage= (EditText) v.findViewById(R.id.ed_pub_message);
 
-        btnＣonnect=v.findViewById(R.id.btn_connect);
+      //  btnＣonnect=v.findViewById(R.id.btn_connect);
 
-        btnＣonnect.setOnClickListener(new View.OnClickListener() {
+     /*   btnＣonnect.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -93,20 +90,20 @@ public class ChatFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
 
         ButterKnife.bind(getActivity());
         client= new MqttClientService().getMqttAndroidClientInstace(getContext());
         initDate();
 
-        final String Topic=edPubTopic.getText().toString();
+     //   final String Topic=edPubTopic.getText().toString();
 
-        btnStartSub.setOnClickListener(new View.OnClickListener() {
+      /*  btnStartSub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String[] split = Topic.split(",");
                 /**一共有多少个主题*/
-                int length = split.length;
+          /*      int length = split.length;
                 String [] topics=new String[length];//订阅的主题
                 int [] qos =new int [length];// 服务器的质量
                 for(int i=0;i<length;i++){
@@ -117,12 +114,12 @@ public class ChatFragment extends Fragment {
                     try {
                         if (length > 1) {
                             /**订阅多个主题,服务的质量默认为0*/
-                            Log.d(PA, "topics=" + Arrays.toString(topics));
+                       /*     Log.d(PA, "topics=" + Arrays.toString(topics));
                             client.subscribe(topics, qos, null, new SubcribeCallBackHandler(getActivity()));
                         } else {
                             Log.d(PA, "topic=" + Topic);
                             /**订阅一个主题，服务的质量默认为0*/
-                            client.subscribe(Topic, 0, null, new SubcribeCallBackHandler(getActivity()));
+                      /*      client.subscribe(Topic, 0, null, new SubcribeCallBackHandler(getActivity()));
                         }
                     } catch (MqttException e) {
                         e.printStackTrace();
@@ -131,7 +128,7 @@ public class ChatFragment extends Fragment {
                     Log.e(PA, "MqttAndroidClient==null");
                 }
             }
-        });
+        });*/
 
 
 
@@ -140,7 +137,8 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 /**获取发布的主题*/
-                pubTopic = edPubTopic.getText().toString().trim();
+             //   pubTopic = edPubTopic.getText().toString().trim();
+                pubTopic="topic";
                 /**获取发布的消息*/
                 pubMessage = edPubMessage.getText().toString().trim();
                 /**消息的服务质量*/
@@ -187,7 +185,7 @@ public class ChatFragment extends Fragment {
         List<Message> list=new ArrayList<Message>();
         if(subcriberAdapter==null) {
             subcriberAdapter = new SubcriberAdapter(list, getContext());
-            lvContent.setAdapter(subcriberAdapter);
+            //lvContent.setAdapter(subcriberAdapter);
         }else{
             subcriberAdapter.notifyDataSetChanged();
         }

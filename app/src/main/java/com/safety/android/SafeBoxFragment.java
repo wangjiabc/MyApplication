@@ -25,7 +25,7 @@ import com.safety.android.SQLite3.SafeLab;
 import com.safety.android.SafeList.SafeListActivity;
 import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.Sale.SaleClassifyActivity;
-import com.safety.android.Storage.StorageListActivity;
+import com.safety.android.Storage.StorageClassActivity;
 import com.safety.android.Storage.StorageLogListActivity;
 import com.safety.android.util.phone;
 
@@ -225,7 +225,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent=new Intent(getActivity(), StorageListActivity.class);
+                        Intent intent=new Intent(getActivity(), StorageClassActivity.class);
                         startActivity(intent);
                     }
                 };

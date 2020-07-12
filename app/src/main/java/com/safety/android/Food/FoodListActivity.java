@@ -1208,11 +1208,11 @@ public class FoodListActivity extends AppCompatActivity {
 
             value+="items="+ids;
 
-            value+="&catalog="+catalog;
+            value+="&catalog=0";
 
             System.out.println("value======="+value);
 
-            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/updateDelCatalog?"+value);
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/food/material/updateCatalog?"+value);
 
         }
 
