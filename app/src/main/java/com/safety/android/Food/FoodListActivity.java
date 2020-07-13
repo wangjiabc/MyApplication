@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
@@ -30,6 +32,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.tools.SwipeBackController;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,10 +99,13 @@ public class FoodListActivity extends AppCompatActivity {
 
     QDListSectionAdapter qdListSectionAdapter;
 
+    private SwipeBackController swipeBackController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         Intent intent=getIntent();
 
@@ -122,7 +128,7 @@ public class FoodListActivity extends AppCompatActivity {
             searchCatalog="&catalog="+catalog;
         }
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -135,6 +141,8 @@ public class FoodListActivity extends AppCompatActivity {
         queue=new ArrayBlockingQueue<>(3);
 
         setContentView(view);
+
+        swipeBackController = new SwipeBackController(this);
 
         mSearchView = findViewById(R.id.search);
         mSearchView.setIconifiedByDefault(true);
@@ -186,6 +194,16 @@ public class FoodListActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        System.out.println("ev====="+ev);
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     @Override
@@ -542,6 +560,7 @@ public class FoodListActivity extends AppCompatActivity {
                 }, 1000);
             }
         });
+
     }
 
     protected QMUIStickySectionAdapter<

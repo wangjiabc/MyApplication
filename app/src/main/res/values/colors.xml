@@ -6,5 +6,6 @@
     <color name="colorAccent">#008577</color>
     <color name="red">#F44336</color>
     <color name="dark_red">#C3352B</color>
-    <color name="app_color_theme_1">#EF5362</color> <!-- Grapefruit -->
+    <color name="app_color_theme_1">#EF5362</color>
+    <color name="transparent">#9000</color><!-- Grapefruit -->
 </resources>

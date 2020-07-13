@@ -295,6 +295,7 @@ public class SafeBoxFragment extends Fragment {
                     public void onClick(View v) {
                         Intent intent=new Intent(getActivity(), Chat2Activity.class);
                         startActivity(intent);
+
                     }
 
                 };

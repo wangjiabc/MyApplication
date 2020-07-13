@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -14,7 +13,7 @@ import android.view.animation.DecelerateInterpolator;
 
 public class SwipeBackController {
     private static final String TAG = SwipeBackController.class.getSimpleName();
-    public static final int ANIMATION_DURATION = 300;//默认动画时间
+    public static final int ANIMATION_DURATION = 150;//默认动画时间
     public static final int DEFAULT_TOUCH_THRESHOLD = 60;//默认开始滑动的位置距离左边缘的距离
 
 //    private WeakReference<Activity> mActivityWR;
@@ -40,7 +39,12 @@ public class SwipeBackController {
         evaluator = new ArgbEvaluator();
 
         decorView = (ViewGroup) activity.getWindow().getDecorView();
-        decorView.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00ffffff")));
+       /* ColorDrawable colorDrawable = new ColorDrawable(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            decorView.setBackground(colorDrawable);
+        } else {
+            decorView.setBackgroundDrawable(colorDrawable);
+        }*/
         contentView = (ViewGroup) activity.findViewById(android.R.id.content);
         userView = (ViewGroup) contentView.getChildAt(0);
 
