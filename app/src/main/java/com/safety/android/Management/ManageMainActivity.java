@@ -11,17 +11,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
-import com.bigkoo.convenientbanner.ConvenientBanner;
 import com.example.myapplication.R;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
-import com.safety.android.SafeBoxFragment;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.http.login;
@@ -36,9 +28,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 public class ManageMainActivity extends AppCompatActivity {
 
@@ -55,12 +49,11 @@ public class ManageMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main2);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
         dataUrl=getDiskCacheDir(getApplicationContext());
 
         getSupportFragmentManager().beginTransaction()              //添加fragment
-                .add(R.id.activity_container_main, SafeBoxFragment.newInstance())
+                .add(R.id.activity_container_main, BoxFragment.newInstance())
                 .commit();
 
         notificationManager = (NotificationManager) getSystemService(getBaseContext().NOTIFICATION_SERVICE);
@@ -137,12 +130,9 @@ public class ManageMainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
+
             super.onBackPressed();
-        }
+
     }
 
     /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见

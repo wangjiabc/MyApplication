@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.example.myapplication.R;
 import com.safety.android.AccountheadList.AccountheadListActivity;
 import com.safety.android.Food.FoodClassifyActivity;
-import com.safety.android.Message.Chat2Activity;
+import com.safety.android.Management.ManageMainActivity;
 import com.safety.android.PhotoGallery.PhotoGalleryActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
@@ -293,7 +293,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent=new Intent(getActivity(), Chat2Activity.class);
+                        Intent intent=new Intent(getActivity(), ManageMainActivity.class);
                         startActivity(intent);
 
                     }

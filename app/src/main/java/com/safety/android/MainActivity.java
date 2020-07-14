@@ -515,14 +515,16 @@ public class MainActivity extends AppCompatActivity{
 
                     JSONArray records = result.getJSONArray("records");
 
+                    arrayList = new ArrayList<>();
+
                     for (int i = 0; i < records.length(); i++) {
 
                         JSONObject jsonObject1 = (JSONObject) records.get(i);
 
                         String img=jsonObject1.getString("img");
 
-                        arrayList = new ArrayList<>();
-                        arrayList.add(img);
+
+                        arrayList.add("http://qiniu.lzxlzc.com/"+img);
 
                     }
 

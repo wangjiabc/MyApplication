@@ -13,20 +13,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.myapplication.R;
 import com.safety.android.AccountheadList.AccountheadListActivity;
-import com.safety.android.Food.FoodClassifyActivity;
 import com.safety.android.Message.Chat2Activity;
 import com.safety.android.PhotoGallery.PhotoGalleryActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.SQLite3.SafeInfo;
 import com.safety.android.SQLite3.SafeLab;
-import com.safety.android.SafeBoxFragment;
 import com.safety.android.SafeList.SafeListActivity;
 import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.Sale.SaleClassifyActivity;
@@ -39,6 +33,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 public class BoxFragment extends Fragment {
     private AlertDialog dialog;
 
@@ -47,8 +45,8 @@ public class BoxFragment extends Fragment {
 
     private List<SafeInfo> mSafeInfos=new ArrayList<>();
 
-    public static SafeBoxFragment newInstance(){
-        return new SafeBoxFragment();
+    public static BoxFragment newInstance(){
+        return new BoxFragment();
     }
 
     @Override

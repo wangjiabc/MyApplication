@@ -5,34 +5,24 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionAdapter;
 import com.qmuiteam.qmui.widget.section.QMUIStickySectionLayout;
-import com.safety.android.Food.ClassifyActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
@@ -40,8 +30,7 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
-import com.safety.android.tools.MyTestUtil;
-import com.safety.android.tools.TakePictures;
+import com.safety.android.tools.FileUtil;
 import com.safety.android.tools.UpFileToQiniu;
 
 import org.json.JSONArray;
@@ -57,6 +46,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static com.safety.android.tools.TakePictures.REQUEST_PHOTO;
 
@@ -205,20 +202,16 @@ public class LoopImageActivity extends AppCompatActivity {
 
                 int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
                         Manifest.permission.CAMERA);
-                if (hasCameraPermission == PackageManager.PERMISSION_GRANTED) {
-                    //有权限。
-                } else {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    //未授权，申请授权(从相册选择图片需要读取存储卡的权限)
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                }else {
                     //没有权限，申请权限。
                     requestPermissions(new String[]{Manifest.permission.CAMERA},100);
                 }
-                TakePictures takePictures=new TakePictures(getApplication());
-                Intent captureImage=takePictures.getLoadImage();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
-                    startActivityForResult(captureImage, REQUEST_PHOTO);
-                }else{
-                    startActivityForResult(captureImage, REQUEST_PHOTO);
-                }
+                Intent intentToPickPic = new Intent(Intent.ACTION_PICK, null);
+                intentToPickPic.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(intentToPickPic, REQUEST_PHOTO);
 
 
                 break;
@@ -234,10 +227,13 @@ public class LoopImageActivity extends AppCompatActivity {
         if (resultCode != Activity.RESULT_OK) {
             return;
         }else if(requestCode==REQUEST_PHOTO){
-            System.out.println("REQUEST_PHOTO");
-            Bitmap bitmap=TakePictures.getScaledBitmap(null,null);
+            System.out.println("REQUEST_PHOTO===="+data);
+
+            Uri uri = data.getData();
+            String filePath = FileUtil.getFilePathByUri(this, uri);
+            System.out.println("filePath======="+filePath);
             String key= UUID.randomUUID().toString()+".jpg";
-            new UpFileToQiniu(key,getApplicationContext());
+            new UpFileToQiniu(filePath,key,getApplicationContext());
 
             new FetchItemsTaskAdd().execute(key);
 
@@ -281,7 +277,7 @@ public class LoopImageActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        qdListSectionAdapter=new QDListSectionAdapter(1);
+        qdListSectionAdapter=new QDListSectionAdapter(3);
         return qdListSectionAdapter;
     }
 
@@ -365,7 +361,7 @@ public class LoopImageActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
+
                 viewHolder=holder;
                 if(position!=0) {
                     try {
@@ -383,40 +379,18 @@ public class LoopImageActivity extends AppCompatActivity {
                         final JSONObject finalJsonObject = jsonObject;
 
                         new AlertDialog.Builder(LoopImageActivity.this)
-                                .setTitle(finalJsonObject.getString("username"))
-                                .setNegativeButton("删除", new DialogInterface.OnClickListener() {
+                                .setTitle("删除轮播图片"+finalJsonObject.getString("order"))
+                                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                                        AlertDialog builder;
-
+                                        String  id= "";
                                         try {
-                                            builder = new AlertDialog.Builder(LoopImageActivity.this)
-                                                    .setTitle("删除分类"+ finalJsonObject.getString("username"))
-                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                                            try {
-                                                                int id=finalJsonObject.getInt("id");
-                                                                new FetchItemsTaskDel().execute(id);
-                                                            } catch (JSONException e) {
-                                                                e.printStackTrace();
-                                                            }
-
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .show();
+                                            id = finalJsonObject.getString("id");
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
+                                        new FetchItemsTaskDel().execute(id);
 
                                         dialogInterface.dismiss();
                                     }
@@ -514,21 +488,9 @@ public class LoopImageActivity extends AppCompatActivity {
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
 
-            int id=jsonObject1.getInt("id");
-
-            String name=jsonObject1.getString("username");
-
-            pName.put(id,name);
-
-            try{
-                int pId=jsonObject1.getInt("pid");
-                name= (String) pName.get(pId);
-                jsonObject1.put("pName",name);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
             JSONObject jsonObject2=process(order,jsonObject1);
+
+            jsonObject1.put("order",order);
 
             itemMap.put(order,jsonObject1);
 
@@ -547,22 +509,16 @@ public class LoopImageActivity extends AppCompatActivity {
         try {
             int id=jsonObject1.getInt("id");
             jsonObject2.put("id",id);
+            String img=jsonObject1.getString("img");
+            jsonObject2.put("img","http://qiniu.lzxlzc.com/"+img);
+            String createTime=jsonObject1.getString("createTime");
+            jsonObject2.put("name",createTime);
         }catch (Exception e){
-
+                e.printStackTrace();
         }
 
         jsonObject2.put("0",order);
 
-        String name = jsonObject1.getString("username");
-        jsonObject2.put("name",name);
-
-        try{
-            String pName=jsonObject1.getString("pName");
-            jsonObject2.put("2","上级目录:");
-            jsonObject2.put("4",pName);
-        }catch (Exception e){
-
-        }
 
         return jsonObject2;
 
@@ -632,13 +588,13 @@ public class LoopImageActivity extends AppCompatActivity {
 
 
 
-    private class FetchItemsTaskDel extends AsyncTask<Integer,Void,String> {
+    private class FetchItemsTaskDel extends AsyncTask<String ,Void,String> {
 
         @Override
-        protected String doInBackground(Integer... params) {
+        protected String doInBackground(String ... params) {
 
 
-            Integer id= params[0];
+            String  id= params[0];
             JSONObject jsonObject=new JSONObject();
 
             return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/loop_image/loopImage/delete?id="+id,jsonObject,"delete");

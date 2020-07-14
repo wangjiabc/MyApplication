@@ -84,4 +84,51 @@ public class UpFileToQiniu {
     }
 
 
+    public UpFileToQiniu(final String filePath, String key0, final Context context){
+        final String key=key0;
+        new Thread(new Runnable(){
+
+            @Override
+            public void run() {
+
+                String json= null;
+
+                //json = new FlickrFetchr().getUrlString("http://203.0.104.65:8080/a/test/token.do");
+                json=new OKHttpFetch2(context).get(FlickrFetch.base + "/inoutitem/inoutitem/token");
+
+                String token="";
+                try {
+                    JSONObject jsonObject = new JSONObject(json);
+                    token=jsonObject.getString("token");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                UploadManager uploadManager=new UploadManager();
+
+
+                System.out.println("key========="+key+ "     token===="+token);
+
+                File file=new File(filePath);
+
+                uploadManager.put(file, key, token,
+                        new UpCompletionHandler() {
+                            @Override
+                            public void complete(String key, ResponseInfo info, JSONObject res) {
+                                //res包含hash、key等信息，具体字段取决于上传策略的设置
+                                if(info.isOK()) {
+                                    Log.i("qiniu", "Upload Success");
+                                } else {
+                                    Log.i("qiniu", "Upload Fail");
+                                    //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
+                                }
+                                Log.i("qiniu", key + ",\r\n " + info + ",\r\n " + res);
+                            }
+                        }, null);
+
+
+            }
+        }).start();
+    }
+
+
 }
