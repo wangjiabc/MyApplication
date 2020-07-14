@@ -89,6 +89,55 @@ public class TakePictures {
         return captureIntent;
     }
 
+    public Intent getLoadImage(){
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        builder.detectFileUriExposure();
+
+        //final Intent captureImage=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        Intent captureIntent = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        if (captureIntent.resolveActivity(context.getPackageManager()) != null) {
+            File photoFile = null;
+            Uri photoUri = null;
+
+          /*  if (isAndroidQ) {
+                // 适配android 10
+                photoUri = createImageUri();
+                System.out.println("photoUri=============");
+                MyTestUtil.print(photoUri);
+                mCameraUri=photoUri;
+            } else {*/
+            try {
+                photoFile = createImageFile();
+                mCameraImagePath=photoFile.getPath();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (photoFile != null) {
+                mCameraImagePath = photoFile.getAbsolutePath();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    //适配Android 7.0文件权限，通过FileProvider创建一个content类型的Uri
+                    photoUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", photoFile);
+                } else {
+                    photoUri = Uri.fromFile(photoFile);
+                }
+            }
+            // }
+
+            mCameraUri = photoUri;
+            if (photoUri != null) {
+                captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                captureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            }
+        }
+        //captureImage.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+        //Log.d("tag uri camera = ",uri.toString());
+
+        return captureIntent;
+    }
 
     private  Uri createImageUri() {
         String status = Environment.getExternalStorageState();

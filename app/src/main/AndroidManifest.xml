@@ -180,6 +180,18 @@
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
+        <activity
+            android:name="com.safety.android.Management.ManageMainActivity"
+            android:label="管理后台"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.MainActivity" >
+        </activity>
+        <activity
+            android:name="com.safety.android.Management.LoopImageActivity"
+            android:label="首页轮播图"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.Management.ManageMainActivity" >
+        </activity>
     </application>
 
 

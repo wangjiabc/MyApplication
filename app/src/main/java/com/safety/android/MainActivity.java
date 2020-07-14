@@ -23,6 +23,7 @@ import com.bigkoo.convenientbanner.holder.CBViewHolderCreator;
 import com.bigkoo.convenientbanner.holder.Holder;
 import com.bigkoo.convenientbanner.listener.OnItemClickListener;
 import com.example.myapplication.R;
+import com.qmuiteam.qmui.widget.section.QMUISection;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 import com.safety.android.http.FlickrFetch;
@@ -30,6 +31,8 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.http.login;
 import com.safety.android.mqtt.connect.MqttClientService;
 import com.safety.android.mqtt.event.MessageEvent;
+import com.safety.android.qmuidemo.view.SectionHeader;
+import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
 import com.squareup.picasso.Picasso;
 
@@ -37,6 +40,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -115,9 +119,6 @@ public class MainActivity extends AppCompatActivity{
 
         cbTest1=findViewById(R.id.cb_test1);
 
-        initView();
-        initBanner1();
-
         Intent intent = new Intent(this, MqttClientService.class);
         //开启服务兼容
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -125,6 +126,8 @@ public class MainActivity extends AppCompatActivity{
         } else {
             startService(intent);
         }
+
+        new FetchItemsTaskLoop().execute();
 
     }
 
@@ -147,16 +150,7 @@ public class MainActivity extends AppCompatActivity{
         super.onDestroy();
     }
 
-    /**
-     * 初始化
-     * 添加三张展示照片，网上随便找的，正常形式是调用接口从自己的后台服务器拿取
-     */
-    private void initView() {
-        arrayList = new ArrayList<>();
-        arrayList.add("https://t7.baidu.com/it/u=3204887199,3790688592&fm=79&app=86&size=h300&n=0&g=4n&f=jpeg?sec=1594192215&t=725fae58ddd8a3032656562d83f38e23");
-        arrayList.add("https://t9.baidu.com/it/u=3363001160,1163944807&fm=79&app=86&size=h300&n=0&g=4n&f=jpeg?sec=1594192215&t=6958a4358bcc6534514ebd55779ddafd");
-        arrayList.add("https://t9.baidu.com/it/u=1307125826,3433407105&fm=79&app=86&size=h300&n=0&g=4n&f=jpeg?sec=1594192215&t=b69f42df704cfa882fec85f3a9bcb376");
-    }
+
 
     /**
      * 初始化轮播图1
@@ -488,6 +482,57 @@ public class MainActivity extends AppCompatActivity{
                     e.printStackTrace();
                 }
 
+            }
+
+        }
+
+    }
+
+    private class FetchItemsTaskLoop extends AsyncTask<Void,Void,String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/loop_image/loopImage/list?order=desc");
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            ArrayList<QMUISection<SectionHeader, SectionItem>> list = new ArrayList<>();
+
+            ArrayList<SectionItem> contents = new ArrayList<>();
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(json);
+                String success = jsonObject.optString("success", null);
+
+                if(success.equals("true")){
+
+                    JSONObject result= (JSONObject) jsonObject.get("result");
+
+                    JSONArray records = result.getJSONArray("records");
+
+                    for (int i = 0; i < records.length(); i++) {
+
+                        JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+                        String img=jsonObject1.getString("img");
+
+                        arrayList = new ArrayList<>();
+                        arrayList.add(img);
+
+                    }
+
+                    initBanner1();
+
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
         }
