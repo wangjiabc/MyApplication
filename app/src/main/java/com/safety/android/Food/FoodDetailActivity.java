@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -26,6 +27,7 @@ import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
+import com.safety.android.tools.SwipeBackController;
 import com.safety.android.tools.TakePictures;
 import com.safety.android.tools.UpFileToQiniu;
 import com.squareup.picasso.Picasso;
@@ -78,6 +80,8 @@ public class FoodDetailActivity extends AppCompatActivity {
     private ImageView mPhotoView;
 
     private String img=null;
+
+    private SwipeBackController swipeBackController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,7 +235,16 @@ public class FoodDetailActivity extends AppCompatActivity {
         });
 
         setContentView(view);
+        swipeBackController = new SwipeBackController(this);
+    }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     @Override

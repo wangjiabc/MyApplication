@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
@@ -23,6 +24,7 @@ import com.safety.android.Sale.SaleListActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.tools.SwipeBackController;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,6 +66,8 @@ public class AccountheadActivity extends AppCompatActivity {
 
     private String billNo;
 
+    private SwipeBackController swipeBackController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -103,7 +107,19 @@ public class AccountheadActivity extends AppCompatActivity {
         new FetchItemsTask().execute();
 
         setContentView(view);
+
+        swipeBackController = new SwipeBackController(this);
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 

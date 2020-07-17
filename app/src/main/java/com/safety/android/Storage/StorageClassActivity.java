@@ -4,16 +4,23 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 
 import com.example.myapplication.R;
+import com.safety.android.Food.ClassifyActivity;
+import com.safety.android.Food.FoodListActivity;
 import com.safety.android.Sale.SaleListActivity;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch2;
 import com.safety.android.tools.MyHolder;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.tools.SwipeBackController;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -31,10 +38,13 @@ public class StorageClassActivity extends AppCompatActivity {
 
     private Button button;
 
+    private SwipeBackController swipeBackController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         LayoutInflater inflater = getLayoutInflater();
 
@@ -46,7 +56,7 @@ public class StorageClassActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), SaleListActivity.class);
+                Intent intent = new Intent(getApplicationContext(), StorageListActivity.class);
                 startActivityForResult(intent, 1);
             }
         });
@@ -55,9 +65,48 @@ public class StorageClassActivity extends AppCompatActivity {
 
         setContentView(rootView);
 
+        swipeBackController = new SwipeBackController(this);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        menu.add(Menu.NONE,Menu.FIRST+1,1,"分类设置").setIcon(android.R.drawable.edit_text);
+
+        return true;
 
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // TODO Auto-generated method stub
+        if(item.getItemId() == android.R.id.home)
+        {
+            finish();
+            return true;
+        }
+
+        switch (item.getItemId()) {
+            case Menu.FIRST + 1:
+
+                Intent intent = new Intent(getApplicationContext(), ClassifyActivity.class);
+                startActivityForResult(intent, 0);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private class FetchItemsTask extends AsyncTask<Void,Void,String> {
 
@@ -87,11 +136,9 @@ public class StorageClassActivity extends AppCompatActivity {
                 nodeItem.setIcon(R.drawable.qmui_icon_popup_close);
                 TreeNode parent = new TreeNode(nodeItem).setViewHolder(new MyHolder(getApplicationContext()));*/
 
-                parent.setExpanded(true);
-
-                root.setExpanded(true);
-
                 root.addChild(parent);
+
+                parent.setExpanded(true);
 
                 root.setExpanded(true);
 
@@ -130,7 +177,7 @@ public class StorageClassActivity extends AppCompatActivity {
             //e.printStackTrace();
         }
 
-        MyTestUtil.print(jsonObject);
+        // MyTestUtil.print(jsonObject);
 
         MyHolder.IconTreeItem nodeItem = new MyHolder.IconTreeItem();
         nodeItem.setId(id);

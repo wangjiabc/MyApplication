@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -39,6 +40,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.tools.SwipeBackController;
 import com.safety.android.tools.TakePictures;
 import com.safety.android.tools.UpFileToQiniu;
 import com.squareup.picasso.Picasso;
@@ -93,6 +95,8 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     private RecyclerView.LayoutManager mLayoutManager;
     protected QMUIStickySectionAdapter<SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> mAdapter;
+
+    private SwipeBackController swipeBackController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,6 +231,17 @@ public class FoodCompagesActivity extends AppCompatActivity {
         }
 
         setContentView(view);
+        swipeBackController = new SwipeBackController(this);
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {

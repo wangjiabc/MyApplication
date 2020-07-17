@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,6 +25,7 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
+import com.safety.android.tools.SwipeBackController;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,12 +77,14 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
     QDListSectionAdapter qdListSectionAdapter;
 
+    private SwipeBackController swipeBackController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.food_compages_list, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -93,6 +97,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
         queue=new ArrayBlockingQueue<>(3);
 
         setContentView(view);
+        swipeBackController = new SwipeBackController(this);
 
         mSearchView = findViewById(R.id.search);
         mSearchView.setIconifiedByDefault(true);
@@ -173,6 +178,15 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     @Override

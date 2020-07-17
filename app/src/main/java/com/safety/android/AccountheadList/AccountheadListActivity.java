@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -34,6 +35,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.tools.SwipeBackController;
 import com.safety.android.util.DatePickerFragment;
 import com.safety.android.util.OnLoginInforCompleted;
 
@@ -127,12 +129,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     private Spinner spinner;
 
+    private SwipeBackController swipeBackController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_time_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -145,6 +149,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         queue=new ArrayBlockingQueue<>(3);
 
         setContentView(view);
+
+        swipeBackController = new SwipeBackController(this);
 
       /*  mSearchView = findViewById(R.id.search);
         mSearchView.setIconifiedByDefault(true);
@@ -246,6 +252,16 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         new FetchItemsTaskSupplier().execute();
 
     }
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        System.out.println("ev====="+ev);
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
+    }
+
 
     class SpinnerSelectedListener2 implements AdapterView.OnItemSelectedListener {
 

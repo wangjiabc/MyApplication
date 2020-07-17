@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -26,6 +27,7 @@ import com.example.myapplication.R;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.tools.MyTestUtil;
+import com.safety.android.tools.SwipeBackController;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -73,6 +75,8 @@ public class SaleActivity extends AppCompatActivity {
     private JSONArray returnArray;
 
     private TextView atvNew;
+
+    private SwipeBackController swipeBackController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,6 +365,7 @@ public class SaleActivity extends AppCompatActivity {
 
 
         }
+
 /*
         spinner = view.findViewById(R.id.Spinner01);
         spinner2 = view.findViewById(R.id.Spinner02);
@@ -497,7 +502,17 @@ public class SaleActivity extends AppCompatActivity {
         new FetchItemsTask().execute();
 
         setContentView(view);
+        swipeBackController = new SwipeBackController(this);
 
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     @Override

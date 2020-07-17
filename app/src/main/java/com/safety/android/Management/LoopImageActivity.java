@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
@@ -31,6 +32,7 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.FileUtil;
+import com.safety.android.tools.SwipeBackController;
 import com.safety.android.tools.UpFileToQiniu;
 
 import org.json.JSONArray;
@@ -90,6 +92,8 @@ public class LoopImageActivity extends AppCompatActivity {
 
     QDListSectionAdapter qdListSectionAdapter;
 
+    private SwipeBackController swipeBackController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -108,6 +112,7 @@ public class LoopImageActivity extends AppCompatActivity {
         queue=new ArrayBlockingQueue<>(3);
 
         setContentView(view);
+        swipeBackController = new SwipeBackController(this);
 
         mSearchView = findViewById(R.id.search);
         mSearchView.setIconifiedByDefault(true);
@@ -158,6 +163,15 @@ public class LoopImageActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     @Override
