@@ -8,6 +8,12 @@
   ~ *************************************************************
   -->
 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,7 +26,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginLeft="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,30 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/qmui_list_item_height"
                     android:layout_gravity="center_horizontal"
-                    android:background="@drawable/qmui_divider_bottom_bitmap"
                     android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"
-                    android:text="客户电话 : "
-                    android:textColor="?attr/qmui_config_color_gray_1"
-                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
-
-                <TextView
-                    android:id="@+id/phoneNum"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/qmui_list_item_height"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginRight="@dimen/common_content_spacing"
-                    android:background="@drawable/qmui_divider_bottom_bitmap"
-                    android:gravity="center_vertical"
-                    android:text=""
-                    android:textColor="?attr/qmui_config_color_gray_1"
-                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/qmui_list_item_height"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="@dimen/common_content_spacing"
                     android:background="@drawable/qmui_divider_bottom_bitmap"
                     android:gravity="center_vertical"
                     android:text="单号 : "
@@ -156,7 +140,50 @@
                         />
                 </LinearLayout>
 
-               <!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:text="电话 : "
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+                <TextView
+                    android:id="@+id/phoneNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginRight="@dimen/common_content_spacing"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:gravity="center_vertical"
+                    android:text=""
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:text="收款状态 : "
+                    android:textColor="?attr/qmui_config_color_gray_1"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:layout_marginLeft="@dimen/common_content_spacing"
@@ -175,23 +202,8 @@
                 </LinearLayout>
 
 
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/spinnerText2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"></TextView>
-
-                    <Spinner
-                        android:id="@+id/Spinner02"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"></Spinner>
-                </LinearLayout>-->
-
             </LinearLayout>
+
 
             <!--账户、手机号、密码输入框-->
             <GridLayout
@@ -391,3 +403,4 @@
 
     </ScrollView>
 </LinearLayout>
+</RelativeLayout>

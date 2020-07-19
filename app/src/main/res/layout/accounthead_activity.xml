@@ -8,6 +8,12 @@
   ~ *************************************************************
   -->
 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,7 +26,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginLeft="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -110,7 +117,7 @@
                     android:background="@drawable/qmui_divider_bottom_bitmap"
                     android:layout_marginLeft="10dp"
                     android:gravity="center_vertical"
-                    android:text="客户电话 : "
+                    android:text="电话 : "
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
 
@@ -297,7 +304,7 @@
                 </LinearLayout>
             </GridLayout>
 
-            <LinearLayout
+         <!--   <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/qmui_config_color_white"
@@ -321,9 +328,10 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-            </LinearLayout>
+            </LinearLayout> -->
 
         </LinearLayout>
 
     </ScrollView>
 </LinearLayout>
+</RelativeLayout>

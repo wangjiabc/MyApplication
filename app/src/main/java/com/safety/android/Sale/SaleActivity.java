@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +48,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SaleActivity extends AppCompatActivity {
 
-    //private Spinner spinner;
+    private Spinner spinner;
     //private Spinner spinner2;
     private ArrayAdapter<String> adapter;
 
@@ -65,7 +66,7 @@ public class SaleActivity extends AppCompatActivity {
 
     private Integer arg;
 
-   // private int type=2;
+    private int type=0;
 
     private AutoCompleteTextView atv_content;
     private MultiAutoCompleteTextView matv_content;
@@ -339,8 +340,10 @@ public class SaleActivity extends AppCompatActivity {
                             jsonObject.put("orderNumber",ordernumber);
                             jsonObject.put("supplierId",supplierId);
                             jsonObject.put("supplier",supplier);
-                           // jsonObject.put("type",String.valueOf(type));
-
+                            if(type>0) {
+                                jsonObject.put("type", String.valueOf(type));
+                                jsonObject.put("income",1);
+                            }
 
                             jsonArray1.add(jsonObject);
 
@@ -366,11 +369,10 @@ public class SaleActivity extends AppCompatActivity {
 
         }
 
-/*
-        spinner = view.findViewById(R.id.Spinner01);
-        spinner2 = view.findViewById(R.id.Spinner02);
 
-        String[] m={"微信支付","现金","支付宝", "银联"};
+        spinner = view.findViewById(R.id.Spinner01);
+
+        String[] m={"未收","微信支付","现金","支付宝", "银行卡"};
 
         ArrayAdapter<String> adapter2;
 
@@ -381,14 +383,14 @@ public class SaleActivity extends AppCompatActivity {
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         //将adapter 添加到spinner中
-        spinner2.setAdapter(adapter2);
+        spinner.setAdapter(adapter2);
 
         //添加事件Spinner事件监听
-        spinner2.setOnItemSelectedListener(new SpinnerSelectedListener2());
+        spinner.setOnItemSelectedListener(new SpinnerSelectedListener2());
 
         //设置默认值
-        spinner2.setVisibility(View.VISIBLE);
-*/
+        spinner.setVisibility(View.VISIBLE);
+
 
 
         atvNew.setOnClickListener(new View.OnClickListener(){
@@ -696,7 +698,7 @@ public class SaleActivity extends AppCompatActivity {
         public void onNothingSelected(AdapterView<?> arg0) {
         }
     }
-/*
+
     class SpinnerSelectedListener2 implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
@@ -706,16 +708,16 @@ public class SaleActivity extends AppCompatActivity {
             }else if(arg2==2){
                 type=1;
             }else {
-                type = arg2 + 1;
+                type = arg2;
             }
-            System.out.println("type="+type);
+            System.out.println("arg2="+arg2+"   type="+type);
 
         }
 
         public void onNothingSelected(AdapterView<?> arg0) {
         }
     }
-*/
+
     private class FetchItemsTaskSale extends AsyncTask<com.alibaba.fastjson.JSONArray,Void,String> {
 
         @Override

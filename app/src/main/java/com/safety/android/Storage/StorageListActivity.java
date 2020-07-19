@@ -3,6 +3,7 @@ package com.safety.android.Storage;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -39,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,6 +104,10 @@ public class StorageListActivity extends AppCompatActivity {
     private String searchCatalog="";
 
     private SwipeBackController swipeBackController;
+
+    private int currentPostion;
+
+    private JSONArray jsonArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,10 +258,10 @@ public class StorageListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "一键对库").setIcon(android.R.drawable.ic_lock_lock);
+        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "更新实库").setIcon(android.R.drawable.ic_lock_lock);
         // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
         // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
-        menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_lock_power_off);
+        menu.add(Menu.NONE, Menu.FIRST + 2, 2, "一键对库").setIcon(android.R.drawable.ic_lock_power_off);
         return true;
     }
 
@@ -265,18 +271,21 @@ public class StorageListActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         System.out.println("click");
+
+        selectMap=qdListSectionAdapter.getSelectMap();
+
+        LayoutInflater inflater = getLayoutInflater();
+        View validateView = inflater.inflate(
+                R.layout.dialog_validate, null);
+        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+        layout_validate.removeAllViews();
+        final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+        int i=0;
+
         switch (item.getItemId()) {
             case Menu.FIRST + 1:
-                selectMap=qdListSectionAdapter.getSelectMap();
 
-                LayoutInflater inflater = getLayoutInflater();
-                View validateView = inflater.inflate(
-                        R.layout.dialog_validate, null);
-                final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                layout_validate.removeAllViews();
-                final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-
-                int i=0;
                 for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                     Map<String,Object> map = new HashMap<String, Object>();
                     View validateItem = inflater.inflate(R.layout.item_validate_storage, null);
@@ -284,6 +293,8 @@ public class StorageListActivity extends AppCompatActivity {
                     layout_validate.addView(validateItem);
                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                    et_validate.setFocusable(false);
+                    et_validate.setFocusableInTouchMode(false);
                     EditText et_validate2 = (EditText) validateItem.findViewById(R.id.et_validate2);
                     JSONObject jsonObject=sMap.getValue();
                     MyTestUtil.print(sMap);
@@ -307,7 +318,7 @@ public class StorageListActivity extends AppCompatActivity {
                 }
 
 
-                AlertDialog dialog = new AlertDialog.Builder(this).setTitle("一键对库存")
+                AlertDialog dialog = new AlertDialog.Builder(this).setTitle("更新实库")
                         .setView(validateView)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener()
                         {
@@ -321,29 +332,26 @@ public class StorageListActivity extends AppCompatActivity {
                                     int id= (int) list.get(i).get("id");
                                     if(id!=-1) {
                                         String name = ((TextView) list.get(i).get("name")).getText().toString();
-                                        String cost = ((EditText) list.get(i).get("value")).getText().toString();
-                                        int combination = (int) list.get(i).get("combination");
+                                        String storage = ((EditText) list.get(i).get("value")).getText().toString();
+                                        String realStorage = ((EditText) list.get(i).get("value2")).getText().toString();
+
                                         JSONObject jsonObject = new JSONObject();
                                         try {
                                             jsonObject.put("id",id);
                                             jsonObject.put("name",name);
-                                            jsonObject.put("cost",cost);
-                                            jsonObject.put("combination",combination);
+                                            jsonObject.put("storage",Integer.valueOf(storage));
+                                            jsonObject.put("realStorage",Integer.valueOf(realStorage));
+
                                             jsonArray.put(jsonObject);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                    }else{
-                                        String amountString= ((EditText) list.get(i).get("value")).getText().toString();
-                                        amount=Integer.parseInt(amountString);
                                     }
                                     Map map=new HashMap();
                                     map.put("jsonArray",jsonArray);
-                                    map.put("amount",amount);
 
-                                   // addCount=list.size();
 
-                                   // new FoodListActivity.FetchItemsTaskAddStorage().execute(map);
+                                    new FetchItemsTaskAddStorage().execute(map);
                                 }
 
                                 System.out.println(stringBuffer);
@@ -364,6 +372,92 @@ public class StorageListActivity extends AppCompatActivity {
 
                 break;
             case Menu.FIRST + 2:
+
+                for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
+                    Map<String,Object> map = new HashMap<String, Object>();
+                    View validateItem = inflater.inflate(R.layout.item_validate_storage, null);
+                    validateItem.setTag(i);
+                    layout_validate.addView(validateItem);
+                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                    et_validate.setFocusable(false);
+                    et_validate.setFocusableInTouchMode(false);
+                    EditText et_validate2 = (EditText) validateItem.findViewById(R.id.et_validate2);
+                    et_validate2.setFocusable(false);
+                    et_validate2.setFocusableInTouchMode(false);
+                    JSONObject jsonObject=sMap.getValue();
+                    MyTestUtil.print(sMap);
+                    try {
+                        tv_validateName.setText(jsonObject.getString("name"));
+                        et_validate.setText(jsonObject.getString("storage"));
+                        et_validate2.setText(jsonObject.getString("realStorage"));
+
+                        map.put("id",jsonObject.getInt("id"));
+                        map.put("name", tv_validateName);
+                        map.put("value", et_validate);
+                        map.put("value2", et_validate2);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    list.add(map);
+
+                    i++;
+                }
+
+
+                dialog = new AlertDialog.Builder(this).setTitle("一键对库")
+                        .setView(validateView)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                StringBuffer stringBuffer = new StringBuffer();
+                                JSONArray jsonArray=new JSONArray();
+                                int amount=0;
+                                for(int i=0;i<list.size();i++){
+                                    int id= (int) list.get(i).get("id");
+                                    if(id!=-1) {
+                                        String name = ((TextView) list.get(i).get("name")).getText().toString();
+                                        String storage = ((EditText) list.get(i).get("value")).getText().toString();
+                                        String realStorage = ((EditText) list.get(i).get("value2")).getText().toString();
+
+                                        JSONObject jsonObject = new JSONObject();
+                                        try {
+                                            jsonObject.put("id",id);
+                                            jsonObject.put("name",name);
+                                            jsonObject.put("storage",Integer.valueOf(storage));
+                                            jsonObject.put("realStorage",Integer.valueOf(realStorage));
+
+                                            jsonArray.put(jsonObject);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    Map map=new HashMap();
+                                    map.put("jsonArray",jsonArray);
+
+
+                                    new FetchItemsTaskCheckStorage().execute(map);
+                                }
+
+                                System.out.println(stringBuffer);
+
+                                dialog.dismiss();
+                            }
+
+                        }).setNegativeButton("取消", new DialogInterface.OnClickListener()
+                        {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        }).create();
+                dialog.show();
 
                 break;
         }
@@ -509,6 +603,8 @@ public class StorageListActivity extends AppCompatActivity {
 
                         final int n=holder.getAdapterPosition();
 
+                        currentPostion=n;
+
                         jsonObject=itemMap.get(n);
                         final JSONObject finalJsonObject = jsonObject;
 
@@ -534,6 +630,8 @@ public class StorageListActivity extends AppCompatActivity {
                             try {
                                 tv_validateName.setText(jsonObject.getString("name"));
                                 et_validate.setText(jsonObject.getString("storage"));
+                                et_validate.setFocusable(false);
+                                et_validate.setFocusableInTouchMode(false);
                                 et_validate2.setText(jsonObject.getString("real_storage"));
 
                                 map.put("id",jsonObject.getInt("id"));
@@ -548,7 +646,7 @@ public class StorageListActivity extends AppCompatActivity {
                             list.add(map);
 
 
-                        AlertDialog dialog = new AlertDialog.Builder(StorageListActivity.this).setTitle("对库存")
+                        AlertDialog dialog = new AlertDialog.Builder(StorageListActivity.this).setTitle("更新实库")
                                 .setView(validateView)
                                 .setPositiveButton("确定", new DialogInterface.OnClickListener()
                                 {
@@ -562,29 +660,26 @@ public class StorageListActivity extends AppCompatActivity {
                                             int id= (int) list.get(i).get("id");
                                             if(id!=-1) {
                                                 String name = ((TextView) list.get(i).get("name")).getText().toString();
-                                                String cost = ((EditText) list.get(i).get("value")).getText().toString();
-                                                int combination = (int) list.get(i).get("combination");
+                                                String storage = ((EditText) list.get(i).get("value")).getText().toString();
+                                                String realStorage = ((EditText) list.get(i).get("value2")).getText().toString();
+
                                                 JSONObject jsonObject = new JSONObject();
                                                 try {
                                                     jsonObject.put("id",id);
                                                     jsonObject.put("name",name);
-                                                    jsonObject.put("cost",cost);
-                                                    jsonObject.put("combination",combination);
+                                                    jsonObject.put("storage",Integer.valueOf(storage));
+                                                    jsonObject.put("realStorage",Integer.valueOf(realStorage));
+
                                                     jsonArray.put(jsonObject);
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
                                                 }
-                                            }else{
-                                                String amountString= ((EditText) list.get(i).get("value")).getText().toString();
-                                                amount=Integer.parseInt(amountString);
                                             }
                                             Map map=new HashMap();
                                             map.put("jsonArray",jsonArray);
-                                            map.put("amount",amount);
 
-                                            // addCount=list.size();
 
-                                            // new FoodListActivity.FetchItemsTaskAddStorage().execute(map);
+                                             new FetchItemsTaskAddStorage().execute(map);
                                         }
 
                                         System.out.println(stringBuffer);
@@ -730,7 +825,11 @@ public class StorageListActivity extends AppCompatActivity {
 
         JSONArray records = result.getJSONArray("records");
 
-        total=result.getInt("count");
+        try {
+            total = result.getInt("count");
+        }catch (Exception e){
+
+        }
 
         for (int i = 0; i < records.length(); i++) {
 
@@ -823,6 +922,375 @@ public class StorageListActivity extends AppCompatActivity {
 
 
 
+    private class FetchItemsUpdate extends AsyncTask<Void,Void,String> {
 
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String aSearch="";
+
+            if(searchCatalog!=null&&!searchCatalog.equals("")) {
+                aSearch+=searchCatalog;
+            }
+
+            if(search!=null&&!search.equals("")) {
+                aSearch += search2;
+            }
+
+            System.out.println("aSearch===="+aSearch);
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/getAllCost?"+aSearch);
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    try {
+                        JSONObject jsonObject=new JSONObject(items);
+                        JSONObject jsonObject1=jsonObject.getJSONObject("result");
+                        allCost=jsonObject1.getDouble("ALLCOST");
+                        System.out.println("allCost============"+allCost);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        allCost=0;
+                    }
+
+                    ArrayList<QMUISection<SectionHeader, SectionItem>> list = new ArrayList<>();
+
+                    ArrayList<SectionItem> contents = new ArrayList<>();
+
+                    JSONArray records = new JSONArray();
+
+                    for(int key:itemMap.keySet()) {
+                        JSONObject jsonObject=itemMap.get(key);
+                        records.put(jsonObject);
+                    }
+
+                    JSONObject result= new JSONObject();
+
+
+                    result.put("records",records);
+
+                    result.put("total",total);
+
+                    JSONObject jsonObject1= new JSONObject();
+
+                    jsonObject1.put("result",result);
+
+
+                    contents = addContents2(contents, jsonObject1);
+
+                    BigDecimal bigDecimal = new BigDecimal(allCost/10000);
+                    double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点;
+                    String rs = String.valueOf(f1);
+
+                    SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
+                    QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
+                    section.setExistAfterDataToLoad(true);
+                    list.add(section);
+                    qdListSectionAdapter.setData(list);
+                    qdListSectionAdapter.notifyDataSetChanged();
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
+
+
+    private JSONObject process(int order,JSONObject jsonObject1) throws JSONException {
+
+        JSONObject jsonObject2=new JSONObject();
+
+        try {
+            int id=jsonObject1.getInt("id");
+            jsonObject2.put("id",id);
+        }catch (Exception e){
+
+        }
+
+        jsonObject2.put("0",order);
+
+        String name ="";
+        try {
+            name=jsonObject1.getString("name");
+            jsonObject2.put("name",name);
+        }catch (Exception e){
+
+        }
+        Integer stockstorage =0;
+        try{
+            stockstorage= jsonObject1.getInt("stockstorage");
+        }catch (Exception e){
+            // e.printStackTrace();
+        }
+        jsonObject2.put("3","总数："+stockstorage);
+        Integer storage=0;
+        try{
+            storage= jsonObject1.getInt("storage");
+
+        }catch (Exception e){
+
+        }
+        jsonObject2.put("2","库存："+storage);
+        Double cost =0.0;
+         /*   if(isCost) {
+                try {
+                    cost = jsonObject1.getDouble("ALLCOST");
+                    jsonArray.put("总成本:" + cost);
+                } catch (Exception e) {
+
+                }
+            }*/
+
+        jsonObject2.put("storage",storage);
+
+        Integer accountcount=0;
+        try {
+            accountcount=jsonObject1.getInt("accountcount");
+
+        }catch (Exception e){
+            //  e.printStackTrace();
+        }
+
+        Integer realStorage=0;
+        try{
+            realStorage=jsonObject1.getInt("real_storage");
+
+        }catch (Exception e){
+
+        }
+        jsonObject2.put("4","实库"+realStorage);
+        jsonObject2.put("realStorage",realStorage);
+        String img="";
+
+        int diff=0;
+        diff=stockstorage-storage-accountcount;
+        jsonObject2.put("diff",diff);
+        int diff2=0;
+        diff2=storage-realStorage;
+        jsonObject2.put("diff2",diff2);
+
+        jsonObject2.put("type",1);
+
+        return jsonObject2;
+    }
+
+    private ArrayList<SectionItem> addContents2(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
+
+        JSONObject result= (JSONObject) jsonObject.get("result");
+
+        JSONArray records = result.getJSONArray("records");
+
+        total=result.getInt("total");
+
+        for (int i = 0; i < records.length(); i++) {
+
+            int order=i+1;
+
+            JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+            JSONObject jsonObject2=process(order,jsonObject1);
+
+            contents.add(new SectionItem(jsonObject2.toString()));
+        }
+
+        return contents;
+    }
+
+    private class FetchItemsTaskAddStorage extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+            Map map=params[0];
+
+            jsonArray= (JSONArray) map.get("jsonArray");
+
+            String items= Uri.encode(jsonArray.toString());
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/storageLog/storageLog/upReal?items="+items);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.getString("success");
+                    String message = jsonObject.getString("message");
+
+                    System.out.println("success.equals(true)==="+success.equals("true"));
+                    System.out.println("message.equals(\"添加库存成功!\")==="+message.equals("更新实库成功!"));
+
+                    MyTestUtil.print(jsonArray);
+
+                    if(success.equals("true")) {
+
+                            selectMap=qdListSectionAdapter.getSelectMap();
+
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+
+                                JSONObject jsonObject1= (JSONObject) jsonArray.get(i);
+
+                                int id=jsonObject1.getInt("id");
+
+                                MyTestUtil.print(itemMap);
+
+                                for(Integer key:itemMap.keySet()){
+
+                                    JSONObject jsonObject2=itemMap.get(key);
+
+                                    int id2=jsonObject2.getInt("id");
+
+                                    int order=key;
+
+                                    if(id==id2){
+                                        System.out.println("order==="+order);
+                                        int storage=jsonObject1.getInt("storage");
+                                        jsonObject2.put("storage", storage);
+                                        int realStorage=jsonObject1.getInt("realStorage");
+                                        jsonObject2.put("real_storage",realStorage);
+
+                                        MyTestUtil.print(jsonObject1);
+                                        MyTestUtil.print(jsonObject2);
+
+                                        itemMap.put(order,jsonObject2);
+
+                                        continue;
+                                    }
+
+                                }
+
+                                MyTestUtil.print(itemMap);
+
+                            }
+
+                            new FetchItemsUpdate().execute();
+
+
+                    }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
+
+    private class FetchItemsTaskCheckStorage extends AsyncTask<Map,Void,String> {
+
+        @Override
+        protected String doInBackground(Map... params) {
+
+            Map map=params[0];
+
+            jsonArray= (JSONArray) map.get("jsonArray");
+
+            String items= Uri.encode(jsonArray.toString());
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/storageLog/storageLog/check?items="+items);
+        }
+
+
+        @Override
+        protected void onPostExecute(String items) {
+
+            if(items!=null){
+                try {
+
+                    JSONObject jsonObject=new JSONObject(items);
+
+
+                    String success = jsonObject.getString("success");
+                    String message = jsonObject.getString("message");
+
+                    System.out.println("success.equals(true)==="+success.equals("true"));
+                    System.out.println("message.equals(\"添加库存成功!\")==="+message.equals("更新实库成功!"));
+
+                    MyTestUtil.print(jsonArray);
+
+                    if(success.equals("true")) {
+
+                        selectMap=qdListSectionAdapter.getSelectMap();
+
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+
+                            JSONObject jsonObject1= (JSONObject) jsonArray.get(i);
+
+                            int id=jsonObject1.getInt("id");
+
+                            MyTestUtil.print(itemMap);
+
+                            for(Integer key:itemMap.keySet()){
+
+                                JSONObject jsonObject2=itemMap.get(key);
+
+                                int id2=jsonObject2.getInt("id");
+
+                                int order=key;
+
+                                if(id==id2){
+                                    System.out.println("order==="+order);
+                                    int realStorage=jsonObject1.getInt("realStorage");
+                                    jsonObject2.put("storage", realStorage);
+                                    jsonObject2.put("real_storage",realStorage);
+
+                                    MyTestUtil.print(jsonObject1);
+                                    MyTestUtil.print(jsonObject2);
+
+                                    itemMap.put(order,jsonObject2);
+
+                                    continue;
+                                }
+
+                            }
+
+                            MyTestUtil.print(itemMap);
+
+                        }
+
+                        new FetchItemsUpdate().execute();
+
+
+                    }
+
+                    Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }
+
+    }
 
 }

@@ -136,7 +136,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second2, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -293,7 +293,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "一键删除订单").setIcon(android.R.drawable.ic_lock_lock);
+        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "删除订单").setIcon(android.R.drawable.ic_lock_lock);
         // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
         // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
       //  menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_lock_power_off);

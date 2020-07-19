@@ -12,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
@@ -51,7 +50,7 @@ public class AccountheadActivity extends AppCompatActivity {
     private TextView phoneNum;
     private TextView orderNumber;
 
-    private Button saleButon;
+    //private Button saleButon;
 
     private Integer arg;
 
@@ -85,7 +84,7 @@ public class AccountheadActivity extends AppCompatActivity {
         phoneNum=view.findViewById(R.id.phoneNum);
         orderNumber=view.findViewById(R.id.orderNumber);
 
-        saleButon=view.findViewById(R.id.sale_button);
+       // saleButon=view.findViewById(R.id.sale_button);
 
         atv_content=view.findViewById(R.id.atv_content);
 
@@ -97,13 +96,13 @@ public class AccountheadActivity extends AppCompatActivity {
 
         id=jsonInt;
 
-        saleButon.setOnClickListener(new View.OnClickListener() {
+        /*saleButon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-
+*/
         new FetchItemsTask().execute();
 
         setContentView(view);

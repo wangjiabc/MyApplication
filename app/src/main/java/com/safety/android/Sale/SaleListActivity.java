@@ -1,7 +1,6 @@
 package com.safety.android.Sale;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -402,7 +400,21 @@ public class SaleListActivity extends AppCompatActivity {
 
                         final JSONObject finalJsonObject = jsonObject;
 
-                        new AlertDialog.Builder(SaleListActivity.this)
+                        JSONArray jsonArray=new JSONArray();
+
+                        jsonArray.put(itemMap.get(holder.getAdapterPosition()));
+
+                        JSONObject jsonObject1=new JSONObject();
+                        try {
+                            jsonObject1.put("ids",jsonArray);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
+                        intent.putExtra("jsonString", jsonObject1.toString());
+                        startActivityForResult(intent, 1);
+
+                        /*new AlertDialog.Builder(SaleListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
                                 .setMessage("零售价:"+finalJsonObject.getDouble("retailprice"))
                                 .setPositiveButton("出售", new DialogInterface.OnClickListener() {
@@ -411,19 +423,7 @@ public class SaleListActivity extends AppCompatActivity {
 
                                         dialogInterface.dismiss();
 
-                                        JSONArray jsonArray=new JSONArray();
 
-                                        jsonArray.put(itemMap.get(holder.getAdapterPosition()));
-
-                                        JSONObject jsonObject=new JSONObject();
-                                        try {
-                                            jsonObject.put("ids",jsonArray);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Intent intent = new Intent(getApplicationContext(), SaleActivity.class);
-                                        intent.putExtra("jsonString", jsonObject.toString());
-                                        startActivityForResult(intent, 1);
 
                                     }
                                 }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -434,10 +434,10 @@ public class SaleListActivity extends AppCompatActivity {
                                 })
                                 .create()
                                 .show();
+                            */
 
 
-
-                    } catch (ClassCastException | JSONException e) {
+                    } catch (ClassCastException e) {
                         e.printStackTrace();
                         ((TextView) holder.itemView).setText("");
                     }
@@ -446,7 +446,7 @@ public class SaleListActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
