@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
@@ -84,7 +83,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second_compages, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -326,7 +325,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });

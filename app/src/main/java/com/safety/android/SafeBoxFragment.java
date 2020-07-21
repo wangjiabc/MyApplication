@@ -78,7 +78,7 @@ public class SafeBoxFragment extends Fragment {
             String component=permissionInfo.getComponent();
 
             if(component!=null) {
-
+                System.out.println("component==="+component);
                 if (component.equals("food/MaterialList")) {
                     String name = "商品管理";
                     SafeInfo mSafeInfo = new SafeInfo();
@@ -118,15 +118,15 @@ public class SafeBoxFragment extends Fragment {
                     mSafeInfo.setId(4);
                     mSafeInfos.add(mSafeInfo);
                 }
-/*
+
                 if (component.equals("inoutitem/InoutitemList")) {
-                    String name = "name" + 5;
+                    String name = "开支";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(5);
                     mSafeInfos.add(mSafeInfo);
                 }
-*/
+
             }
         }
 

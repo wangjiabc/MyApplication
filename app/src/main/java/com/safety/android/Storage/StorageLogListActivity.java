@@ -32,7 +32,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -82,12 +86,14 @@ public class StorageLogListActivity extends AppCompatActivity {
 
     private SwipeBackController swipeBackController;
 
+    private QDListSectionAdapter qdListSectionAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.simple_list_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -199,7 +205,8 @@ public class StorageLogListActivity extends AppCompatActivity {
 
     protected QMUIStickySectionAdapter<
             SectionHeader, SectionItem, QMUIStickySectionAdapter.ViewHolder> createAdapter() {
-        return new QDListSectionAdapter(1);
+        qdListSectionAdapter=new QDListSectionAdapter(3);
+        return qdListSectionAdapter;
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -238,7 +245,7 @@ public class StorageLogListActivity extends AppCompatActivity {
                                 String cSearch="";
                                 if(search!=null&&!search.equals(""))
                                     cSearch=search;
-                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/list?column=createTime&order=desc&page=" + page + "&pageSize="+size);
+                                String json = new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/storageLog/storageLog/list?column=createTime&order=desc&page=" + page + "&pageSize="+size+cSearch);
 
                                 try {
                                     JSONObject jsonObject = new JSONObject(json);
@@ -266,7 +273,7 @@ public class StorageLogListActivity extends AppCompatActivity {
 
                         boolean existMoreData=true;
 
-                        //System.out.println("total="+total+"   page="+page);
+                        System.out.println("total="+total+"   page="+page);
                         if(total<(page*10)) {
                             existMoreData=false;
                         }
@@ -282,7 +289,7 @@ public class StorageLogListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
                 viewHolder=holder;
                 if(position!=0) {
                     try {
@@ -292,19 +299,15 @@ public class StorageLogListActivity extends AppCompatActivity {
                         final int n=holder.getAdapterPosition();
 
                         jsonObject = selectMap.get(holder.getAdapterPosition());
-                        String buttonText;
                         if (jsonObject == null) {
                             jsonObject = itemMap.get(holder.getAdapterPosition());
-                            buttonText="选择";
-                        }else{
-                            buttonText="取消选择";
                         }
 
                         final JSONObject finalJsonObject = jsonObject;
 
                         new AlertDialog.Builder(StorageLogListActivity.this)
                                 .setTitle(finalJsonObject.getString("name"))
-                                .setMessage("当前库存:"+finalJsonObject.getInt("currentStorage"))
+                                .setMessage("进货数量:"+finalJsonObject.getInt("currentStorage"))
                                 .setNegativeButton("删除", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -389,7 +392,7 @@ public class StorageLogListActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -473,8 +476,11 @@ public class StorageLogListActivity extends AppCompatActivity {
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
 
                     list.add(section);
-
-                    section.setExistAfterDataToLoad(true);
+                    boolean existMoreData=true;
+                    if(total<=(page*10)) {
+                        existMoreData=false;
+                    }
+                    section.setExistAfterDataToLoad(existMoreData);
                     System.out.println("page="+page);
 
                     mAdapter.setData(list);
@@ -505,61 +511,79 @@ public class StorageLogListActivity extends AppCompatActivity {
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
-            jsonObject1.put("order",order);
-            String s=StringToHtml(jsonObject1);
+
+            JSONObject jsonObject2=process(order,jsonObject1);
 
             itemMap.put(order,jsonObject1);
 
-            contents.add(new SectionItem(s));
+            contents.add(new SectionItem(jsonObject2.toString()));
+
         }
 
         return contents;
     }
 
-    private String StringToHtml(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span><font color='blue'　size='30'>&nbsp;&nbsp;"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='blue'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='blue'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer stockStorage = jsonObject.getInt("stockStorage");
-        Double cost = jsonObject.getDouble("cost");
-        Integer currentStorage=jsonObject.getInt("currentStorage");
-        String createTime=jsonObject.getString("createTime");
-        String createBy=jsonObject.getString("createBy");
+    private JSONObject process(int order,JSONObject jsonObject1) throws JSONException {
+
+        JSONObject jsonObject2=new JSONObject();
+
+        try {
+            int id=jsonObject1.getInt("id");
+            jsonObject2.put("id",id);
+        }catch (Exception e){
+
+        }
+
+        jsonObject2.put("0",order);
+
+        String name = jsonObject1.getString("name");
+        jsonObject2.put("name",name);
+        Integer stockStorage = jsonObject1.getInt("stockStorage");
+        jsonObject2.put("2","进货数量:"+stockStorage);
+        jsonObject2.put("stockStorage",stockStorage);
+        Double cost = 0.0;
+        try {
+            cost=jsonObject1.getDouble("cost");
+        }catch (Exception e){
+            jsonObject1.put("cost",0.00);
+        }
+        jsonObject2.put("cost",cost);
+
+        String img=null;
+        try {
+            img=jsonObject1.getString("img");
+        }catch (Exception e){
+
+        }
         String costText="";
-        if(isCost)
-            costText="<span>成本:" + cost + "</span>";
-        String s = "<p>"+first+"&nbsp;&nbsp;<big><font size='20'><b>" + name + "</b></font></big></p>" +
-                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;进货库存:" + stockStorage + "</span>&nbsp;&nbsp;<span>当前库存:" + currentStorage + "</block quote>"+"</span>&nbsp;&nbsp;"+costText+"</p>"+
-                "<p><block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;操作人:" + createBy + "</span>&nbsp;&nbsp;<span>时间:" + createTime + "</block quote></p>";
-        return s;
+        if(isCost) {
+            costText = "成本:" + cost;
+            jsonObject2.put("3",costText);
+        }
+
+        String createTime=jsonObject1.getString("createTime");
+        DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+                   Date date = format1.parse(createTime);
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    String dateString = formatter.format(date);
+                   jsonObject2.put("4",dateString);
+                    jsonObject2.put("createTime",dateString);
+            } catch (ParseException e) {
+                     e.printStackTrace();
+            }
+
+
+        if(img!=null&&!img.equals("null")&&!img.equals("")) {
+            img = "http://qiniu.lzxlzc.com/compress/" + img;
+            jsonObject2.put("img",img);
+        }
+
+        return jsonObject2;
+
     }
 
-    private String StringToHtml2(JSONObject jsonObject) throws JSONException {
-        Integer order=jsonObject.getInt("order");
-        String first="";
-        if(order<10)
-            first="<span>&nbsp;&nbsp;<font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else if(10<order&&order<100)
-            first="<span><font color='red'　size='30'>"+order+"&nbsp;&nbsp;</font></span>";
-        else
-            first="<span><font color='red'　size='30'>"+order+"</font></span>";
-        String name = jsonObject.getString("name");
-        Integer stockStorage = jsonObject.getInt("stockStorage");
-        Double cost = jsonObject.getDouble("cost");
-        Integer currentStorage=jsonObject.getInt("currentStorage");
-        String costText="";
-        if(isCost)
-            costText="<span><font color='red' size='20'>成本:" + cost + "</span>";
-        String s ="<p>"+first+"&nbsp;&nbsp;<span><big><font color='red'　size='20'><b>" + name + "</b></font></big></p>" +
-                "<block quote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;<font color='red' size='20'>进货库存:" + stockStorage + "</font>&nbsp;&nbsp;"+costText+ "</span>&nbsp;&nbsp;<span><font color='red' size='20'>当前存为:" + currentStorage + "</block quote>";
-        return s;
-    }
+
 
 
     private class FetchItemsTaskDel extends AsyncTask<JSONArray,Void,String> {
@@ -606,7 +630,14 @@ public class StorageLogListActivity extends AppCompatActivity {
                     String message = jsonObject.optString("message", null);
                     if(success.equals("true")) {
 
-                        ((TextView) viewHolder.itemView).setText("");
+                        mSearchView.clearFocus();
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        selectMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        search="";
+                        initData();
 
                     }
 
@@ -622,6 +653,7 @@ public class StorageLogListActivity extends AppCompatActivity {
         }
 
     }
+
 
 
 }

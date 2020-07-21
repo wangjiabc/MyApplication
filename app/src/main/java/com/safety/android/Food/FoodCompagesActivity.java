@@ -105,7 +105,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.food_compages, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_secound_food_compages, null);
 
         mPullRefreshLayout=view.findViewById(R.id.food_commpages_to_refresh);
         mSectionLayout=view.findViewById(R.id.food_commpages_section_layout);
@@ -414,7 +414,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -458,11 +458,25 @@ public class FoodCompagesActivity extends AppCompatActivity {
                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                     TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+
+                    int id=0;
+
+                    try {
+                        id = finalJsonObject.getInt("ID");
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        id = finalJsonObject.getInt("id");
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
                     try {
                         tv_validateName.setText(finalJsonObject.getString("NAME"));
                         et_validate.setText(finalJsonObject.getString("AMOUNT"));
-
-                        map.put("id",finalJsonObject.getInt("ID"));
+                        map.put("id",id);
                         map.put("name", tv_validateName);
                         map.put("value", et_validate);
                     } catch (JSONException e) {
@@ -481,8 +495,14 @@ public class FoodCompagesActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which)
                                 {
                                     StringBuffer stringBuffer = new StringBuffer();
+                                    MyTestUtil.print(list);
                                     for(int i=0;i<list.size();i++){
-                                        int id= (int) list.get(i).get("id");
+                                        int id=0;
+                                        try {
+                                            id = (int) list.get(i).get("id");
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
                                         String name = ((TextView)list.get(i).get("name")).getText().toString();
                                         String value = ((EditText)list.get(i).get("value")).getText().toString();
                                         int amount=Integer.parseInt(value);
@@ -634,9 +654,20 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
                 try {
                     jsonObject1.put("id",jsonObject.get("ID"));
+                } catch (JSONException e) {
+
+                }
+
+                try {
+                    jsonObject1.put("id",jsonObject.get("id"));
+                } catch (JSONException e) {
+
+                }
+
+                try {
                     jsonObject1.put("number",jsonObject.get("AMOUNT"));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+
                 }
 
                 jsonArray.add(jsonObject1);

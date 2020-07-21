@@ -135,7 +135,7 @@ public class StorageListActivity extends AppCompatActivity {
             searchCatalog="&catalog="+catalog;
         }
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.storage_list_item, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second_storagelist, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
@@ -706,7 +706,7 @@ public class StorageListActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });

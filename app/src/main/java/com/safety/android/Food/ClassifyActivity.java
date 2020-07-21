@@ -387,7 +387,7 @@ public class ClassifyActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(final QMUIStickySectionAdapter.ViewHolder holder, final int position) {
-                Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "click item " + position, Toast.LENGTH_SHORT).show();
                 viewHolder=holder;
                 if(position!=0) {
                     try {
@@ -529,7 +529,7 @@ public class ClassifyActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(QMUIStickySectionAdapter.ViewHolder holder, int position) {
-                Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "long click item " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });

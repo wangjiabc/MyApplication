@@ -962,7 +962,11 @@ public class FoodListActivity extends AppCompatActivity {
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
                     list.add(section);
 
-                    section.setExistAfterDataToLoad(true);
+                    boolean existMoreData=true;
+                    if(total<=(page*10)) {
+                        existMoreData=false;
+                    }
+                    section.setExistAfterDataToLoad(existMoreData);
                     System.out.println("page="+page);
 
                     mAdapter.setData(list);
