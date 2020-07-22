@@ -58,7 +58,7 @@ public class BoxFragment extends Fragment {
 
         Iterator<PermissionInfo> iterator=list.iterator();
 
-        String name0="name"+0;
+        String name0="轮播图";
         SafeInfo mSafeInfo0 = new SafeInfo();
         mSafeInfo0.setmName(name0);
         mSafeInfo0.setId(0);
@@ -66,7 +66,7 @@ public class BoxFragment extends Fragment {
 
 
         SafeInfo mSafeInfo = new SafeInfo();
-        mSafeInfo.setmName("mqtt");
+        mSafeInfo.setmName("广播");
         mSafeInfo.setId(8);
         mSafeInfos.add(mSafeInfo);
 

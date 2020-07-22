@@ -104,7 +104,7 @@
         </activity>
         <activity
             android:name="com.safety.android.Message.Chat2Activity"
-            android:label="@string/app_name"
+            android:label="向所有用户发送消息"
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
@@ -189,6 +189,12 @@
         <activity
             android:name="com.safety.android.Management.LoopImageActivity"
             android:label="首页轮播图"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.Management.ManageMainActivity" >
+        </activity>
+        <activity
+            android:name="com.safety.android.Inoutitem.InoutitemActivity"
+            android:label="开支"
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Management.ManageMainActivity" >
         </activity>

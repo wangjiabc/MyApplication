@@ -46,6 +46,8 @@ public class QDListSectionAdapter extends QDGridSectionAdapter {
         }else {
              if(type==3){
                  view= LayoutInflater.from(context).inflate(R.layout.item_check_grouplist_view, null);
+             }else if(type==4){
+                 view= LayoutInflater.from(context).inflate(R.layout.item_check_grouplist_view2, null);
              }else{
                  view= LayoutInflater.from(context).inflate(R.layout.item_img_grouplist_view, null);
              }

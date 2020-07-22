@@ -16,8 +16,8 @@ import android.widget.TextView;
 import com.example.myapplication.R;
 import com.safety.android.AccountheadList.AccountheadListActivity;
 import com.safety.android.Food.FoodClassifyActivity;
+import com.safety.android.Inoutitem.InoutitemActivity;
 import com.safety.android.Management.ManageMainActivity;
-import com.safety.android.PhotoGallery.PhotoGalleryActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.SQLite3.SafeInfo;
@@ -131,7 +131,7 @@ public class SafeBoxFragment extends Fragment {
         }
 
         SafeInfo mSafeInfo = new SafeInfo();
-        mSafeInfo.setmName("mqtt");
+        mSafeInfo.setmName("管理后台");
         mSafeInfo.setId(8);
         mSafeInfos.add(mSafeInfo);
 
@@ -257,7 +257,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(getActivity(), PhotoGalleryActivity.class);
+                        Intent intent = new Intent(getActivity(), InoutitemActivity.class);
                         startActivity(intent);
                     }
                 };

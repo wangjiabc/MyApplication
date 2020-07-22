@@ -99,7 +99,7 @@ public class LoopImageActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.class_compages_list, null);
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_second_storagelist, null);
 
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);

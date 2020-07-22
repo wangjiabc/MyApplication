@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -19,6 +20,7 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.http.login;
 import com.safety.android.mqtt.connect.MqttClientService;
 import com.safety.android.mqtt.event.MessageEvent;
+import com.safety.android.tools.SwipeBackController;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
@@ -43,6 +45,7 @@ public class ManageMainActivity extends AppCompatActivity {
 
     public static String dataUrl="";
 
+    private SwipeBackController swipeBackController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +96,16 @@ public class ManageMainActivity extends AppCompatActivity {
         } else {
             startService(intent);
         }
+        swipeBackController = new SwipeBackController(this);
+    }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (swipeBackController.processEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
     }
 
     @Override
