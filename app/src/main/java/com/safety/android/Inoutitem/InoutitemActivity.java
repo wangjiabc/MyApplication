@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -36,14 +37,13 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.SwipeBackController;
-import com.safety.android.util.DatePickerFragment;
+import com.safety.android.util.DatePickerFragment2;
 import com.safety.android.util.OnLoginInforCompleted;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -180,20 +180,30 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
         mDateButton= (Button) view.findViewById(R.id.time_picker);
 
         final FragmentManager manager=getSupportFragmentManager();
-        final DatePickerFragment dialog=DatePickerFragment.newInstance("1",new Date());
+        final DatePickerFragment2 dialog= DatePickerFragment2.newInstance("1",new Date());
         dialog.setOnLoginInforCompleted(this);
 
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.show(manager,"");
+                new com.safety.android.util.DatePickerDialog(InoutitemActivity.this, 0, new com.safety.android.util.DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker startDatePicker, int startYear, int startMonthOfYear,
+                                          int startDayOfMonth) {
+                        String textString = String.format("选择年月：%d-%d\n", startYear,
+                                startMonthOfYear + 1);
+                        System.out.println(textString);
+
+                    }
+                },1,1,1).show();
+
             }
         });
 
         mDateButton2= (Button) view.findViewById(R.id.time_picker2);
 
         final FragmentManager manager2=getSupportFragmentManager();
-        final DatePickerFragment dialog2=DatePickerFragment.newInstance("2",new Date());
+        final DatePickerFragment2 dialog2=DatePickerFragment2.newInstance("2",new Date());
         dialog2.setOnLoginInforCompleted(this);
 
         mDateButton2.setOnClickListener(new View.OnClickListener() {
@@ -264,117 +274,120 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        menu.add(Menu.NONE, Menu.FIRST + 1, 1, "删除订单").setIcon(android.R.drawable.ic_lock_lock);
-        // setIcon()方法为菜单设置图标，这里使用的是系统自带的图标，同学们留意一下,以
-        // android.R开头的资源是系统提供的，我们自己提供的资源是以R开头的
-        //  menu.add(Menu.NONE, Menu.FIRST + 2, 2, "退出").setIcon(android.R.drawable.ic_lock_power_off);
+
+        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
+
+        Iterator<PermissionInfo> iterator=list.iterator();
+
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         System.out.println("click");
         switch (item.getItemId()) {
-            case Menu.FIRST + 1:
-                selectMap=qdListSectionAdapter.getSelectMap();
-
-                String billNo="";
-
-                for(Integer k:selectMap.keySet()){
-                    JSONObject jsonObject=selectMap.get(k);
-                    try {
-
-                        String supplier=jsonObject.getString("supplier");
-
-                        String  billno = jsonObject.getString("billno");
-
-                        billNo+=supplier+"的订单"+billno+",\n";
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                switch (item.getItemId()) {
-                    case Menu.FIRST + 1:
-
-                        selectMap=qdListSectionAdapter.getSelectMap();
-
-                        AlertDialog builder;
-
-                        if(selectMap.size()==0){
-
-                            builder  = new AlertDialog.Builder(InoutitemActivity.this)
-                                    .setTitle("请选择要删除的订单!")
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                            dialogInterface.dismiss();
-                                        }
-                                    })
-                                    .show();
-
-                        }else {
-
-                            builder = new AlertDialog.Builder(InoutitemActivity.this)
-                                    .setTitle("删除订单")
-                                    .setMessage(billNo)
-                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.dismiss();
-                                        }
-                                    })
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                            new FetchItemsTaskDel().execute();
-
-                                            dialogInterface.dismiss();
-                                        }
-                                    })
-                                    .show();
-                        }
-                        try {
-                            //获取mAlert对象
-                            Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
-                            mAlert.setAccessible(true);
-                            Object mAlertController = mAlert.get(builder);
-
-                            //获取mTitleView并设置大小颜色
-                            Field mTitle = mAlertController.getClass().getDeclaredField("mTitleView");
-                            mTitle.setAccessible(true);
-                            TextView mTitleView = (TextView) mTitle.get(mAlertController);
+            case R.id.menu_item_add:
+                LayoutInflater inflater = getLayoutInflater();
+                View validateView = inflater.inflate(
+                        R.layout.dialog_validate, null);
+                final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                layout_validate.removeAllViews();
+                final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
 
-                            //获取mMessageView并设置大小颜色
-                            Field mMessage = mAlertController.getClass().getDeclaredField("mMessageView");
-                            mMessage.setAccessible(true);
-                            TextView mMessageView = (TextView) mMessage.get(mAlertController);
+                Map<String,Object> map = new HashMap<String, Object>();
+                View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                validateItem.setTag(0);
+                layout_validate.addView(validateItem);
+                TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
+                et_validateText.setText("");
 
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (NoSuchFieldException e) {
-                            e.printStackTrace();
-                        }
+                tv_validateName.setText("项目");
 
-                        break;
-                }
+                map.put("name", tv_validateName);
+                map.put("value", et_validate);
 
-                break;
-            case Menu.FIRST + 2:
+                list.add(map);
 
+                Map<String,Object> map2 = new HashMap<String, Object>();
+                View validateItem2 = inflater.inflate(R.layout.item_validate_enter2, null);
+                validateItem2.setTag(1);
+                layout_validate.addView(validateItem2);
+                TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
+                EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+                TextView et_validateText2=validateItem2.findViewById(R.id.et_validate_text);
+                et_validateText2.setText("");
+
+                tv_validateName2.setText("金额");
+
+                map2.put("name", tv_validateName2);
+                map2.put("value", et_validate2);
+
+                list.add(map2);
+
+
+                View spinnerView = inflater.inflate(R.layout.spinner_accept, null);
+
+                layout_validate.addView(spinnerView);
+
+                TextView textView=spinnerView.findViewById(R.id.spinner_text);
+
+                textView.setText("类型");
+
+                Spinner spinner;
+                //private Spinner spinner2;
+                spinner = validateView.findViewById(R.id.Spinner01);
+
+                final String[] m = {"支出", "收入"};
+
+                ArrayAdapter<String> adapter;
+
+                //将可选内容与ArrayAdapter连接起来
+                adapter = new ArrayAdapter<String>(InoutitemActivity.this, android.R.layout.simple_spinner_item, m);
+
+                //设置下拉列表的风格
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                //将adapter 添加到spinner中
+                spinner.setAdapter(adapter);
+
+                //添加事件Spinner事件监听
+                spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                //设置默认值
+                spinner.setVisibility(View.VISIBLE);
+
+                String title = "新建开支";
+                AlertDialog dialog = new AlertDialog.Builder(InoutitemActivity.this)
+                        .setView(validateView)
+                        .setPositiveButton(title, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                Map map = new HashMap();
+
+
+                                dialog.dismiss();
+                            }
+
+                        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+
+                dialog.show();
                 break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
 
@@ -523,116 +536,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
                         Integer id=jsonObject.getInt("id");
 
-                        LayoutInflater inflater = getLayoutInflater();
-                        View validateView = inflater.inflate(
-                                R.layout.dialog_validate, null);
-                        final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
-                        layout_validate.removeAllViews();
-                        final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
-
-                        Map<String,Object> map = new HashMap<String, Object>();
-                        View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
-                        validateItem.setTag(0);
-                        layout_validate.addView(validateItem);
-                        TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
-                        EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
-                        TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
-                        et_validateText.setText("");
-
-                        tv_validateName.setText("原密码");
-
-                        map.put("name", tv_validateName);
-                        map.put("value", et_validate);
-
-                        list.add(map);
-
-                        Map<String,Object> map2 = new HashMap<String, Object>();
-                        View validateItem2 = inflater.inflate(R.layout.item_validate_enter2, null);
-                        validateItem2.setTag(1);
-                        layout_validate.addView(validateItem2);
-                        TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
-                        EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
-                        TextView et_validateText2=validateItem2.findViewById(R.id.et_validate_text);
-                        et_validateText2.setText("");
-
-                        tv_validateName2.setText("新密码");
-
-                        map2.put("name", tv_validateName2);
-                        map2.put("value", et_validate2);
-
-                        list.add(map2);
-
-                        Map<String,Object> map3 = new HashMap<String, Object>();
-                        View validateItem3 = inflater.inflate(R.layout.item_validate_enter2, null);
-                        validateItem3.setTag(2);
-                        layout_validate.addView(validateItem3);
-                        TextView tv_validateName3 = (TextView) validateItem3.findViewById(R.id.tv_validateName);
-                        EditText et_validate3 = (EditText) validateItem3.findViewById(R.id.et_validate);
-                        TextView et_validateText3=validateItem3.findViewById(R.id.et_validate_text);
-                        et_validateText3.setText("");
-
-                        tv_validateName3.setText("确认新密码");
-
-                        map3.put("name", tv_validateName3);
-                        map3.put("value", et_validate3);
-
-                        list.add(map3);
-
-                            View spinnerView = inflater.inflate(R.layout.spinner_accept, null);
-
-                            layout_validate.addView(spinnerView);
-
-                            Spinner spinner;
-                            //private Spinner spinner2;
-                            spinner = validateView.findViewById(R.id.Spinner01);
-
-                            final String[] m = {"支出", "收入"};
-
-                            ArrayAdapter<String> adapter;
-
-                            //将可选内容与ArrayAdapter连接起来
-                            adapter = new ArrayAdapter<String>(InoutitemActivity.this, android.R.layout.simple_spinner_item, m);
-
-                            //设置下拉列表的风格
-                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-                            //将adapter 添加到spinner中
-                            spinner.setAdapter(adapter);
-
-                            //添加事件Spinner事件监听
-                            spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
-
-                            //设置默认值
-                            spinner.setVisibility(View.VISIBLE);
-
-                            String title = "收款";
-                            AlertDialog dialog = new AlertDialog.Builder(InoutitemActivity.this)
-                                    .setView(validateView)
-                                    .setPositiveButton(title, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            Map map = new HashMap();
-                                            try {
-                                                String billno = finaljsonObject.getString("billno");
-                                                map.put("billno", billno);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-
-                                            dialog.dismiss();
-                                        }
-
-                                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    }).create();
-
-                            dialog.show();
 
 
 

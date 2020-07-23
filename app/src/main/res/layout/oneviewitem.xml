@@ -46,7 +46,7 @@
                     android:layout_gravity="right"
                     android:adjustViewBounds="true"
                     android:scaleType="center"
-                    android:src="@drawable/switch_bg"/>
+                    android:src="@drawable/qmui_popup_arrow_down"/>
                 <TextView
                     android:id="@+id/textView"
                     android:layout_width="match_parent"
