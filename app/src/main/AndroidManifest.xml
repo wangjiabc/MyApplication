@@ -198,6 +198,12 @@
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Management.ManageMainActivity" >
         </activity>
+        <activity
+            android:name="com.safety.android.ReportDetail.ReportDetailActivity"
+            android:label="开支"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.Management.ManageMainActivity" >
+        </activity>
     </application>
 
 

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.safety.android.ReportDetail.ReportDetailActivity;
 import com.safety.android.SQLite3.UserInfo;
 import com.safety.android.SQLite3.UserLab;
 import com.safety.android.http.FlickrFetch;
@@ -111,7 +112,7 @@ public class LunchActivity extends AppCompatActivity {
                     sysUser.put("sysUserName", sysUserName); // 当前登录用户真实名称
                     sysUser.put("sysOrgCode", sysOrgCode); // 当前登录用户部门编号
 
-                    Intent intent = new Intent(getApplication(), MainActivity.class);
+                    Intent intent = new Intent(getApplication(), ReportDetailActivity.class);
                     startActivity(intent);
 
                 } catch (JSONException e) {

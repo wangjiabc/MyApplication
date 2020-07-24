@@ -10,26 +10,50 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ReportDetailActivity extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView report_detail_recyclerview;
-    private List<String> mList;
+    private List<Map<Integer,String>> mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_detail);
         initView();
+        try {
+            Thread.sleep(50000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        initView2();
     }
 
     private void initView() {
         mList = new ArrayList<>();
-        mList.add("省亿元以上项目");
-        mList.add("合肥市“大新专”项目");
-        mList.add("市产业类投资项目");
-        mList.add("市大建设项目");
+        Map<Integer,String> map=new HashMap<>();
+        map.put(1,"aaaaaaaa");
+        map.put(2,"bbbbbbbb");
+        mList.add(map);
+        mList.add(map);
+
+        report_detail_recyclerview = (RecyclerView) findViewById(R.id.fragment_safe_box_recycler_view);
+        report_detail_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        report_detail_recyclerview.setAdapter(new ReportDetailAdapter(this,mList));
+
+    }
+
+    private void initView2() {
+        mList = new ArrayList<>();
+        Map<Integer,String> map=new HashMap<>();
+        map.put(1,"cccccc");
+        map.put(2,"ddddddd");
+        mList.add(map);
+        mList.add(map);
+
         report_detail_recyclerview = (RecyclerView) findViewById(R.id.fragment_safe_box_recycler_view);
         report_detail_recyclerview.setLayoutManager(new LinearLayoutManager(this));
         report_detail_recyclerview.setAdapter(new ReportDetailAdapter(this,mList));

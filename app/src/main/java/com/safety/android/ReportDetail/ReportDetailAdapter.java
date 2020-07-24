@@ -11,13 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 
 import java.util.List;
+import java.util.Map;
 
 public class ReportDetailAdapter extends RecyclerView.Adapter {
-    private List<String> list;
+    private List<Map<Integer,String>> list;
     private Context context;
 
 
-    public ReportDetailAdapter(Context context, List<String> list) {
+    public ReportDetailAdapter(Context context, List<Map<Integer,String>> list) {
         this.context = context;
         this.list = list;
 
@@ -90,7 +91,10 @@ public class ReportDetailAdapter extends RecyclerView.Adapter {
             onetonowinvest_tv = (TextView) itemView.findViewById(R.id.onetonowinvest_tv);
             Investmentcompletion_tv = (TextView) itemView.findViewById(R.id.Investmentcompletion_tv);
             investmentgrowth_tv = (TextView) itemView.findViewById(R.id.investmentgrowth_tv);
-            unit_tv.setText(list.get(position));
+            Map<Integer,String> map=list.get(position);
+            unit_tv.setText(map.get(0));
+            projectnum_tv.setText(map.get(1));
+            yearplaninvest_tv.setText(map.get(2));
         }
     }
 }
