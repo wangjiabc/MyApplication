@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -37,7 +36,6 @@ import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.SwipeBackController;
-import com.safety.android.util.DatePickerFragment2;
 import com.safety.android.util.OnLoginInforCompleted;
 
 import org.json.JSONArray;
@@ -45,7 +43,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -97,9 +98,9 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
     private TextView mDateTextView;
 
-    private Button mDateButton;
+    private TextView mDateButton;
 
-    private Button mDateButton2;
+    private TextView mDateButton2;
 
     private static final int REQUEST_DATE=0;
 
@@ -147,41 +148,15 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
         swipeBackController = new SwipeBackController(this);
 
-      /*  mSearchView = findViewById(R.id.search);
-        mSearchView.setIconifiedByDefault(true);
-        mSearchView.setFocusable(false);
-        mSearchView.clearFocus();
+        Calendar calendar= Calendar.getInstance();
+        calendar.setTime(new Date());
+        final int year=calendar.get(Calendar.YEAR);
+        final int month=calendar.get(Calendar.MONTH);
+        final int day=calendar.get(Calendar.DAY_OF_MONTH);
 
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextChange(String queryText) {
-
-                System.out.println("onQueryTextChange:"+queryText);
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextSubmit(String queryText) {
-
-                search="&materialName=*"+queryText+"*";
-                search2="&name="+queryText;
-                mPullRefreshLayout.finishRefresh();
-                page=1;
-                total=0;
-                itemMap=new HashMap<>();
-                selectMap=new HashMap<>();
-                initData();
-                return true;
-            }
-        });
-*/
-
-        mDateButton= (Button) view.findViewById(R.id.time_picker);
+        mDateButton= view.findViewById(R.id.time_picker);
 
         final FragmentManager manager=getSupportFragmentManager();
-        final DatePickerFragment2 dialog= DatePickerFragment2.newInstance("1",new Date());
-        dialog.setOnLoginInforCompleted(this);
 
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,26 +165,48 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
                     @Override
                     public void onDateSet(DatePicker startDatePicker, int startYear, int startMonthOfYear,
                                           int startDayOfMonth) {
-                        String textString = String.format("选择年月：%d-%d\n", startYear,
+                        String textString = String.format("%d-%d", startYear,
                                 startMonthOfYear + 1);
                         System.out.println(textString);
-
+                        startDate=textString;
+                        mDateButton.setText(textString);
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        refurbish=false;
+                        initData();
                     }
-                },1,1,1).show();
+                },year,month,day).show();
 
             }
         });
 
-        mDateButton2= (Button) view.findViewById(R.id.time_picker2);
+        mDateButton2= view.findViewById(R.id.time_picker2);
 
         final FragmentManager manager2=getSupportFragmentManager();
-        final DatePickerFragment2 dialog2=DatePickerFragment2.newInstance("2",new Date());
-        dialog2.setOnLoginInforCompleted(this);
+
 
         mDateButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog2.show(manager2,"");
+                new com.safety.android.util.DatePickerDialog(InoutitemActivity.this, 0, new com.safety.android.util.DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker startDatePicker, int startYear, int startMonthOfYear,
+                                          int startDayOfMonth) {
+                        String textString = String.format("%d-%d", startYear,
+                                startMonthOfYear + 1);
+                        System.out.println(textString);
+                        endDate=textString;
+                        mDateButton2.setText(textString);
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        refurbish=false;
+                        initData();
+                    }
+                },year,month,day).show();
             }
         });
 
@@ -292,11 +289,63 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
             case R.id.menu_item_add:
                 LayoutInflater inflater = getLayoutInflater();
                 View validateView = inflater.inflate(
-                        R.layout.dialog_validate, null);
+                        R.layout.dialog_validate_inoutitem, null);
                 final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
                 layout_validate.removeAllViews();
                 final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
+                Calendar calendar= Calendar.getInstance();
+                calendar.setTime(new Date());
+                final int year=calendar.get(Calendar.YEAR);
+                final int month=calendar.get(Calendar.MONTH);
+                final int day=calendar.get(Calendar.DAY_OF_MONTH);
+
+                String textString = String.format("%d-%d", year,
+                        month + 1,1);
+
+                final TextView startTimePicker=validateView.findViewById(R.id.start_time_picker);
+
+                startTimePicker.setText(textString);
+
+                startTimePicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new com.safety.android.util.DatePickerDialog(InoutitemActivity.this, 0, new com.safety.android.util.DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker startDatePicker, int startYear, int startMonthOfYear,
+                                                  int startDayOfMonth) {
+                                String textString = String.format("%d-%d", startYear,
+                                        startMonthOfYear + 1);
+                                System.out.println(textString);
+                                startTimePicker.setText(textString);
+                                initData();
+                            }
+                        },year,month,day).show();
+
+                    }
+                });
+
+                final TextView endTimePicker=validateView.findViewById(R.id.end_time_picker);
+
+                endTimePicker.setText(textString);
+
+                endTimePicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new com.safety.android.util.DatePickerDialog(InoutitemActivity.this, 0, new com.safety.android.util.DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker startDatePicker, int startYear, int startMonthOfYear,
+                                                  int startDayOfMonth) {
+                                String textString = String.format("%d-%d", startYear,
+                                        startMonthOfYear + 1);
+                                System.out.println(textString);
+                                endTimePicker.setText(textString);
+                                initData();
+                            }
+                        },year,month,day).show();
+
+                    }
+                });
 
                 Map<String,Object> map = new HashMap<String, Object>();
                 View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
@@ -371,6 +420,18 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
                                 Map map = new HashMap();
 
+                                String startTime=startTimePicker.getText().toString();
+                                String endTime=endTimePicker.getText().toString();
+
+                                String name=((EditText)list.get(0).get("value")).getText().toString();
+                                String price=((EditText)list.get(1).get("value")).getText().toString();
+
+                                map.put("name",name);
+                                map.put("startTime",startTime+"-1");
+                                map.put("endTime",endTime+"-1");
+                                map.put("price",Float.valueOf(price));
+
+                                new FetchItemsTaskAdd().execute(map);
 
                                 dialog.dismiss();
                             }
@@ -488,7 +549,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
                                         contents=addContents(contents,jsonObject);
                                     }
                                     queue.put(contents);
-                                } catch (JSONException | InterruptedException e) {
+                                } catch (JSONException | InterruptedException | ParseException e) {
                                     e.printStackTrace();
                                 }
 
@@ -664,6 +725,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
             String res=new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/inoutitem/inoutitem/getAllAccount?"+aSearch);
 
             try {
+                System.out.println(res);
                 JSONObject jsonObject=new JSONObject(res);
                 JSONObject jsonObject1=jsonObject.getJSONObject("result");
                 allAccount=jsonObject1.getDouble("ALLACCOUNT");
@@ -725,7 +787,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
     }
 
-    private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject0) throws JSONException {
+    private ArrayList<SectionItem> addContents(ArrayList<SectionItem> contents,JSONObject jsonObject0) throws JSONException, ParseException {
 
         JSONObject result= (JSONObject) jsonObject0.get("result");
 
@@ -915,7 +977,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
 
 
-                } catch (JSONException e) {
+                } catch (JSONException | ParseException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
                 }
@@ -926,7 +988,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
     }
 
-    private JSONObject process(int order,JSONObject jsonObject) throws JSONException {
+    private JSONObject process(int order,JSONObject jsonObject) throws JSONException, ParseException {
 
         JSONObject jsonObject2=new JSONObject();
 
@@ -957,11 +1019,14 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
         }
         jsonObject2.put("totalprice",price);
         String startTime=jsonObject.getString("startTime");
-        jsonObject2.put("2",startTime);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");//注意月份是MM
+        Date date = simpleDateFormat.parse(startTime);
+        jsonObject2.put("2",simpleDateFormat.format(date));
         jsonObject2.put("startTime",startTime+"至");
         jsonObject2.put("3","金额:"+price+"元");
         String endTime=jsonObject.getString("endTime");
-        jsonObject2.put("4",endTime);
+        date=simpleDateFormat.parse(endTime);
+        jsonObject2.put("4",simpleDateFormat.format(date));
         jsonObject2.put("endTime",endTime);
 
 
@@ -969,7 +1034,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
     }
 
-    private ArrayList<SectionItem> addContents2(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException {
+    private ArrayList<SectionItem> addContents2(ArrayList<SectionItem> contents,JSONObject jsonObject) throws JSONException, ParseException {
 
         JSONObject result= (JSONObject) jsonObject.get("result");
 
@@ -992,6 +1057,67 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
     }
 
 
+    private class FetchItemsTaskAdd extends AsyncTask<Map<String,Object>,Void,String> {
+
+        @Override
+        protected String doInBackground(Map<String,Object>... params) {
+
+            JSONObject jsonObject=new JSONObject();
+
+            for(Map<String,Object> map:params){
+
+                for(Map.Entry<String, Object> a:map.entrySet()){
+
+                    System.out.println("键是"+a.getKey());
+
+                    System.out.println("值是"+a.getValue());
+
+                    //    builder.addEncoded(a.getKey(),a.getValue());
+
+                    try {
+                        jsonObject.put(a.getKey(),a.getValue());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+            return new OKHttpFetch(getApplicationContext()).post(FlickrFetch.base + "/inoutitem/inoutitem/add",jsonObject,"post");
+
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            JSONObject jsonObject = null;
+
+            try {
+
+                jsonObject = new JSONObject(json);
+
+                String success = jsonObject.optString("success", null);
+
+                Toast.makeText(InoutitemActivity.this, jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+
+                if (success.equals("true")) {
+
+                    mPullRefreshLayout.finishRefresh();
+                    itemMap=new HashMap<>();
+                    page=1;
+                    total=0;
+                    refurbish=false;
+                    initData();
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
 
 
 }

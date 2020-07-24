@@ -6,7 +6,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/white"
         android:layout_marginLeft="2dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -17,18 +19,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:fitsSystemWindows="true">
-                <!-- <android.widget.SearchView
-                     android:id="@+id/search"
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_gravity="center"
-                     android:layout_marginLeft="20dp"
-                     android:layout_marginRight="10dp"
-                     android:layout_centerInParent="true"
-                     app:iconifiedByDefault="false"
-                     app:showAsAction="ifRoom|collapseActionView"
-                     app:queryHint="输入商品名称搜索"/>-->
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -46,11 +36,8 @@
                             android:layout_height="@dimen/qmui_list_item_height"
                             android:layout_gravity="center_horizontal"
                             android:layout_weight="1"
-                            android:background="@drawable/qmui_divider_bottom_bitmap"
                             android:gravity="center_vertical"
-                            android:text="客户名称 :"
-                            android:textColor="?attr/qmui_config_color_gray_1"
-                            android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                            android:text="客户名称 :"/>
                     </LinearLayout>
 
                     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -81,11 +68,8 @@
                             android:layout_height="@dimen/qmui_list_item_height"
                             android:layout_gravity="center_horizontal"
                             android:layout_weight="1"
-                            android:background="@drawable/qmui_divider_bottom_bitmap"
                             android:gravity="center_vertical"
-                            android:text="状态:"
-                            android:textColor="?attr/qmui_config_color_gray_1"
-                            android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                            android:text="状态:"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -133,12 +117,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/qmui_list_item_height"
                         android:layout_gravity="center_horizontal"
-                        android:background="@drawable/qmui_divider_bottom_bitmap"
                         android:layout_marginLeft="10dp"
                         android:gravity="center_vertical"
-                        android:text="日期 : "
-                        android:textColor="?attr/qmui_config_color_gray_1"
-                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                        android:text="日期 : "/>
 
                     <Button
                         android:id="@+id/time_picker"
@@ -153,11 +134,8 @@
                         android:layout_height="@dimen/qmui_list_item_height"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginLeft="@dimen/common_content_spacing"
-                        android:background="@drawable/qmui_divider_bottom_bitmap"
                         android:gravity="center_vertical"
-                        android:text="至 "
-                        android:textColor="?attr/qmui_config_color_gray_1"
-                        android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+                        android:text="至 "/>
 
                     <Button
                         android:id="@+id/time_picker2"
@@ -170,6 +148,7 @@
 
             </FrameLayout>
         </LinearLayout>
+
         <LinearLayout
             android:layout_marginTop="100dp"
             android:layout_width="match_parent"

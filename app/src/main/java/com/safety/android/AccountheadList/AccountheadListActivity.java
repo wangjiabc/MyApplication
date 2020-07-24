@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -101,9 +100,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     private TextView mDateTextView;
 
-    private Button mDateButton;
+    private TextView mDateButton;
 
-    private Button mDateButton2;
+    private TextView mDateButton2;
 
     private static final int REQUEST_DATE=0;
 
@@ -182,7 +181,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         });
 */
 
-        mDateButton= (Button) view.findViewById(R.id.time_picker);
+        mDateButton=view.findViewById(R.id.time_picker);
 
         final FragmentManager manager=getSupportFragmentManager();
         final DatePickerFragment dialog=DatePickerFragment.newInstance("1",new Date());
@@ -195,7 +194,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
             }
         });
 
-        mDateButton2= (Button) view.findViewById(R.id.time_picker2);
+        mDateButton2=view.findViewById(R.id.time_picker2);
 
         final FragmentManager manager2=getSupportFragmentManager();
         final DatePickerFragment dialog2=DatePickerFragment.newInstance("2",new Date());

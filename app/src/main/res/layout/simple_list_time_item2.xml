@@ -56,12 +56,16 @@
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
 
-                <Button
+                <TextView
                     android:id="@+id/time_picker"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/btn_ghost_blue_border_normal"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size"
                     android:text="开始" />
 
                 <TextView
@@ -75,12 +79,16 @@
                     android:textColor="?attr/qmui_config_color_gray_1"
                     android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
 
-                <Button
+                <TextView
                     android:id="@+id/time_picker2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/qmui_list_item_height"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/qmui_divider_bottom_bitmap"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/btn_ghost_blue_border_normal"
+                    android:textSize="?attr/qmui_common_list_item_title_h_text_size"
                     android:text="结束" />
             </LinearLayout>
 

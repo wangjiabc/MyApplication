@@ -18,11 +18,11 @@ import com.safety.android.AccountheadList.AccountheadListActivity;
 import com.safety.android.Food.FoodClassifyActivity;
 import com.safety.android.Inoutitem.InoutitemActivity;
 import com.safety.android.Management.ManageMainActivity;
+import com.safety.android.ReportDetail.ReportDetailActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.SQLite3.SafeInfo;
 import com.safety.android.SQLite3.SafeLab;
-import com.safety.android.SafeList.SafeListActivity;
 import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.Sale.SaleClassifyActivity;
 import com.safety.android.Storage.StorageClassActivity;
@@ -124,6 +124,14 @@ public class SafeBoxFragment extends Fragment {
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(5);
+                    mSafeInfos.add(mSafeInfo);
+                }
+
+                if (component.equals("reportDetail/reportDetail")) {
+                    String name = "统计";
+                    SafeInfo mSafeInfo = new SafeInfo();
+                    mSafeInfo.setmName(name);
+                    mSafeInfo.setId(6);
                     mSafeInfos.add(mSafeInfo);
                 }
 
@@ -267,7 +275,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener=new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent=new Intent(getActivity(), SafeListActivity.class);
+                        Intent intent=new Intent(getActivity(), ReportDetailActivity.class);
                         startActivity(intent);
                     }
                 };
