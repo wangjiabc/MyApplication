@@ -69,7 +69,7 @@
                             android:layout_gravity="center_horizontal"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
-                            android:text="状态:"/>
+                            android:text="快速选择日期:"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -121,12 +121,14 @@
                         android:gravity="center_vertical"
                         android:text="日期 : "/>
 
-                    <Button
+                    <TextView
                         android:id="@+id/time_picker"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/btn_ghost_blue_border_normal"
                         android:text="开始" />
 
                     <TextView
@@ -135,16 +137,19 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginLeft="@dimen/common_content_spacing"
                         android:gravity="center_vertical"
-                        android:text="至 "/>
+                        android:text="至 " />
 
-                    <Button
+                    <TextView
                         android:id="@+id/time_picker2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/qmui_list_item_height"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/btn_ghost_blue_border_normal"
                         android:text="结束" />
                 </LinearLayout>
+
 
             </FrameLayout>
         </LinearLayout>

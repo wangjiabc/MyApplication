@@ -841,7 +841,12 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                     list.add(section);
 
-                    section.setExistAfterDataToLoad(true);
+                    boolean existMoreData=true;
+                    if(total<=(page*10)) {
+                        existMoreData=false;
+                    }
+                    section.setExistAfterDataToLoad(existMoreData);
+
                     System.out.println("page="+page);
 
                     mAdapter.setData(list);
@@ -1042,7 +1047,13 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                     SectionHeader header = new SectionHeader("共"+total+"条"+"        "+rs+"万元");
                     QMUISection<SectionHeader, SectionItem> section = new QMUISection<>(header, contents, false);
-                    section.setExistAfterDataToLoad(true);
+
+                    boolean existMoreData=true;
+                    if(total<=(page*10)) {
+                        existMoreData=false;
+                    }
+                    section.setExistAfterDataToLoad(existMoreData);
+
                     list.add(section);
                     qdListSectionAdapter.setData(list);
                     qdListSectionAdapter.notifyDataSetChanged();

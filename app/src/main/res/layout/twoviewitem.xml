@@ -11,18 +11,17 @@
         android:orientation="horizontal">
         <View
             android:layout_width="1dp"
+            android:layout_marginLeft="1dp"
             android:layout_height="match_parent"
             android:background="#BDBDBD"/>
         <TextView
             android:id="@+id/unit_tv"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.2"
+            android:layout_weight="1"
             android:gravity="center"/>
-        <!--有1dp的偏差，需要纠正（应该是上面布局套的有点多导致下面的有点偏差），layout_marginLeft="1dp"-->
         <View
             android:layout_width="1dp"
-            android:layout_marginLeft="1dp"
             android:layout_height="match_parent"
             android:background="#BDBDBD"/>
         <TextView
@@ -45,46 +44,46 @@
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:background="#BDBDBD"/>
-        <TextView
-            android:id="@+id/nowmonthinvest_tv"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#BDBDBD"/>
-        <TextView
-            android:id="@+id/onetonowinvest_tv"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1.2"
-            android:gravity="center"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#BDBDBD"/>
-        <TextView
-            android:id="@+id/Investmentcompletion_tv"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#BDBDBD"/>
-        <TextView
-            android:id="@+id/investmentgrowth_tv"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#BDBDBD"/>
+        <!--  <TextView
+              android:id="@+id/nowmonthinvest_tv"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:gravity="center"/>
+          <View
+              android:layout_width="1dp"
+              android:layout_height="match_parent"
+              android:background="#BDBDBD"/>
+          <TextView
+              android:id="@+id/onetonowinvest_tv"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1.2"
+              android:gravity="center"/>
+          <View
+              android:layout_width="1dp"
+              android:layout_height="match_parent"
+              android:background="#BDBDBD"/>
+          <TextView
+              android:id="@+id/Investmentcompletion_tv"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:gravity="center"/>
+          <View
+              android:layout_width="1dp"
+              android:layout_height="match_parent"
+              android:background="#BDBDBD"/>
+          <TextView
+              android:id="@+id/investmentgrowth_tv"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:gravity="center"/>
+          <View
+              android:layout_width="1dp"
+              android:layout_height="match_parent"
+              android:background="#BDBDBD"/> -->
     </LinearLayout>
     <View
         android:layout_width="match_parent"

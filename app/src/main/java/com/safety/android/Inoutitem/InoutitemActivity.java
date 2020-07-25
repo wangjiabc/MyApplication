@@ -3,7 +3,6 @@ package com.safety.android.Inoutitem;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -35,6 +34,7 @@ import com.safety.android.http.OKHttpFetch;
 import com.safety.android.qmuidemo.view.QDListSectionAdapter;
 import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
+import com.safety.android.tools.MyTestUtil;
 import com.safety.android.tools.SwipeBackController;
 import com.safety.android.util.OnLoginInforCompleted;
 
@@ -348,7 +348,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
                 });
 
                 Map<String,Object> map = new HashMap<String, Object>();
-                View validateItem = inflater.inflate(R.layout.item_validate_enter2, null);
+                View validateItem = inflater.inflate(R.layout.item_validate_enter22, null);
                 validateItem.setTag(0);
                 layout_validate.addView(validateItem);
                 TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
@@ -430,6 +430,8 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
                                 map.put("startTime",startTime+"-1");
                                 map.put("endTime",endTime+"-1");
                                 map.put("price",Float.valueOf(price));
+
+                                map.put("type",type);
 
                                 new FetchItemsTaskAdd().execute(map);
 
@@ -591,21 +593,53 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
 
                         final int n=holder.getAdapterPosition();
 
-                        jsonObject=itemMap.get(n);
+                        jsonObject = selectMap.get(holder.getAdapterPosition());
+                        if (jsonObject == null) {
+                            jsonObject = itemMap.get(holder.getAdapterPosition());
+                        }
 
-                        final JSONObject finaljsonObject=jsonObject;
-
-                        Integer id=jsonObject.getInt("id");
-
-
-
+                        final JSONObject finalJsonObject = jsonObject;
 
 
-                    } catch (ClassCastException | JSONException e) {
+
+                                        final JSONArray jsonArray=new JSONArray();
+
+                                        jsonArray.put(itemMap.get(holder.getAdapterPosition()));
+
+
+                                        JSONObject finaljsonObject=itemMap.get(holder.getAdapterPosition());
+
+                                        MyTestUtil.print(finalJsonObject);
+
+                                        try {
+                                            new AlertDialog.Builder(InoutitemActivity.this)
+                                                    .setTitle("删除开支记录"+finaljsonObject.getString("materialName")+"金额:"+finaljsonObject.getString("totalprice")+"?")
+                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            dialogInterface.dismiss();
+                                                        }
+                                                    })
+                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                            new FetchItemsTaskDel().execute(jsonArray);
+
+                                                            dialogInterface.dismiss();
+                                                        }
+                                                    })
+                                                    .create()
+                                                    .show();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+                    } catch (ClassCastException e) {
                         e.printStackTrace();
-
                     }
                 }
+
             }
 
             @Override
@@ -728,7 +762,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
                 System.out.println(res);
                 JSONObject jsonObject=new JSONObject(res);
                 JSONObject jsonObject1=jsonObject.getJSONObject("result");
-                allAccount=jsonObject1.getDouble("ALLACCOUNT");
+                allAccount=jsonObject1.getDouble("inoutitem_detail");
                 System.out.println("allAccount============"+allAccount);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -814,31 +848,33 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
     }
 
 
-    private class FetchItemsTaskDel extends AsyncTask<Integer,Void,String> {
+    private class FetchItemsTaskDel extends AsyncTask<JSONArray,Void,String> {
 
         @Override
-        protected String doInBackground(Integer... params) {
+        protected String doInBackground(JSONArray... params) {
 
-            selectMap=qdListSectionAdapter.getSelectMap();
+            JSONArray jsonArray=params[0];
 
-            JSONArray jsonArray=new JSONArray();
+            int[] m=new int[jsonArray.length()];
 
-            for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
-                JSONObject json = sMap.getValue();
+            int id=0;
+
+            for(int i=0;i< jsonArray.length();i++){
+
                 try {
-                    jsonArray.put(json.getInt("id"));
+                    JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                    id=jsonObject.getInt("id");
+                    m[i]=id;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+
             }
-
-            String ids= Uri.encode(jsonArray.toString());
-
-            System.out.println("ids====="+ids);
 
             JSONObject jsonObject=new JSONObject();
 
-            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/inoutitem/inoutitem/deleteBatch?ids="+ids,jsonObject,"delete");
+            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/inoutitem/inoutitem//delete?id="+id,jsonObject,"delete");
         }
 
 
@@ -846,6 +882,7 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
         protected void onPostExecute(String items) {
 
             if(items!=null){
+                MyTestUtil.print(items);
                 try {
 
                     JSONObject jsonObject=new JSONObject(items);
@@ -855,36 +892,21 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
                     String message = jsonObject.optString("message", null);
                     if(success.equals("true")) {
 
-                        selectMap=qdListSectionAdapter.getSelectMap();
+                        mPullRefreshLayout.finishRefresh();
+                        itemMap=new HashMap<>();
+                        selectMap=new HashMap<>();
+                        page=1;
+                        total=0;
+                        search="";
+                        initData();
 
-                        positionId=qdListSectionAdapter.getPositionID();
-
-                        for(Integer k:selectMap.keySet()){
-                            JSONObject jsonObject1=selectMap.get(k);
-                            try {
-
-                                int id=jsonObject1.getInt("id");
-
-                                if(positionId.get(id)!=null){
-                                    int position= (int) positionId.get(id);
-                                    itemMap.remove(position);
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        qdListSectionAdapter.setSelectMap();
-
-                        new FetchItemsUpdate().execute();
                     }
 
                     Toast.makeText(getApplication(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(getApplication(),"失败",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(),"添加库存失败",Toast.LENGTH_SHORT).show();
                 }
 
             }

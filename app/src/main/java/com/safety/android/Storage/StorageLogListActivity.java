@@ -294,100 +294,100 @@ public class StorageLogListActivity extends AppCompatActivity {
                 if(position!=0) {
                     try {
 
-                        JSONObject jsonObject = null;
+                    JSONObject jsonObject = null;
 
-                        final int n=holder.getAdapterPosition();
+                    final int n=holder.getAdapterPosition();
 
-                        jsonObject = selectMap.get(holder.getAdapterPosition());
-                        if (jsonObject == null) {
-                            jsonObject = itemMap.get(holder.getAdapterPosition());
-                        }
+                    jsonObject = selectMap.get(holder.getAdapterPosition());
+                    if (jsonObject == null) {
+                        jsonObject = itemMap.get(holder.getAdapterPosition());
+                    }
 
-                        final JSONObject finalJsonObject = jsonObject;
+                    final JSONObject finalJsonObject = jsonObject;
 
-                        new AlertDialog.Builder(StorageLogListActivity.this)
-                                .setTitle(finalJsonObject.getString("name"))
-                                .setMessage("进货数量:"+finalJsonObject.getInt("currentStorage"))
-                                .setNegativeButton("删除", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
+                    new AlertDialog.Builder(StorageLogListActivity.this)
+                            .setTitle(finalJsonObject.getString("name"))
+                            .setMessage("进货数量:"+finalJsonObject.getInt("currentStorage"))
+                            .setNegativeButton("删除", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
 
-                                        dialogInterface.dismiss();
+                                    dialogInterface.dismiss();
 
-                                        final JSONArray jsonArray=new JSONArray();
+                                    final JSONArray jsonArray=new JSONArray();
 
-                                        jsonArray.put(itemMap.get(holder.getAdapterPosition()));
+                                    jsonArray.put(itemMap.get(holder.getAdapterPosition()));
 
 
-                                        JSONObject finaljsonObject=itemMap.get(holder.getAdapterPosition());
+                                    JSONObject finaljsonObject=itemMap.get(holder.getAdapterPosition());
 
+                                    try {
+                                        new AlertDialog.Builder(StorageLogListActivity.this)
+                                                .setTitle("删除商品"+finaljsonObject.getString("name")+"进货记录,数量:"+finaljsonObject.getString("stockStorage")+"?")
+                                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                })
+                                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                        new FetchItemsTaskDel().execute(jsonArray);
+
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                })
+                                                .create()
+                                                .show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            })
+                            /*.setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    JSONObject jsonObject = null;
+                                    jsonObject = selectMap.get(n);
+                                    String s = "";
+                                    if (jsonObject == null) {
+                                        jsonObject = itemMap.get(n);
                                         try {
-                                            new AlertDialog.Builder(StorageLogListActivity.this)
-                                                    .setTitle("删除商品"+finaljsonObject.getString("name")+"进货记录,数量:"+finaljsonObject.getString("stockStorage")+"?")
-                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                                            new FetchItemsTaskDel().execute(jsonArray);
-
-                                                            dialogInterface.dismiss();
-                                                        }
-                                                    })
-                                                    .create()
-                                                    .show();
+                                            s = StringToHtml2(jsonObject);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-
-                                    }
-                                })
-                                /*.setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        JSONObject jsonObject = null;
-                                        jsonObject = selectMap.get(n);
-                                        String s = "";
-                                        if (jsonObject == null) {
-                                            jsonObject = itemMap.get(n);
-                                            try {
-                                                s = StringToHtml2(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.put(n, jsonObject);
-                                        } else {
-                                            try {
-                                                s = StringToHtml(jsonObject);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            selectMap.remove(n);
+                                        selectMap.put(n, jsonObject);
+                                    } else {
+                                        try {
+                                            s = StringToHtml(jsonObject);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
-                                        Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
-                                        final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
-
-
-                                        final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
-                                        ((TextView) holder.itemView).setText(sp);
-                                        dialogInterface.dismiss();
+                                        selectMap.remove(n);
                                     }
-                                })*/
-                                .create()
-                                .show();
+                                    Drawable defaultDrawable = new getGradientDrawable(Color.YELLOW, 100).getGradientDrawable();
+                                    final Html.ImageGetter imgGetter = new HtmlImageGetter((TextView) holder.itemView, dataUrl, defaultDrawable);
+
+
+                                    final Spanned sp = Html.fromHtml(s, Html.FROM_HTML_MODE_COMPACT, imgGetter, null);
+                                    ((TextView) holder.itemView).setText(sp);
+                                    dialogInterface.dismiss();
+                                }
+                            })*/
+                            .create()
+                            .show();
 
 
 
-                    } catch (ClassCastException | JSONException e) {
-                        e.printStackTrace();
-                        ((TextView) holder.itemView).setText("");
-                    }
+                } catch (ClassCastException | JSONException e) {
+                    e.printStackTrace();
+                    ((TextView) holder.itemView).setText("");
                 }
+            }
             }
 
             @Override

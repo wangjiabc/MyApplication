@@ -6,12 +6,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.myapplication.R;
 
 import java.util.List;
 import java.util.Map;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ReportDetailAdapter extends RecyclerView.Adapter {
     private List<Map<Integer,String>> list;
@@ -87,10 +87,10 @@ public class ReportDetailAdapter extends RecyclerView.Adapter {
             unit_tv = (TextView) itemView.findViewById(R.id.unit_tv);
             projectnum_tv = (TextView) itemView.findViewById(R.id.projectnum_tv);
             yearplaninvest_tv = (TextView) itemView.findViewById(R.id.yearplaninvest_tv);
-            nowmonthinvest_tv = (TextView) itemView.findViewById(R.id.nowmonthinvest_tv);
-            onetonowinvest_tv = (TextView) itemView.findViewById(R.id.onetonowinvest_tv);
-            Investmentcompletion_tv = (TextView) itemView.findViewById(R.id.Investmentcompletion_tv);
-            investmentgrowth_tv = (TextView) itemView.findViewById(R.id.investmentgrowth_tv);
+           // nowmonthinvest_tv = (TextView) itemView.findViewById(R.id.nowmonthinvest_tv);
+          //  onetonowinvest_tv = (TextView) itemView.findViewById(R.id.onetonowinvest_tv);
+          //  Investmentcompletion_tv = (TextView) itemView.findViewById(R.id.Investmentcompletion_tv);
+          //  investmentgrowth_tv = (TextView) itemView.findViewById(R.id.investmentgrowth_tv);
             Map<Integer,String> map=list.get(position);
             unit_tv.setText(map.get(0));
             projectnum_tv.setText(map.get(1));
