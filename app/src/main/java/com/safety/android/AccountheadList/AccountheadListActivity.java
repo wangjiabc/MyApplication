@@ -1107,7 +1107,12 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         String createTime=jsonObject.getString("createTime");
         jsonObject2.put("5","日期:"+createTime);
         jsonObject2.put("createTime",createTime);
-        Integer income=jsonObject.getInt("income");
+        Integer income=0;
+        try {
+            income=jsonObject.getInt("income");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         System.out.println("income===="+income);
         String come="";
         if(income==0){

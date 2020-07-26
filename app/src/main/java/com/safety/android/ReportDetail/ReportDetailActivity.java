@@ -400,6 +400,13 @@ public class ReportDetailActivity extends AppCompatActivity implements View.OnCl
                 inout = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
                 map.put(2, String.valueOf(inout));
                 mList.add(map);
+
+                map = new HashMap<>();
+                map.put(0, "利润");
+                double profit = already-allCost-inout;
+                map.put(2, String.valueOf(profit));
+                mList.add(map);
+
                 System.out.println("allAccount============" + allAccount);
 
 
