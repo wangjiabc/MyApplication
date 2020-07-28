@@ -138,10 +138,12 @@ public class SafeBoxFragment extends Fragment {
             }
         }
 
-        SafeInfo mSafeInfo = new SafeInfo();
-        mSafeInfo.setmName("管理后台");
-        mSafeInfo.setId(8);
-        mSafeInfos.add(mSafeInfo);
+        if(LunchActivity.username.equals("lubo")) {
+            SafeInfo mSafeInfo = new SafeInfo();
+            mSafeInfo.setmName("管理后台");
+            mSafeInfo.setId(8);
+            mSafeInfos.add(mSafeInfo);
+        }
 
         /*
         for (int i=0;i<9;i++){

@@ -31,7 +31,7 @@
         <!--下面这句如果你加上觉得好看就加，不好看就不加咯-->
         <!--<item name="android:navigationBarColor">@color/transparent</item>-->
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowBackground">@drawable/apple</item>
+        <item name="android:windowBackground">@drawable/aaa</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

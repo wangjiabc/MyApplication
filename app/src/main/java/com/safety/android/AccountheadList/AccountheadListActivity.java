@@ -521,9 +521,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         //System.out.println("total="+total+"   page="+page);
                         if(total<(page*10)) {
                             existMoreData=false;
+                        }else{
+                            page++;
                         }
-
-                        page++;
 
                         mAdapter.finishLoadMore(section, contents, loadMoreBefore, existMoreData);
 
@@ -844,15 +844,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                     boolean existMoreData=true;
                     if(total<=(page*10)) {
                         existMoreData=false;
+                    }else{
+                        page++;
                     }
                     section.setExistAfterDataToLoad(existMoreData);
 
                     System.out.println("page="+page);
 
                     mAdapter.setData(list);
-
-                    page++;
-
                 }
 
 

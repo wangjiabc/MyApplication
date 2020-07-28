@@ -14,6 +14,8 @@ import android.widget.Button;
 
 import com.example.myapplication.R;
 import com.safety.android.Food.ClassifyActivity;
+import com.safety.android.SQLite3.PermissionInfo;
+import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch2;
 import com.safety.android.tools.MyHolder;
@@ -25,7 +27,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Iterator;
+import java.util.List;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import static com.safety.android.MainActivity.getContext;
 
 public class SaleClassifyActivity extends AppCompatActivity {
 
@@ -77,7 +84,28 @@ public class SaleClassifyActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        menu.add(Menu.NONE,Menu.FIRST+1,1,"分类设置").setIcon(android.R.drawable.edit_text);
+        List<PermissionInfo> list= PermissionLab.get(getContext()).getPermissionInfo();
+
+        Iterator<PermissionInfo> iterator=list.iterator();
+
+        while (iterator.hasNext()){
+
+            PermissionInfo permissionInfo=iterator.next();
+
+            String action=permissionInfo.getAction();
+            String component=permissionInfo.getComponent();
+
+            if(component!=null) {
+                System.out.println("component==="+component);
+                if (component.equals("tree/TreeList")) {
+                    menu.add(Menu.NONE,Menu.FIRST+1,1,"分类设置").setIcon(android.R.drawable.edit_text);
+                }
+
+
+
+            }
+        }
+
 
         return true;
 
