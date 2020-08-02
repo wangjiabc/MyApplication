@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity{
 
                                 MyTestUtil.print(list);
 
-                                String username= (String) sysUser.get("sysUserName");
+                                String username= LunchActivity.username;
 
                                 String oldpassword = ((EditText)list.get(0).get("value")).getText().toString();
 

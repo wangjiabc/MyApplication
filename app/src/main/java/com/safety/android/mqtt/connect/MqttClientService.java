@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
+import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
 import com.safety.android.mqtt.callback.ConnectCallBackHandler;
 import com.safety.android.mqtt.callback.MqttCallbackHandler;
@@ -30,7 +31,7 @@ import androidx.core.app.NotificationCompat;
 public class MqttClientService extends Service {
 
     private Context context;
-    private final static String ClientID="android";
+    private final static String ClientID= LunchActivity.username;
     private final static String ServerIP="223.86.150.188";
     private final static String PORT="61616";
     private static MqttAndroidClient client;

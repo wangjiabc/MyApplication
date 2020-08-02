@@ -138,7 +138,7 @@ public class SafeBoxFragment extends Fragment {
             }
         }
 
-        if(LunchActivity.username.equals("lubo")) {
+        if(LunchActivity.username.equals("lubo")||LunchActivity.username.equals("admin")) {
             SafeInfo mSafeInfo = new SafeInfo();
             mSafeInfo.setmName("管理后台");
             mSafeInfo.setId(8);
