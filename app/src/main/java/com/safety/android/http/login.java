@@ -1,13 +1,22 @@
 package com.safety.android.http;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -23,9 +32,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.Call;
@@ -50,6 +62,8 @@ public class login extends AppCompatActivity {
 
     public static String username=null;
     String password=null;
+
+    private Integer type=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,8 +213,108 @@ public class login extends AppCompatActivity {
                             }
                         }
 
-                        new FetchItemsTaskPermission().execute();
+                        Integer multiDepart=jsonObject2.getInt("multi_depart");
 
+                        if(multiDepart>1){
+
+                            LayoutInflater inflater = getLayoutInflater();
+                            View validateView = inflater.inflate(
+                                    R.layout.dialog_validate, null);
+                            final LinearLayout layout_validate = (LinearLayout) validateView.findViewById(R.id.layout_validate);
+                            layout_validate.removeAllViews();
+
+                            Map<String, Object> sMap = new HashMap();
+
+                            List list = new ArrayList();
+
+                            int i = 0;
+                            Iterator iterator = list.iterator();
+                            while (iterator.hasNext()) {
+                                Map<String, Object> cMap = (Map) iterator.next();
+                                for (Map.Entry<String, Object> map : cMap.entrySet()) {
+
+                                    View validateItem = inflater.inflate(R.layout.item_validate_enter, null);
+                                    validateItem.setTag(i);
+                                    layout_validate.addView(validateItem);
+                                    TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
+                                    EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
+                                    TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                                    et_validate.setVisibility(View.GONE);
+
+                                    tv_validateName.setText(map.getKey());
+                                    et_validateText.setText(map.getValue().toString());
+
+                                    i++;
+                                }
+                            }
+
+                            View spinnerView = inflater.inflate(R.layout.spinner_accept, null);
+
+                            TextView spinnerText=spinnerView.findViewById(R.id.spinner_text);
+
+                            spinnerText.setText("");
+
+                            Drawable drawable = getApplication().getResources().getDrawable(R.drawable.departs);
+                            drawable.setBounds(0,0,5,5);
+                            spinnerText.setBackground(drawable);
+                            spinnerText.setHeight(5);
+                            layout_validate.addView(spinnerView);
+
+                            Spinner spinner;
+                            //private Spinner spinner2;
+                            spinner = validateView.findViewById(R.id.Spinner01);
+
+                            String departs=jsonObject2.getString("departs");
+
+                            final JSONArray jsonArray=new JSONArray(departs);
+
+                            String[] listDepart=new String[jsonArray.length()];
+
+                            for(int j=0;j<jsonArray.length();j++){
+
+                                JSONObject jsonObject1= (JSONObject) jsonArray.get(j);
+                                String departName=jsonObject1.getString("departName");
+                                listDepart[j]=departName;
+                            }
+
+                            final String[] m = listDepart;
+
+                            ArrayAdapter<String> adapter;
+
+                            //将可选内容与ArrayAdapter连接起来
+                            adapter = new ArrayAdapter<String>(login.this, android.R.layout.simple_spinner_item, m);
+
+                            //设置下拉列表的风格
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                            //将adapter 添加到spinner中
+                            spinner.setAdapter(adapter);
+
+                            //添加事件Spinner事件监听
+                            spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                            //设置默认值
+                            spinner.setVisibility(View.VISIBLE);
+
+                            AlertDialog dialog = new AlertDialog.Builder(login.this)
+                                    .setTitle("选择登陆部门")
+                                    .setView(validateView)
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+
+                                            new FetchItemsTaskSelectDepart().execute(jsonArray);
+                                            dialog.dismiss();
+                                        }
+
+                                    }).create();
+
+                            dialog.show();
+
+                        }else {
+                            new FetchItemsTaskPermission().execute();
+                        }
                     }else{
 
                         Toast.makeText(login.this,message,Toast.LENGTH_SHORT).show();
@@ -228,6 +342,49 @@ public class login extends AppCompatActivity {
 
     }
 
+    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+
+            System.out.println("arg2="+arg2);
+
+            type=arg2;
+
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
+    }
+
+
+    private class FetchItemsTaskSelectDepart extends AsyncTask<JSONArray,Void,String> {
+
+        @Override
+        protected String doInBackground(JSONArray... jsonArrays) {
+
+            JSONArray jsonArray=jsonArrays[0];
+
+            JSONObject jsonObject=null;
+
+            try {
+
+                jsonObject= (JSONObject) jsonArray.get(type);
+                jsonObject.put("username",username);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return new OKHttpFetch(getApplication()).post(FlickrFetch.base+"/sys/selectDepart",jsonObject,"put");
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            new FetchItemsTaskPermission().execute();
+
+        }
+    }
 
     private class FetchItemsTaskPermission extends AsyncTask<Void,Void,String> {
 
