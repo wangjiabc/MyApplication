@@ -417,6 +417,9 @@ public class StorageListActivity extends AppCompatActivity {
                                 StringBuffer stringBuffer = new StringBuffer();
                                 JSONArray jsonArray=new JSONArray();
                                 int amount=0;
+
+                                Map map=new HashMap();
+
                                 for(int i=0;i<list.size();i++){
                                     int id= (int) list.get(i).get("id");
                                     if(id!=-1) {
@@ -436,12 +439,12 @@ public class StorageListActivity extends AppCompatActivity {
                                             e.printStackTrace();
                                         }
                                     }
-                                    Map map=new HashMap();
+
                                     map.put("jsonArray",jsonArray);
 
-
-                                    new FetchItemsTaskCheckStorage().execute(map);
                                 }
+
+                                new FetchItemsTaskCheckStorage().execute(map);
 
                                 System.out.println(stringBuffer);
 
@@ -664,11 +667,21 @@ public class StorageListActivity extends AppCompatActivity {
                                                 String realStorage = ((EditText) list.get(i).get("value2")).getText().toString();
 
                                                 JSONObject jsonObject = new JSONObject();
+
+                                                Integer storage1=0;
+                                                Integer realStorag1=0;
+
+                                                if(storage!=null&&!storage.equals("null"))
+                                                    storage1=Integer.valueOf(storage);
+
+                                                if(realStorage!=null&&!realStorage.equals("null"))
+                                                    realStorag1=Integer.valueOf(realStorage);
+
                                                 try {
                                                     jsonObject.put("id",id);
                                                     jsonObject.put("name",name);
-                                                    jsonObject.put("storage",Integer.valueOf(storage));
-                                                    jsonObject.put("realStorage",Integer.valueOf(realStorage));
+                                                    jsonObject.put("storage",storage1);
+                                                    jsonObject.put("realStorage",realStorag1);
 
                                                     jsonArray.put(jsonObject);
                                                 } catch (JSONException e) {

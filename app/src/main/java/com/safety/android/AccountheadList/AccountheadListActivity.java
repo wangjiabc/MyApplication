@@ -116,7 +116,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
     private Map positionId=new HashMap();
 
-    private Integer type;
+    private Integer type=0;
 
     private Integer income=null;
 
@@ -1165,7 +1165,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             String billno= (String) map.get("billno");
 
-            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno);
+            System.out.println("type="+type);
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno+"&type="+type);
         }
 
 
