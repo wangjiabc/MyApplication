@@ -69,6 +69,17 @@
                     android:layout_weight="1"
                     android:textColor="?attr/qmui_config_color_gray_5"
                     android:textSize="?attr/qmui_common_list_item_detail_h_text_size" />
+                    <ImageView android:id="@+id/ivLogo"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/qr"/>
+                    <Button
+                        android:id="@+id/qr_code"
+                        android:paddingLeft="@dimen/common_content_spacing"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        />
                 </LinearLayout>
             </GridLayout>
         </LinearLayout>

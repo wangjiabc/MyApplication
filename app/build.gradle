@@ -54,4 +54,7 @@ dependencies {
     implementation 'com.github.bmelnychuk:atv:1.2.+'
 
     implementation 'com.bigkoo:convenientbanner:2.1.5'
+
+    implementation 'com.google.zxing:android-core:3.3.0'
+    implementation 'com.google.zxing:core:3.3.3'
 }

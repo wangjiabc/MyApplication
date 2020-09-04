@@ -15,9 +15,9 @@ import android.widget.TextView;
 
 import com.example.myapplication.R;
 import com.safety.android.AccountheadList.AccountheadListActivity;
+import com.safety.android.Camera.QR;
 import com.safety.android.Food.FoodClassifyActivity;
 import com.safety.android.Inoutitem.InoutitemActivity;
-import com.safety.android.Management.ManageMainActivity;
 import com.safety.android.ReportDetail.ReportDetailActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
@@ -141,9 +141,14 @@ public class SafeBoxFragment extends Fragment {
         if(LunchActivity.username.equals("lubo")||LunchActivity.username.equals("admin")) {
             SafeInfo mSafeInfo = new SafeInfo();
             mSafeInfo.setmName("管理后台");
-            mSafeInfo.setId(8);
+            mSafeInfo.setId(7);
             mSafeInfos.add(mSafeInfo);
         }
+
+        SafeInfo mSafeInfo = new SafeInfo();
+        mSafeInfo.setmName("QR");
+        mSafeInfo.setId(8);
+        mSafeInfos.add(mSafeInfo);
 
         /*
         for (int i=0;i<9;i++){
@@ -303,7 +308,7 @@ public class SafeBoxFragment extends Fragment {
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent=new Intent(getActivity(), ManageMainActivity.class);
+                        Intent intent=new Intent(getActivity(), QR.class);
                         startActivity(intent);
 
                     }

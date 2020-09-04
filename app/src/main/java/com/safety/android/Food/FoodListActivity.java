@@ -1,10 +1,13 @@
 package com.safety.android.Food;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,7 +16,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -33,6 +38,8 @@ import com.safety.android.qmuidemo.view.SectionHeader;
 import com.safety.android.qmuidemo.view.SectionItem;
 import com.safety.android.tools.MyTestUtil;
 import com.safety.android.tools.SwipeBackController;
+import com.safety.android.tools.TakePictures;
+import com.safety.android.zxinglib.CaptureActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,8 +56,10 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -100,6 +109,10 @@ public class FoodListActivity extends AppCompatActivity {
     QDListSectionAdapter qdListSectionAdapter;
 
     private SwipeBackController swipeBackController;
+
+    private AlertDialog dialog=null;
+
+    private View validateItem2=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -308,6 +321,10 @@ public class FoodListActivity extends AppCompatActivity {
                         TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                         EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                         TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                        Button qr_code=validateItem.findViewById(R.id.qr_code);
+                        qr_code.setVisibility(View.GONE);
+                        ImageView ivLogo=validateItem.findViewById(R.id.ivLogo);
+                        ivLogo.setVisibility(View.GONE);
                         JSONObject jsonObject = sMap.getValue();
                         try {
                             tv_validateName.setText(jsonObject.getString("name"));
@@ -336,7 +353,11 @@ public class FoodListActivity extends AppCompatActivity {
                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                     TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                    Button qr_code=validateItem.findViewById(R.id.qr_code);
+                    qr_code.setVisibility(View.GONE);
+                    ImageView ivLogo=validateItem.findViewById(R.id.ivLogo);
 
+                    ivLogo.setVisibility(View.GONE);
                     tv_validateName.setText("进货数量");
                     et_validateText.setText("");
                     et_validate.setText("1");
@@ -691,6 +712,13 @@ public class FoodListActivity extends AppCompatActivity {
                             TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                             EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                             TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
+                            final Button qr_code=validateItem.findViewById(R.id.qr_code);
+
+                            qr_code.setVisibility(View.GONE);
+
+                            ImageView ivLogo=validateItem.findViewById(R.id.ivLogo);
+                            ivLogo.setVisibility(View.GONE);
+
                             Map<String, Object> map = new HashMap<String, Object>();
                             try {
                                 tv_validateName.setText(finalJsonObject.getString("name"));
@@ -710,15 +738,42 @@ public class FoodListActivity extends AppCompatActivity {
 
                             list.add(map);
 
-                            View validateItem2 = inflater.inflate(R.layout.item_validate_enter, null);
+                            validateItem2 = inflater.inflate(R.layout.item_validate_enter, null);
                             validateItem2.setTag(1);
                             layout_validate.addView(validateItem2);
                             TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
                             EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
                             TextView et_validateText2 = validateItem2.findViewById(R.id.et_validate_text);
+
                             Map<String, Object> map2 = new HashMap<String, Object>();
                             tv_validateName2.setText("数量");
                             et_validateText2.setText("");
+                            ImageView ivLogo2=validateItem2.findViewById(R.id.ivLogo);
+                            ivLogo2.setOnClickListener(new View.OnClickListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.M)
+                                @Override
+                                public void onClick(View v) {
+
+                                    int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
+                                            Manifest.permission.CAMERA);
+                                    if (hasCameraPermission == PackageManager.PERMISSION_GRANTED) {
+                                        //有权限。
+                                    } else {
+                                        //没有权限，申请权限。
+                                        requestPermissions(new String[]{Manifest.permission.CAMERA},100);
+                                    }
+                                    TakePictures takePictures=new TakePictures(getApplication());
+                                    Intent intent=new Intent(getApplicationContext(), CaptureActivity.class);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
+                                        startActivityForResult(intent,1001);
+                                    }else{
+                                        startActivityForResult(intent,1001);
+                                    }
+
+                                }
+                            });
+
                             et_validate2.setText("1");
 
                             map2.put("name", tv_validateName2);
@@ -726,7 +781,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                             list.add(map2);
 
-                            AlertDialog dialog = new AlertDialog.Builder(FoodListActivity.this).setTitle("添加库存")
+                            dialog = new AlertDialog.Builder(FoodListActivity.this).setTitle("添加库存")
                                     .setView(validateView)
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                         @Override
@@ -898,6 +953,14 @@ public class FoodListActivity extends AppCompatActivity {
             initData();
 
 
+        }else if(requestCode==1001 && resultCode== Activity.RESULT_OK)
+        {
+            String result=data.getStringExtra(CaptureActivity.KEY_DATA);
+            Button qr_code2=validateItem2.findViewById(R.id.qr_code);
+            qr_code2.setText(result);
+            EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
+            et_validate2.setText("1");
+            et_validate2.setEnabled(false);
         }
 
     }
@@ -1215,6 +1278,9 @@ public class FoodListActivity extends AppCompatActivity {
 
 
             JSONArray jsonArray=new JSONArray();
+
+            System.out.println("selectMap===========");
+            MyTestUtil.print(selectMap);
 
             for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                 JSONObject json = sMap.getValue();

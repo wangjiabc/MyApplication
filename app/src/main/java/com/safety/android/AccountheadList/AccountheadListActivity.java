@@ -140,11 +140,6 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         mPullRefreshLayout=view.findViewById(R.id.pull_to_refresh);
         mSectionLayout=view.findViewById(R.id.section_layout);
 
-        initRefreshLayout();
-        initStickyLayout();
-
-        initData();
-
         queue=new ArrayBlockingQueue<>(3);
 
         setContentView(view);
@@ -241,14 +236,16 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
         //将adapter 添加到spinner中
         spinner.setAdapter(adapter2);
-
+        spinner.setSelection(0, true);
         //添加事件Spinner事件监听
         spinner.setOnItemSelectedListener(new SpinnerSelectedListener2());
 
-        //设置默认值
-        spinner.setVisibility(View.VISIBLE);
-
         new FetchItemsTaskSupplier().execute();
+
+        initRefreshLayout();
+        initStickyLayout();
+
+        initData();
 
     }
     @Override

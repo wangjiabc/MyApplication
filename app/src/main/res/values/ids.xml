@@ -23,5 +23,12 @@
     <item name="topbar_right_change_button" type="id"/>
     <item name="text1" type="id" />
     <item name="layout_for_test" type="id"/>
+    <item type="id" name="decode"/>
+    <item type="id" name="decode_failed"/>
+    <item type="id" name="decode_succeeded"/>
+    <item type="id" name="launch_product_query"/>
+    <item type="id" name="quit"/>
+    <item type="id" name="restart_preview"/>
+    <item type="id" name="return_scan_result"/>
     <!--<item name="listview_contact" type="id" />-->
 </resources>
