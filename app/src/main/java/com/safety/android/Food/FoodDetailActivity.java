@@ -35,6 +35,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +68,7 @@ public class FoodDetailActivity extends AppCompatActivity {
 
     private int storage;
 
-    private int id;
+    private Serializable id;
 
     private boolean isEdit=false;
 
@@ -166,7 +167,7 @@ public class FoodDetailActivity extends AppCompatActivity {
                     isEdit=true;
                     foodValidateinfo.setText("编辑商品");
 
-                    id = jsonObject.getInt("id");
+                    id = (Serializable) jsonObject.get("id");
                     position = jsonObject.getInt("position");
                     String name = jsonObject.getString("name");
                     Double cost = jsonObject.getDouble("cost");

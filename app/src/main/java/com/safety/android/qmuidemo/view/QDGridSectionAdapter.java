@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -148,7 +149,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
             }
 
-            Integer id=jsonObject.getInt("id");
+            Serializable id= (Serializable) jsonObject.get("id");
 
             if(id!=null){
                 if(map.get(id)!=null)
@@ -162,7 +163,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
 
             }
 
-            final int fId=id;
+            final Serializable fId=id;
 
             try {
                 checkBox.setOnClickListener(new View.OnClickListener() {
@@ -184,7 +185,7 @@ public class QDGridSectionAdapter extends QMUIDefaultStickySectionAdapter<Sectio
                 TextPaint paint = cId.getPaint();
                 paint.setFakeBoldText(true);
                 cId.setText(String.valueOf(jsonObject.get("0")));
-                positionId.put(fId,jsonObject.getInt("0"));
+                positionId.put(fId,jsonObject.get("0"));
             }
 
             String name="";

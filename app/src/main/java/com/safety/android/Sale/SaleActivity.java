@@ -1,14 +1,19 @@
 package com.safety.android.Sale;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,15 +30,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.safety.android.SQLite3.PermissionInfo;
+import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.tools.MyTestUtil;
 import com.safety.android.tools.SwipeBackController;
+import com.safety.android.tools.TakePictures;
+import com.safety.android.zxinglib.CaptureActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,8 +54,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 public class SaleActivity extends AppCompatActivity {
 
@@ -79,6 +92,14 @@ public class SaleActivity extends AppCompatActivity {
 
     private SwipeBackController swipeBackController;
 
+    private final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+    private String jsonString;
+
+    private JSONArray saleJsonArray;
+
+    private boolean scan=true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -107,30 +128,25 @@ public class SaleActivity extends AppCompatActivity {
 
         Intent intent=getIntent();
 
-        String jsonString=intent.getStringExtra("jsonString");
+        jsonString=intent.getStringExtra("jsonString");
 
         if(jsonString!=null&&!jsonString.equals("")){
-
-            final List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 
             try {
 
                 JSONObject jsonObject = new JSONObject(jsonString);
 
-                JSONArray jsonArray=jsonObject.getJSONArray("ids");
-
-                System.out.println("jsonArray==============");
-                MyTestUtil.print(jsonArray);
+                saleJsonArray=jsonObject.getJSONArray("ids");
 
                 LayoutInflater inflater = getLayoutInflater();
                 LinearLayout layout_validate = (LinearLayout) view.findViewById(R.id.layout_sale);
                 layout_validate.removeAllViews();
 
-                for (int i = 0; i < jsonArray.length(); i++) {
+                for (int i = 0; i < saleJsonArray.length(); i++) {
 
                     int order=i+1;
 
-                    JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                    JSONObject jsonObject1 = (JSONObject) saleJsonArray.get(i);
 
                     View validateItem = inflater.inflate(R.layout.sale_item, null);
                     validateItem.setTag(i);
@@ -151,7 +167,7 @@ public class SaleActivity extends AppCompatActivity {
                         tv_valiateAll.setText(jsonObject1.getString("retailprice"));
                         tv_valiateAll.setGravity(Gravity.CENTER);
                         Map<String,Object> map=new HashMap();
-                        map.put("id",jsonObject1.getInt("id"));
+                        map.put("id",jsonObject1.get("id"));
                         map.put("retailprice",et_validatePrice);
                         map.put("count",et_validateCount);
                         map.put("allPrice",tv_valiateAll);
@@ -270,8 +286,12 @@ public class SaleActivity extends AppCompatActivity {
                 tv_valiateAll.setText(a);
             }
 
-            calculatePrice(list);
 
+
+            System.out.println("list0================");
+            MyTestUtil.print(list);
+
+            calculatePrice(list);
 
             saleButon.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -289,10 +309,14 @@ public class SaleActivity extends AppCompatActivity {
 
                         returnArray=new JSONArray();
 
+                        System.out.println("list2===============");
+
+                        MyTestUtil.print(list);
+
                         while (iterator.hasNext()) {
 
                             Map<String, Object> map = iterator.next();
-                            int id = (int) map.get("id");
+                            Serializable id = (Serializable) map.get("id");
                             EditText et_validatePrice = (EditText) map.get("retailprice");
                             EditText et_validateCount = (EditText) map.get("count");
                             TextView tv_valiateAll= (TextView) map.get("allPrice");
@@ -340,6 +364,11 @@ public class SaleActivity extends AppCompatActivity {
                             jsonObject.put("orderNumber",ordernumber);
                             jsonObject.put("supplierId",supplierId);
                             jsonObject.put("supplier",supplier);
+
+                            if(map.get("code")!=null){
+                                jsonObject.put("code",map.get("code"));
+                            }
+
                             if(type>0) {
                                 jsonObject.put("type", String.valueOf(type));
                                 jsonObject.put("income",1);
@@ -360,6 +389,9 @@ public class SaleActivity extends AppCompatActivity {
 
 
                         }
+
+                        //System.out.println("jsonArray1===============");
+                        //MyTestUtil.print(jsonArray1);
 
                         new FetchItemsTaskSale().execute(jsonArray1);
                     }
@@ -509,24 +541,90 @@ public class SaleActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        List<PermissionInfo> list= PermissionLab.get(getApplicationContext()).getPermissionInfo();
+
+        Iterator<PermissionInfo> iterator=list.iterator();
+
+        while (iterator.hasNext()){
+
+            PermissionInfo permissionInfo=iterator.next();
+
+            String action=permissionInfo.getAction();
+
+            if(action!=null){
+                if(action.equals("material:sale")){
+                    getMenuInflater().inflate(R.menu.menu_main, menu);
+                }
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+    /* 利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，给菜单设置图标时才可见
+     * 让菜单同时显示图标和文字
+     */
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        if (menu != null) {
+            if (menu.getClass().getSimpleName().equalsIgnoreCase("MenuBuilder")) {
+                try {
+                    Method method = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
+                    method.setAccessible(true);
+                    method.invoke(menu, true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        System.out.println("click");
+        switch (item.getItemId()) {
+            case R.id.menu_item_add:
+
+                int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
+                        Manifest.permission.CAMERA);
+                if (hasCameraPermission == PackageManager.PERMISSION_GRANTED) {
+                    //有权限。
+                } else {
+                    //没有权限，申请权限。
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},100);
+                }
+                TakePictures takePictures=new TakePictures(getApplication());
+                Intent intent=new Intent(getApplicationContext(), CaptureActivity.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
+                    startActivityForResult(intent,1001);
+                }else{
+                    startActivityForResult(intent,1001);
+                }
+
+                break;
+            case android.R.id.home:
+                finish();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (swipeBackController.processEvent(ev)) {
             return true;
         } else {
             return super.onTouchEvent(ev);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // TODO Auto-generated method stub
-        if(item.getItemId() == android.R.id.home)
-        {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     void calculatePrice(List<Map<String,Object>> list){
@@ -796,6 +894,228 @@ public class SaleActivity extends AppCompatActivity {
                     new FetchItemsTask().execute();
                 }
 
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==1001 && resultCode== Activity.RESULT_OK)
+        {
+
+
+            String result=data.getStringExtra(CaptureActivity.KEY_DATA);
+            Toast.makeText(this, " 条形码 : "+result, Toast.LENGTH_SHORT).show();
+            new FetchItemsFoodAdd().execute(result);
+        }
+    }
+
+    private class FetchItemsFoodAdd extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String code=params[0];
+
+            return new OKHttpFetch(getApplicationContext()).get(FlickrFetch.base + "/barCode/barCode/getFoodByCode?code="+code);
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String json) {
+
+            try {
+
+                JSONObject jsonObject0 = new JSONObject(json);
+                String success = jsonObject0.optString("success", null);
+
+                if(success.equals("true")) {
+
+                    JSONArray records = (JSONArray) jsonObject0.get("result");
+
+                    System.out.println("records==============");
+                    MyTestUtil.print(records);
+
+                    JSONObject jsonObject2 = (JSONObject) records.get(0);
+
+                    LayoutInflater inflater = getLayoutInflater();
+                    LinearLayout layout_validate = (LinearLayout) view.findViewById(R.id.layout_sale);
+                    layout_validate.removeAllViews();
+
+                    JSONObject jsonObject3=new JSONObject();
+                    jsonObject3.put("name",jsonObject2.get("NAME"));
+                    jsonObject3.put("retailprice",jsonObject2.get("RETAILPRICE"));
+                    jsonObject3.put("id",jsonObject2.get("ID"));
+                    jsonObject3.put("code",jsonObject2.get("CODE"));
+
+                    saleJsonArray.put(jsonObject3);
+
+                    list.removeAll(list);
+
+                    System.out.println("list0================");
+                    MyTestUtil.print(list);
+
+                    for (int i = 0; i < saleJsonArray.length(); i++) {
+
+                        JSONObject jsonObject1 = (JSONObject) saleJsonArray.get(i);
+
+                        View validateItem = inflater.inflate(R.layout.sale_item, null);
+                        validateItem.setTag(i);
+                        layout_validate.addView(validateItem);
+                        TextView tv_validateName = (TextView) validateItem.findViewById(R.id.sale1);
+                        EditText et_validatePrice = (EditText) validateItem.findViewById(R.id.sale2);
+                        EditText et_validateCount = (EditText) validateItem.findViewById(R.id.sale3);
+                        TextView tv_valiateAll=validateItem.findViewById(R.id.sale4);
+
+                        try {
+
+                            tv_validateName.setText(jsonObject1.getString("name"));
+                            tv_validateName.setGravity(Gravity.CENTER);
+                            et_validatePrice.setText(jsonObject1.getString("retailprice"));
+                            et_validatePrice.setGravity(Gravity.CENTER);
+                            et_validateCount.setText("1");
+                            et_validateCount.setGravity(Gravity.CENTER);
+                            tv_valiateAll.setText(jsonObject1.getString("retailprice"));
+                            tv_valiateAll.setGravity(Gravity.CENTER);
+                            Map<String,Object> map=new HashMap();
+                            map.put("id",jsonObject1.get("id"));
+                            map.put("retailprice",et_validatePrice);
+                            map.put("count",et_validateCount);
+                            map.put("allPrice",tv_valiateAll);
+                            try {
+                                if (jsonObject1.get("code") != null) {
+                                    map.put("code", jsonObject1.get("code"));
+                                }
+                            }catch (Exception e){
+
+                            }
+                            list.add(map);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+
+                    System.out.println("salejsonArray================");
+                    MyTestUtil.print(saleJsonArray);
+                    System.out.println("list================");
+                    MyTestUtil.print(list);
+
+                    Iterator<Map<String, Object>> iterator = list.iterator();
+
+                    while (iterator.hasNext()) {
+
+                        Map<String, Object> map = iterator.next();
+                        final EditText et_validatePrice = (EditText) map.get("retailprice");
+                        final EditText et_validateCount = (EditText) map.get("count");
+                        final TextView tv_valiateAll = (TextView) map.get("allPrice");
+
+                        et_validatePrice.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                float price = 0;
+
+                                if (s.toString() != null && !s.toString().equals(""))
+                                    price = Float.parseFloat(s.toString());
+
+                                int amount = 0;
+
+                                if (et_validateCount.getText().toString() != null && !et_validateCount.getText().toString().equals(""))
+                                    amount = Integer.parseInt(et_validateCount.getText().toString());
+
+                                float all = price * amount;
+
+                                System.out.println("all=" + all);
+
+                                DecimalFormat fnum = new DecimalFormat("##0.00");
+                                String a = fnum.format(all);
+
+                                tv_valiateAll.setText(String.valueOf(a));
+
+                                calculatePrice(list);
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {
+
+                            }
+                        });
+
+                        et_validateCount.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                float price = 0;
+
+                                if (et_validatePrice.getText().toString() != null && !et_validatePrice.getText().toString().equals(""))
+                                    price = Float.parseFloat(et_validatePrice.getText().toString());
+
+                                int amount = 0;
+
+                                if (s.toString() != null && !s.toString().equals(""))
+                                    amount = Integer.parseInt(s.toString());
+
+                                float all = price * amount;
+
+                                System.out.println("all=" + all);
+
+                                DecimalFormat fnum = new DecimalFormat("##0.00");
+                                String a = fnum.format(all);
+
+                                tv_valiateAll.setText(String.valueOf(a));
+
+                                calculatePrice(list);
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {
+
+                            }
+                        });
+
+                        float price = 0;
+
+                        if (et_validatePrice.getText().toString() != null && !et_validatePrice.getText().toString().equals(""))
+                            price = Float.parseFloat(et_validatePrice.getText().toString());
+
+                        int amount = 0;
+
+                        if (et_validateCount.getText().toString() != null && !et_validateCount.getText().toString().equals(""))
+                            amount = Integer.parseInt(et_validateCount.getText().toString());
+
+                        float all = price * amount;
+
+                        System.out.println("all=" + all);
+
+                        DecimalFormat fnum = new DecimalFormat("##0.00");
+                        String a = fnum.format(all);
+
+                        tv_valiateAll.setText(a);
+                    }
+
+                    calculatePrice(list);
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();

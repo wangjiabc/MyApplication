@@ -16,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -45,6 +44,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -321,7 +321,7 @@ public class FoodListActivity extends AppCompatActivity {
                         TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                         EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                         TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                        Button qr_code=validateItem.findViewById(R.id.qr_code);
+                        EditText qr_code=validateItem.findViewById(R.id.qr_code);
                         qr_code.setVisibility(View.GONE);
                         ImageView ivLogo=validateItem.findViewById(R.id.ivLogo);
                         ivLogo.setVisibility(View.GONE);
@@ -333,7 +333,7 @@ public class FoodListActivity extends AppCompatActivity {
                                 et_validateText.setVisibility(View.GONE);
                                 et_validate.setVisibility(View.GONE);
                             }
-                            map.put("id", jsonObject.getInt("id"));
+                            map.put("id", jsonObject.get("id"));
                             map.put("name", tv_validateName);
                             map.put("value", et_validate);
                             map.put("combination", jsonObject.getInt("combination"));
@@ -353,7 +353,7 @@ public class FoodListActivity extends AppCompatActivity {
                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                     TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                    Button qr_code=validateItem.findViewById(R.id.qr_code);
+                    EditText qr_code=validateItem.findViewById(R.id.qr_code);
                     qr_code.setVisibility(View.GONE);
                     ImageView ivLogo=validateItem.findViewById(R.id.ivLogo);
 
@@ -384,7 +384,13 @@ public class FoodListActivity extends AppCompatActivity {
                                     for (int i = 0; i < list.size(); i++) {
                                         System.out.println("list i =================");
                                         MyTestUtil.print(list.get(i));
-                                        int id = (int) list.get(i).get("id");
+                                        long id=0;
+                                        try {
+                                            id= (long) list.get(i).get("id");
+                                        }catch (Exception e){
+                                            Serializable s= (Serializable) list.get(i).get("id");
+                                            id=Long.valueOf(s.toString());
+                                        }
                                         if (id != -1) {
                                             String name = ((TextView) list.get(i).get("name")).getText().toString();
                                             String cost = ((EditText) list.get(i).get("value")).getText().toString();
@@ -712,7 +718,7 @@ public class FoodListActivity extends AppCompatActivity {
                             TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                             EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                             TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                            final Button qr_code=validateItem.findViewById(R.id.qr_code);
+                            final EditText qr_code=validateItem.findViewById(R.id.qr_code);
 
                             qr_code.setVisibility(View.GONE);
 
@@ -727,10 +733,11 @@ public class FoodListActivity extends AppCompatActivity {
                                     et_validateText.setVisibility(View.GONE);
                                     et_validate.setVisibility(View.GONE);
                                 }
-                                map.put("id", finalJsonObject.getInt("id"));
+                                map.put("id", finalJsonObject.get("id"));
                                 map.put("name", tv_validateName);
                                 map.put("value", et_validate);
                                 map.put("combination", finalJsonObject.getInt("combination"));
+                                map.put("qrCode",qr_code);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -744,6 +751,7 @@ public class FoodListActivity extends AppCompatActivity {
                             TextView tv_validateName2 = (TextView) validateItem2.findViewById(R.id.tv_validateName);
                             EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
                             TextView et_validateText2 = validateItem2.findViewById(R.id.et_validate_text);
+                            EditText qr_code2=validateItem2.findViewById(R.id.qr_code);
 
                             Map<String, Object> map2 = new HashMap<String, Object>();
                             tv_validateName2.setText("数量");
@@ -778,6 +786,7 @@ public class FoodListActivity extends AppCompatActivity {
 
                             map2.put("name", tv_validateName2);
                             map2.put("value", et_validate2);
+                            map2.put("qrCode",qr_code2);
 
                             list.add(map2);
 
@@ -786,18 +795,25 @@ public class FoodListActivity extends AppCompatActivity {
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
+                                            System.out.println("map2======");
+                                            MyTestUtil.print(list);
                                             JSONArray jsonArray = new JSONArray();
                                             int amount = 0;
-                                            int id = (int) list.get(0).get("id");
+                                            Serializable id = (Serializable) list.get(0).get("id");
                                             String name = ((TextView) list.get(0).get("name")).getText().toString();
                                             String cost = ((EditText) list.get(0).get("value")).getText().toString();
                                             int combination = (int) list.get(0).get("combination");
+                                            String qrCode=((EditText) list.get(1).get("qrCode")).getText().toString();
+                                            System.out.println("qrCode======"+qrCode);
                                             JSONObject jsonObject = new JSONObject();
                                             try {
                                                 jsonObject.put("id", id);
                                                 jsonObject.put("name", name);
                                                 jsonObject.put("cost", cost);
                                                 jsonObject.put("combination", combination);
+                                                if(qrCode!=null&&!qrCode.equals("")){
+                                                    jsonObject.put("code",qrCode);
+                                                }
                                                 jsonArray.put(jsonObject);
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
@@ -956,7 +972,7 @@ public class FoodListActivity extends AppCompatActivity {
         }else if(requestCode==1001 && resultCode== Activity.RESULT_OK)
         {
             String result=data.getStringExtra(CaptureActivity.KEY_DATA);
-            Button qr_code2=validateItem2.findViewById(R.id.qr_code);
+            EditText qr_code2=validateItem2.findViewById(R.id.qr_code);
             qr_code2.setText(result);
             EditText et_validate2 = (EditText) validateItem2.findViewById(R.id.et_validate);
             et_validate2.setText("1");
@@ -1060,6 +1076,10 @@ public class FoodListActivity extends AppCompatActivity {
             int order=i+1+(page-1)*10;
 
             JSONObject jsonObject1 = (JSONObject) records.get(i);
+
+            Serializable id= (Serializable) jsonObject1.get("id");
+
+            jsonObject1.put("id",id);
 
             JSONObject jsonObject2=process(order,jsonObject1);
 
@@ -1219,7 +1239,7 @@ public class FoodListActivity extends AppCompatActivity {
             for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                 JSONObject json = sMap.getValue();
                 try {
-                    jsonArray.put(json.getInt("id"));
+                    jsonArray.put(json.get("id"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1285,7 +1305,7 @@ public class FoodListActivity extends AppCompatActivity {
             for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                 JSONObject json = sMap.getValue();
                 try {
-                    jsonArray.put(json.getInt("id"));
+                    jsonArray.put(json.get("id"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1347,10 +1367,12 @@ public class FoodListActivity extends AppCompatActivity {
 
 
             JSONObject jsonObject=params[0];
-            int id=0;
+            Serializable id=0;
+
+            MyTestUtil.print(jsonObject);
 
             try {
-                id=jsonObject.getInt("id");
+                id= (Serializable) jsonObject.get("id");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -1525,10 +1547,10 @@ public class FoodListActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            Serializable id= (Serializable) jsonObject1.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
         jsonObject2.put("0",order);

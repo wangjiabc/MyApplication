@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -528,7 +529,7 @@ public class StorageLogListActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            Serializable id= (Serializable) jsonObject1.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
 
@@ -573,6 +574,12 @@ public class StorageLogListActivity extends AppCompatActivity {
                      e.printStackTrace();
             }
 
+        String code=jsonObject1.getString("code");
+        if(code!=null&&!code.equals("")){
+            jsonObject2.put("5",code);
+            jsonObject2.put("code",code);
+        }
+
 
         if(img!=null&&!img.equals("null")&&!img.equals("")) {
             img = "http://qiniu.lzxlzc.com/compress/" + img;
@@ -593,15 +600,15 @@ public class StorageLogListActivity extends AppCompatActivity {
 
             JSONArray jsonArray=params[0];
 
-            int[] m=new int[jsonArray.length()];
+            Serializable[] m=new Serializable[jsonArray.length()];
 
-            int id=0;
+            Serializable id=0;
 
             for(int i=0;i< jsonArray.length();i++){
 
                 try {
                     JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                    id=jsonObject.getInt("id");
+                    id= (Serializable) jsonObject.get("id");
                     m[i]=id;
                 } catch (JSONException e) {
                     e.printStackTrace();

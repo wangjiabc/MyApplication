@@ -521,7 +521,7 @@ public class LoopImageActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            long id=jsonObject1.getInt("id");
             jsonObject2.put("id",id);
             String img=jsonObject1.getString("img");
             jsonObject2.put("img","http://qiniu.lzxlzc.com/"+img);

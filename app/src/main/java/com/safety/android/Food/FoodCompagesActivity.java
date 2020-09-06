@@ -49,6 +49,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -81,7 +82,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
     private EditText editText1;
 
-    private int id=-1;
+    private long id=-1;
 
     private int position=0;
 
@@ -124,8 +125,12 @@ public class FoodCompagesActivity extends AppCompatActivity {
             try {
 
                 JSONObject jsonObject = new JSONObject(jsonString);
-
-                id=jsonObject.getInt("id");
+                try {
+                    id= (long) jsonObject.get("id");
+                }catch (Exception e){
+                    Serializable  s= (Serializable) jsonObject.get("id");
+                    id=Long.valueOf(s.toString());
+                }
                 if(id!=-1) {
                     isEdit=true;
                     position = jsonObject.getInt("position");
@@ -150,7 +155,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
                         JSONObject jsonObject2=new JSONObject();
                         jsonObject2.put("order",order);
                         jsonObject2.put("NAME",jsonObject1.get("name"));
-                        jsonObject2.put("id",jsonObject1.getInt("id"));
+                        jsonObject2.put("id",jsonObject1.get("id"));
                         jsonObject2.put("AMOUNT","1");
                         itemMap.put(order,jsonObject2);
 
@@ -168,6 +173,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
 
         initRefreshLayout();
         initStickyLayout();
+        System.out.println("id==================="+id);
         if(id!=-1)
             initData();
 
@@ -352,7 +358,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
                         tv_validateName.setText(finalJsonObject.getString("NAME"));
                         et_validate.setText(finalJsonObject.getString("AMOUNT"));
 
-                        map.put("id",finalJsonObject.getInt("ID"));
+                        map.put("id",finalJsonObject.get("ID"));
                         map.put("name", tv_validateName);
                         map.put("value", et_validate);
                     } catch (JSONException e) {
@@ -374,7 +380,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
                                     for(int i=0;i<list.size();i++){
                                         System.out.println("list i====================");
                                         MyTestUtil.print(list.get(i));
-                                        int id= (int) list.get(i).get("id");
+                                        long id= (long) list.get(i).get("id");
                                         String name = ((TextView)list.get(i).get("name")).getText().toString();
                                         String value = ((EditText)list.get(i).get("value")).getText().toString();
                                         int amount=Integer.parseInt(value);
@@ -459,16 +465,16 @@ public class FoodCompagesActivity extends AppCompatActivity {
                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                     TextView et_validateText=validateItem.findViewById(R.id.et_validate_text);
 
-                    int id=0;
+                    long id=0;
 
                     try {
-                        id = finalJsonObject.getInt("ID");
+                        id = (long) finalJsonObject.get("ID");
                     }catch (Exception e){
                         e.printStackTrace();
                     }
 
                     try {
-                        id = finalJsonObject.getInt("id");
+                        id = (long) finalJsonObject.get("id");
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -791,7 +797,7 @@ public class FoodCompagesActivity extends AppCompatActivity {
             JSONObject jsonObject1 = (JSONObject) records.get(i);
 
             try {
-                int id = jsonObject1.getInt("MATERIAL_ID");
+                Serializable id = (Serializable) jsonObject1.get("MATERIAL_ID");
                 jsonObject1.put("ID", id);
             }catch (Exception e){
                 continue;
@@ -875,10 +881,10 @@ public class FoodCompagesActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            Serializable id= (Serializable) jsonObject1.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
-            int id=jsonObject1.getInt("ID");
+            Serializable id= (Serializable) jsonObject1.get("ID");
             jsonObject2.put("id",id);
                 e.printStackTrace();
         }

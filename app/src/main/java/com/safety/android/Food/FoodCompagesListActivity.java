@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -140,7 +141,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
                 for(Map.Entry<Integer,org.json.JSONObject> map:selectMap.entrySet()) {
                     JSONObject jsonObject = map.getValue();
                     try {
-                        int id=jsonObject.getInt("id");
+                        Serializable id= (Serializable) jsonObject.get("id");
                         jsonObject.put("ID",id);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -419,7 +420,7 @@ public class FoodCompagesListActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            Serializable id= (Serializable) jsonObject1.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
 

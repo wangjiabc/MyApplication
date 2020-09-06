@@ -40,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -303,7 +304,7 @@ public class StorageListActivity extends AppCompatActivity {
                         et_validate.setText(jsonObject.getString("storage"));
                         et_validate2.setText(jsonObject.getString("realStorage"));
 
-                        map.put("id",jsonObject.getInt("id"));
+                        map.put("id",jsonObject.get("id"));
                         map.put("name", tv_validateName);
                         map.put("value", et_validate);
                         map.put("value2", et_validate2);
@@ -329,8 +330,8 @@ public class StorageListActivity extends AppCompatActivity {
                                 JSONArray jsonArray=new JSONArray();
                                 int amount=0;
                                 for(int i=0;i<list.size();i++){
-                                    int id= (int) list.get(i).get("id");
-                                    if(id!=-1) {
+                                    Serializable id= (Serializable) list.get(i).get("id");
+                                    if(Long.valueOf(id.toString())!=-1) {
                                         String name = ((TextView) list.get(i).get("name")).getText().toString();
                                         String storage = ((EditText) list.get(i).get("value")).getText().toString();
                                         String realStorage = ((EditText) list.get(i).get("value2")).getText().toString();
@@ -392,7 +393,7 @@ public class StorageListActivity extends AppCompatActivity {
                         et_validate.setText(jsonObject.getString("storage"));
                         et_validate2.setText(jsonObject.getString("realStorage"));
 
-                        map.put("id",jsonObject.getInt("id"));
+                        map.put("id",jsonObject.get("id"));
                         map.put("name", tv_validateName);
                         map.put("value", et_validate);
                         map.put("value2", et_validate2);
@@ -421,8 +422,8 @@ public class StorageListActivity extends AppCompatActivity {
                                 Map map=new HashMap();
 
                                 for(int i=0;i<list.size();i++){
-                                    int id= (int) list.get(i).get("id");
-                                    if(id!=-1) {
+                                    Serializable id= (Serializable) list.get(i).get("id");
+                                    if(Long.valueOf(id.toString())!=-1) {
                                         String name = ((TextView) list.get(i).get("name")).getText().toString();
                                         String storage = ((EditText) list.get(i).get("value")).getText().toString();
                                         String realStorage = ((EditText) list.get(i).get("value2")).getText().toString();
@@ -637,7 +638,7 @@ public class StorageListActivity extends AppCompatActivity {
                                 et_validate.setFocusableInTouchMode(false);
                                 et_validate2.setText(jsonObject.getString("real_storage"));
 
-                                map.put("id",jsonObject.getInt("id"));
+                                map.put("id",jsonObject.get("id"));
                                 map.put("name", tv_validateName);
                                 map.put("value", et_validate);
                                 map.put("value2", et_validate2);
@@ -660,7 +661,13 @@ public class StorageListActivity extends AppCompatActivity {
                                         JSONArray jsonArray=new JSONArray();
                                         int amount=0;
                                         for(int i=0;i<list.size();i++){
-                                            int id= (int) list.get(i).get("id");
+                                            long id=0;
+                                            try {
+                                                id= (long) list.get(i).get("id");
+                                            }catch (Exception e){
+                                                Serializable s= (Serializable) list.get(i).get("id");
+                                                id=Long.valueOf(s.toString());
+                                            }
                                             if(id!=-1) {
                                                 String name = ((TextView) list.get(i).get("name")).getText().toString();
                                                 String storage = ((EditText) list.get(i).get("value")).getText().toString();
@@ -688,6 +695,8 @@ public class StorageListActivity extends AppCompatActivity {
                                                     e.printStackTrace();
                                                 }
                                             }
+                                            System.out.println("id============="+id);
+                                            MyTestUtil.print(jsonArray);
                                             Map map=new HashMap();
                                             map.put("jsonArray",jsonArray);
 
@@ -855,7 +864,7 @@ public class StorageListActivity extends AppCompatActivity {
             JSONObject jsonObject2=new JSONObject();
 
             try {
-                int id=jsonObject1.getInt("id");
+                long id=jsonObject1.getInt("id");
                 jsonObject2.put("id",id);
             }catch (Exception e){
 
@@ -1028,10 +1037,10 @@ public class StorageListActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            Serializable id= (Serializable) jsonObject1.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
         jsonObject2.put("0",order);
@@ -1132,6 +1141,8 @@ public class StorageListActivity extends AppCompatActivity {
 
             jsonArray= (JSONArray) map.get("jsonArray");
 
+            MyTestUtil.print(map);
+
             String items= Uri.encode(jsonArray.toString());
 
             return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/storageLog/storageLog/upReal?items="+items);
@@ -1164,7 +1175,13 @@ public class StorageListActivity extends AppCompatActivity {
 
                                 JSONObject jsonObject1= (JSONObject) jsonArray.get(i);
 
-                                int id=jsonObject1.getInt("id");
+                                long id=0;
+                                try {
+                                    id=(long) jsonObject1.get("id");
+                                }catch (Exception e){
+                                    String s=jsonObject1.getString("id");
+                                    id=Long.valueOf(s);
+                                }
 
                                 MyTestUtil.print(itemMap);
 
@@ -1172,7 +1189,13 @@ public class StorageListActivity extends AppCompatActivity {
 
                                     JSONObject jsonObject2=itemMap.get(key);
 
-                                    int id2=jsonObject2.getInt("id");
+                                    long id2=0;
+                                    try {
+                                        id2=(long) jsonObject2.get("id");
+                                    }catch (Exception e){
+                                        String s=jsonObject2.getString("id");
+                                        id2=Long.valueOf(s);
+                                    }
 
                                     int order=key;
 
@@ -1256,7 +1279,7 @@ public class StorageListActivity extends AppCompatActivity {
 
                             JSONObject jsonObject1= (JSONObject) jsonArray.get(i);
 
-                            int id=jsonObject1.getInt("id");
+                            Serializable id= (Serializable) jsonObject1.get("id");
 
                             MyTestUtil.print(itemMap);
 
@@ -1264,7 +1287,7 @@ public class StorageListActivity extends AppCompatActivity {
 
                                 JSONObject jsonObject2=itemMap.get(key);
 
-                                int id2=jsonObject2.getInt("id");
+                                Serializable id2= (Serializable) jsonObject2.get("id");
 
                                 int order=key;
 

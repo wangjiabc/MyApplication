@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,6 +43,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -544,8 +546,15 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                         final JSONObject finaljsonObject=jsonObject;
 
-                        Integer id=jsonObject.getInt("id");
+                        Serializable id=null;
 
+                        try {
+                            id = (Serializable) jsonObject.get("id");
+                        }catch (Exception e){
+
+                        }
+
+                        if(id!=null){
                         if(jsonObject.getInt("income")==1) {
                             Intent intent = new Intent(getApplicationContext(), AccountheadActivity.class);
                             intent.putExtra("jsonString", id);
@@ -611,6 +620,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                     TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
                                     et_validate.setVisibility(View.GONE);
 
+                                    ImageView ivLogo = validateItem.findViewById(R.id.ivLogo);
+                                    ivLogo.setVisibility(View.GONE);
+
                                     tv_validateName.setText(map.getKey());
                                     et_validateText.setText(map.getValue().toString());
 
@@ -672,6 +684,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                     }).create();
 
                             dialog.show();
+                        }
 
                         }
 
@@ -692,9 +705,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                 final JSONObject finaljsonObject=jsonObject;
 
-                Integer id= null;
+                Serializable id= null;
                 try {
-                    id = jsonObject.getInt("id");
+                    id = (Serializable) jsonObject.get("id");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -899,7 +912,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
             for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                 JSONObject json = sMap.getValue();
                 try {
-                    jsonArray.put(json.getInt("id"));
+                    jsonArray.put(json.get("id"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -936,7 +949,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                             JSONObject jsonObject1=selectMap.get(k);
                             try {
 
-                                int id=jsonObject1.getInt("id");
+                                Serializable id= (Serializable) jsonObject1.get("id");
 
                                 if(positionId.get(id)!=null){
                                     int position= (int) positionId.get(id);
@@ -1072,10 +1085,10 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject.getInt("id");
+            Serializable id= (Serializable) jsonObject.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
         String name ="";
@@ -1105,7 +1118,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         jsonObject2.put("createTime",createTime);
         Integer income=0;
         try {
-            income=jsonObject.getInt("income");
+            income= (Integer) jsonObject.get("income");
         }catch (Exception e){
             e.printStackTrace();
         }

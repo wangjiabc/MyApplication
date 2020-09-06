@@ -73,7 +73,7 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:src="@drawable/qr"/>
-                    <Button
+                    <EditText
                         android:id="@+id/qr_code"
                         android:paddingLeft="@dimen/common_content_spacing"
                         android:layout_width="wrap_content"

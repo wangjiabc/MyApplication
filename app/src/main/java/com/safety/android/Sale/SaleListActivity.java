@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -491,7 +492,14 @@ public class SaleListActivity extends AppCompatActivity {
 
                     JSONObject jsonObject1 = selectMap.get(key);
                     int order = jsonObject1.getInt("0");
-                    int id = jsonObject1.getInt("id");
+                    long id=0;
+                    try {
+                        id= (long) jsonObject1.get("id");
+                    }catch (Exception e){
+                        Integer s= (Integer) jsonObject1.get("id");
+                        String ss=s.toString();
+                        id=Long.valueOf(ss);
+                    }
                     JSONObject jsonObject2 = itemMap.get(order);
                     System.out.println("order=============="+order);
                     System.out.println("id=============="+id);
@@ -500,7 +508,13 @@ public class SaleListActivity extends AppCompatActivity {
                     int addStorage=0;
                     for(int i=0;i<jsonArray.length();i++){
                         JSONObject jsonObject=jsonArray.getJSONObject(i);
-                        int rid=jsonObject.getInt("id");
+                        long rid= 0;
+                        try {
+                            rid= (long) jsonObject.get("id");
+                        }catch (Exception e){
+                            Serializable s= (Serializable) jsonObject.get("id");
+                            rid=Long.valueOf(s.toString());
+                        }
                         System.out.println("rid========================"+rid);
                         if(rid==id){
                             addStorage=jsonObject.getInt("number");
@@ -720,10 +734,10 @@ public class SaleListActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            Serializable id= (Serializable) jsonObject1.get("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
         jsonObject2.put("0",order);

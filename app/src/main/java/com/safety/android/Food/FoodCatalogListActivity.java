@@ -419,7 +419,7 @@ public class FoodCatalogListActivity extends AppCompatActivity {
         JSONObject jsonObject2=new JSONObject();
 
         try {
-            int id=jsonObject1.getInt("id");
+            long id=jsonObject1.getInt("id");
             jsonObject2.put("id",id);
         }catch (Exception e){
 
@@ -481,7 +481,7 @@ public class FoodCatalogListActivity extends AppCompatActivity {
             for(Map.Entry<Integer,org.json.JSONObject> sMap:selectMap.entrySet()) {
                 JSONObject json = sMap.getValue();
                 try {
-                    jsonArray.put(json.getInt("id"));
+                    jsonArray.put(json.get("id"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
