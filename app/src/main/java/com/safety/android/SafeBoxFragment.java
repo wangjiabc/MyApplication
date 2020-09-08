@@ -18,12 +18,11 @@ import com.safety.android.AccountheadList.AccountheadListActivity;
 import com.safety.android.Camera.QR;
 import com.safety.android.Food.FoodClassifyActivity;
 import com.safety.android.Inoutitem.InoutitemActivity;
+import com.safety.android.Management.ManageMainActivity;
 import com.safety.android.ReportDetail.ReportDetailActivity;
 import com.safety.android.SQLite3.PermissionInfo;
 import com.safety.android.SQLite3.PermissionLab;
 import com.safety.android.SQLite3.SafeInfo;
-import com.safety.android.SQLite3.SafeLab;
-import com.safety.android.SafeList.SafePagerActivity;
 import com.safety.android.Sale.SaleClassifyActivity;
 import com.safety.android.Storage.StorageClassActivity;
 import com.safety.android.Storage.StorageLogListActivity;
@@ -294,9 +293,7 @@ public class SafeBoxFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                      //   startActivityForResult(captureImage, REQUEST_PHOTO);
-                        SafeInfo mSafeInfo=new SafeInfo();
-                        SafeLab.get(getActivity()).addSafeInfo(mSafeInfo);
-                        Intent intent=SafePagerActivity.newIntent(getActivity(),mSafeInfo.getmId());
+                        Intent intent=new Intent(getActivity(), ManageMainActivity.class);
                         startActivity(intent);
                     }
                 };
