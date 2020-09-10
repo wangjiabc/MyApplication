@@ -3,20 +3,26 @@ package com.safety.android.mqtt.connect;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 
+import com.safety.android.AssistService;
 import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
 import com.safety.android.mqtt.callback.ConnectCallBackHandler;
 import com.safety.android.mqtt.callback.MqttCallbackHandler;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.android.service.MqttService;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -38,6 +44,52 @@ public class MqttClientService extends Service {
     private final static String userName = "admin";
     private final static String passWord = "admin";
     private  MyHandler handler;
+
+    private final static int NOTIFICATION_ID = android.os.Process.myPid();
+    private AssistServiceConnection mServiceConnection;
+
+    public MqttClientService(){
+
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int type = intent.getIntExtra("type",1);
+        if(type == 1){
+            createNotificationChannel();
+        }else{
+            createErrorNotification();
+        }
+        // 测试线程，判断Service是否在工作
+        new Thread(mRunnable).start();
+        // 设置为前台进程，降低oom_adj，提高进程优先级，提高存活机率
+        setForeground();
+
+        return START_STICKY;
+
+    }
+
+    // 要注意的是android4.3之后Service.startForeground() 会强制弹出通知栏，解决办法是再
+    // 启动一个service和推送共用一个通知栏，然后stop这个service使得通知栏消失。
+    private void setForeground() {
+        if (Build.VERSION.SDK_INT < 18)
+        {
+            startForeground(NOTIFICATION_ID, getNotification());
+            return;
+        }
+
+        if (mServiceConnection == null)
+        {
+            mServiceConnection = new AssistServiceConnection();
+        }
+        // 绑定另外一条Service，目的是再启动一个通知，然后马上关闭。以达到通知栏没有相关通知
+        // 的效果
+        bindService(new Intent(this, AssistService.class), mServiceConnection,
+                Service.BIND_AUTO_CREATE);
+    }
+
     /**
      * 获取MqttAndroidClient实例
      * @return
@@ -107,31 +159,6 @@ public class MqttClientService extends Service {
             return  Client;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public int onStartCommand(Intent intent, int flags, final int startId) {
-        int type = intent.getIntExtra("type",1);
-        System.out.println("start message service");
-        client=startConnect(MainActivity.getContext(),ClientID,ServerIP,PORT);
-        if(type == 1){
-            createNotificationChannel();
-        }else{
-            createErrorNotification();
-        }
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }.start();
-        return super.onStartCommand(intent, flags, startId);
-    }
 
     private class MyHandler extends Handler {
         @Override
@@ -164,5 +191,64 @@ public class MqttClientService extends Service {
     private void createNotificationChannel() {
 
     }
+
+
+    private class AssistServiceConnection implements ServiceConnection
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Service assistService = ((AssistService.LocalBinder)service)
+                    .getService();
+            MqttClientService.this.startForeground(NOTIFICATION_ID, getNotification());
+            assistService.startForeground(NOTIFICATION_ID, getNotification());
+            assistService.stopForeground(true);
+
+            MqttClientService.this.unbindService(mServiceConnection);
+            mServiceConnection = null;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    }
+
+    private Notification getNotification()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "")
+                .setContentTitle("服务运行于前台")
+                .setContentText("service被设为前台进程")
+                .setTicker("service正在后台运行...")
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setWhen(System.currentTimeMillis())
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setContentIntent(pendingIntent);
+        Notification notification = builder.build();
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
+        return notification;
+    }
+
+
+    Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            System.out.println("start message service");
+            client=startConnect(MainActivity.getContext(),ClientID,ServerIP,PORT);
+
+            while (true)
+            {
+                Log.e("thrad ", "" + System.currentTimeMillis());
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
 }

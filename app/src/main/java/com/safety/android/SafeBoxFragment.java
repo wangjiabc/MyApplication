@@ -137,18 +137,18 @@ public class SafeBoxFragment extends Fragment {
             }
         }
 
-        if(LunchActivity.username.equals("lubo")||LunchActivity.username.equals("admin")) {
+      //  if(LunchActivity.username.equals("lubo")||LunchActivity.username.equals("admin")) {
             SafeInfo mSafeInfo = new SafeInfo();
             mSafeInfo.setmName("管理后台");
             mSafeInfo.setId(7);
             mSafeInfos.add(mSafeInfo);
-        }
-
+      // }
+/*
         SafeInfo mSafeInfo = new SafeInfo();
         mSafeInfo.setmName("QR");
         mSafeInfo.setId(8);
         mSafeInfos.add(mSafeInfo);
-
+*/
         /*
         for (int i=0;i<9;i++){
             String name="name"+(i+1);
