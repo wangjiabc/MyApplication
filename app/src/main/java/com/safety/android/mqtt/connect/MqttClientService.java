@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,17 +19,31 @@ import android.util.Log;
 import com.safety.android.AssistService;
 import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
+import com.safety.android.http.AsynHttp;
 import com.safety.android.mqtt.callback.ConnectCallBackHandler;
 import com.safety.android.mqtt.callback.MqttCallbackHandler;
+import com.safety.android.mqtt.callback.PublishCallBackHandler;
+import com.safety.android.tools.RSAUtils;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.android.service.MqttService;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+
+import java.io.IOException;
+import java.util.Date;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static com.safety.android.mqtt.callback.MqttCallbackHandler.UnicodeToCN;
 
 /**
  * Created by WangJing on 2017/10/11.
@@ -37,7 +52,7 @@ import androidx.core.app.NotificationCompat;
 public class MqttClientService extends Service {
 
     private Context context;
-    private final static String ClientID= LunchActivity.username;
+    public final static String ClientID= LunchActivity.username+"_"+ (int)(Math.random() * 100);
     private final static String ServerIP="223.86.150.188";
     private final static String PORT="61616";
     private static MqttAndroidClient client;
@@ -47,6 +62,8 @@ public class MqttClientService extends Service {
 
     private final static int NOTIFICATION_ID = android.os.Process.myPid();
     private AssistServiceConnection mServiceConnection;
+
+    private Date date=new Date();
 
     public MqttClientService(){
 
@@ -233,15 +250,26 @@ public class MqttClientService extends Service {
 
 
     Runnable mRunnable = new Runnable() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void run() {
 
             System.out.println("start message service");
-            client=startConnect(MainActivity.getContext(),ClientID,ServerIP,PORT);
+            client = startConnect(MainActivity.getContext(), ClientID, ServerIP, PORT);
 
             while (true)
             {
                 Log.e("thrad ", "" + System.currentTimeMillis());
+                Date date1=new Date();
+
+                long diff=(date1.getTime()-date.getTime())/(1000*60);
+
+                if(diff>10) {
+                    System.out.println("diff>10");
+                    new FetchItemsTask().execute(0);
+                    date=date1;
+                }
+
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -250,5 +278,74 @@ public class MqttClientService extends Service {
             }
         }
     };
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private class FetchItemsTask extends AsyncTask<Integer,Void,String> {
+
+        @Override
+        protected String doInBackground(Integer... prams) {
+
+            Integer type=prams[0];
+
+            Response response = null;
+
+            Request request = new Request.Builder()
+                    .get()
+                    .tag(this)
+                    .url("http://api.map.baidu.com/location/ip?ak=pQFgFpS0VnMXwCRN6cTc1jDOcBVi3XoD&coor=bd09ll")
+                    .build();
+
+            String result = "";
+
+            try {
+                OkHttpClient client=new AsynHttp().getOkHttpClient(context,"http://api.map.baidu.com");
+
+                response = client.newCall(request).execute();
+
+                String s=response.body().string();
+                s= UnicodeToCN(s);
+                //System.out.println("s="+s);
+                result=s;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                String ClientID=MqttClientService.ClientID;
+                JSONObject jsonObject=new JSONObject(result);
+                jsonObject.put("clientid",ClientID);
+                if(type!=null) {
+                    jsonObject.put("type",type);
+                }
+                result=jsonObject.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            Log.d("s=",s);
+
+            try {
+                s = RSAUtils.encrypt(s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                /**发布一个主题:如果主题名一样不会新建一个主题，会复用*/
+                client.publish("position.topic",s.getBytes("UTF-8"),2,false,null,new PublishCallBackHandler(MainActivity.getContext()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
 
 }

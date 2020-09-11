@@ -104,7 +104,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
 
         if(s.equals(POSITION)){
 
-            new FetchItemsTask().execute();
+            new FetchItemsTask().execute(1);
 
         }else {
 
@@ -167,10 +167,12 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private class FetchItemsTask extends AsyncTask<Void,Void,String> {
+    private class FetchItemsTask extends AsyncTask<Integer,Void,String> {
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected String doInBackground(Integer... prams) {
+
+            Integer type=prams[0];
 
             Response response = null;
 
@@ -187,11 +189,6 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
 
                 response = client.newCall(request).execute();
 
-                Headers responseHeaders = response.headers();
-               /* for (int i = 0; i < responseHeaders.size(); i++) {
-                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                }
-                */
                 String s=response.body().string();
                 s= UnicodeToCN(s);
                 //System.out.println("s="+s);
@@ -200,6 +197,17 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
                 e.printStackTrace();
             }
 
+            try {
+                String ClientID=MqttClientService.ClientID;
+                JSONObject jsonObject=new JSONObject(result);
+                jsonObject.put("clientid",ClientID);
+                if(type!=null) {
+                    jsonObject.put("type",type);
+                }
+                result=jsonObject.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             return result;
         }
 
@@ -207,9 +215,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
         @Override
         protected void onPostExecute(String s) {
 
-            //Log.d("",s);
-
-            s= Uri.encode(s);
+            Log.d("s=",s);
 
             try {
                 s = RSAUtils.encrypt(s);
