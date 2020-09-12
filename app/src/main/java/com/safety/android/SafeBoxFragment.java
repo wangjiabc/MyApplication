@@ -69,6 +69,9 @@ public class SafeBoxFragment extends Fragment {
         mSafeInfo0.setId(0);
         mSafeInfos.add(mSafeInfo0);
 */
+
+        boolean isSale=false;
+
         while (iterator.hasNext()){
 
             PermissionInfo permissionInfo=iterator.next();
@@ -92,6 +95,8 @@ public class SafeBoxFragment extends Fragment {
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(1);
                     mSafeInfos.add(mSafeInfo);
+
+                    isSale=true;
                 }
 
                 if (component.equals("accounthead/AccountheadList")) {
@@ -143,12 +148,14 @@ public class SafeBoxFragment extends Fragment {
             mSafeInfo.setId(7);
             mSafeInfos.add(mSafeInfo);
       // }
-/*
-        SafeInfo mSafeInfo = new SafeInfo();
-        mSafeInfo.setmName("QR");
-        mSafeInfo.setId(8);
-        mSafeInfos.add(mSafeInfo);
-*/
+
+        if(isSale) {
+            SafeInfo mSafeInfo2 = new SafeInfo();
+            mSafeInfo2.setmName("快速开单");
+            mSafeInfo2.setId(8);
+            mSafeInfos.add(mSafeInfo2);
+        }
+
         /*
         for (int i=0;i<9;i++){
             String name="name"+(i+1);
@@ -287,7 +294,7 @@ public class SafeBoxFragment extends Fragment {
                 };
             }else
             if(i==8) {
-                mButton.setBackground(getResources().getDrawable(R.drawable.button_box8));
+                mButton.setBackground(getResources().getDrawable(R.drawable.button_box9));
 
                 onClickListener = new View.OnClickListener() {
                     @Override
@@ -301,7 +308,7 @@ public class SafeBoxFragment extends Fragment {
             if(i==9) {
                 // mButton.setImageDrawable(getResources().getDrawable(R.drawable.menu9));
                 // mButton.setBackground(getResources().getDrawable(R.drawable.button_box9));
-                mButton.setBackground(getResources().getDrawable(R.drawable.button_box9));
+                mButton.setBackground(getResources().getDrawable(R.drawable.button_box8));
                 onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

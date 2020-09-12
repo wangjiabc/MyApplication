@@ -4,21 +4,14 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Message;
 import android.util.Log;
 
 import com.example.myapplication.R;
 import com.safety.android.MainActivity;
 import com.safety.android.http.AsynHttp;
-import com.safety.android.http.OKHttpFetch;
-import com.safety.android.http.OKHttpFetch2;
-import com.safety.android.http.login;
-import com.safety.android.mqtt.connect.MqttClientService;
-import com.safety.android.tools.Base64Utils;
+import com.safety.android.mqtt.connect.MqttConnect;
 import com.safety.android.tools.RSAUtils;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -31,23 +24,11 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import androidx.annotation.RequiresApi;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Headers;
+import androidx.annotation.RequiresApi;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -159,7 +140,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
                  //   Log.e(TAG, "onFailure ---> " + exception);
                 }
             });
-            client= new MqttClientService().getMqttAndroidClientInstace(MainActivity.getContext());
+            client= new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
         } catch (MqttException e) {
            // Log.e(TAG, "subscribeToTopic is error");
             e.printStackTrace();
@@ -198,7 +179,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
             }
 
             try {
-                String ClientID=MqttClientService.ClientID;
+                String ClientID=MqttConnect.ClientID;
                 JSONObject jsonObject=new JSONObject(result);
                 jsonObject.put("clientid",ClientID);
                 if(type!=null) {

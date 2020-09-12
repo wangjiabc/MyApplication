@@ -1,5 +1,6 @@
 package com.safety.android.mqtt.connect;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,34 +12,27 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.safety.android.AssistService;
 import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
 import com.safety.android.http.AsynHttp;
-import com.safety.android.mqtt.callback.ConnectCallBackHandler;
-import com.safety.android.mqtt.callback.MqttCallbackHandler;
 import com.safety.android.mqtt.callback.PublishCallBackHandler;
 import com.safety.android.tools.RSAUtils;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.android.service.MqttService;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
 
 import java.io.IOException;
 import java.util.Date;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -58,12 +52,13 @@ public class MqttClientService extends Service {
     private static MqttAndroidClient client;
     private final static String userName = "admin";
     private final static String passWord = "admin";
-    private  MyHandler handler;
 
     private final static int NOTIFICATION_ID = android.os.Process.myPid();
     private AssistServiceConnection mServiceConnection;
 
     private Date date=new Date();
+
+    PowerManager.WakeLock wakeLock;
 
     public MqttClientService(){
 
@@ -107,23 +102,15 @@ public class MqttClientService extends Service {
                 Service.BIND_AUTO_CREATE);
     }
 
-    /**
-     * 获取MqttAndroidClient实例
-     * @return
-     */
-    public  MqttAndroidClient getMqttAndroidClientInstace(Context context){
-        this.context=context;
-        if(client!=null) {
-            return client;
-        }else {
-            client=startConnect(context,ClientID,ServerIP,PORT);
-            return client;
-        }
-    }
 
     public void onCreate() {
         super.onCreate();
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+
+        //拿到电源锁
+        acquireWakeLock();
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MqttClientService.class), 0);
+
+       if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             //数字是随便写的“40”，
             nm.createNotificationChannel(new NotificationChannel("40", "App Service", NotificationManager.IMPORTANCE_DEFAULT));
@@ -136,52 +123,22 @@ public class MqttClientService extends Service {
 
     }
 
-
-    private  MqttAndroidClient startConnect(Context context, String clientID, String serverIP, String port) {
-        MqttAndroidClient Client;
-        //服务器地址
-        String  uri ="tcp://";
-        uri=uri+serverIP+":"+port;
-
-        /**
-         * 连接的选项
-         */
-        MqttConnectOptions conOpt = new MqttConnectOptions();
-        /**设计连接超时时间*/
-        conOpt.setConnectionTimeout(3000);
-        /**设计心跳间隔时间300秒*/
-        conOpt.setKeepAliveInterval(300);
-        /**自动重连*/
-        conOpt.setAutomaticReconnect(true);
-        // 用户名
-        conOpt.setUserName(userName);
-        // 密码
-        conOpt.setPassword(passWord.toCharArray());
-        /**
-         * 创建连接对象
-         */
-        Client = new MqttAndroidClient(context,uri, clientID);
-        /**
-         * 连接后设计一个回调
-         */
-        Client.setCallback(new MqttCallbackHandler(Client,context, clientID));
-        /**
-         * 开始连接服务器，参数：ConnectionOptions,  IMqttActionListener
-         */
-        try {
-            Client.connect(conOpt, null, new ConnectCallBackHandler(context));
-        } catch (MqttException e) {
-            e.printStackTrace();
+    @SuppressLint("InvalidWakeLockTag")
+    private void acquireWakeLock() {
+        if (null == wakeLock) {
+            PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "PostLocationService");
+            if (null != wakeLock) {
+                wakeLock.acquire();
+            }
         }
-            return  Client;
     }
 
-
-    private class MyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            stopSelf(msg.what);
+    //释放设备电源锁
+    private void releaseWakeLock() {
+        if (null != wakeLock) {
+            wakeLock.release();
+            wakeLock = null;
         }
     }
 
@@ -255,14 +212,16 @@ public class MqttClientService extends Service {
         public void run() {
 
             System.out.println("start message service");
-            client = startConnect(MainActivity.getContext(), ClientID, ServerIP, PORT);
-
+           // client = startConnect(MainActivity.getContext(), ClientID, ServerIP, PORT);
+            client=new MqttConnect().getMqttAndroidClientInstace(getApplicationContext());
             while (true)
             {
-                Log.e("thrad ", "" + System.currentTimeMillis());
                 Date date1=new Date();
+                Log.e("thrad ", "date1=" + date1.getTime()+"  date="+date.getTime());
 
                 long diff=(date1.getTime()-date.getTime())/(1000*60);
+
+                Log.d("diff", String.valueOf(diff));
 
                 if(diff>10) {
                     System.out.println("diff>10");

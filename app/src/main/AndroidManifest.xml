@@ -215,7 +215,7 @@
         </activity>
         <activity
             android:name="com.safety.android.zxinglib.CaptureActivity"
-            android:label="统计"
+            android:label=""
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Camera.QR" >
         </activity>

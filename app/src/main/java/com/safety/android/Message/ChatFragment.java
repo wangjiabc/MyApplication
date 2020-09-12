@@ -13,7 +13,7 @@ import com.example.myapplication.R;
 import com.safety.android.mqtt.adapter.SubcriberAdapter;
 import com.safety.android.mqtt.bean.Message;
 import com.safety.android.mqtt.callback.PublishCallBackHandler;
-import com.safety.android.mqtt.connect.MqttClientService;
+import com.safety.android.mqtt.connect.MqttConnect;
 import com.safety.android.mqtt.event.MessageEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -76,7 +76,7 @@ public class ChatFragment extends Fragment {
 
 
         ButterKnife.bind(getActivity());
-        client= new MqttClientService().getMqttAndroidClientInstace(getContext());
+        client= new MqttConnect().getMqttAndroidClientInstace(getContext());
         initDate();
 
      //   final String Topic=edPubTopic.getText().toString();

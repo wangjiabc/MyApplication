@@ -171,6 +171,13 @@ public class SaleActivity extends AppCompatActivity {
                         map.put("retailprice",et_validatePrice);
                         map.put("count",et_validateCount);
                         map.put("allPrice",tv_valiateAll);
+                        try {
+                            if (jsonObject1.getString("code") != null) {
+                                map.put("code", jsonObject1.getString("code"));
+                            }
+                        }catch (Exception e){
+
+                        }
                         list.add(map);
                     } catch (JSONException e) {
                         e.printStackTrace();
