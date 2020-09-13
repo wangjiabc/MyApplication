@@ -54,6 +54,8 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
 
     private MqttAndroidClient client;
 
+    private static int i=0;
+
     public MqttCallbackHandler(MqttAndroidClient mqttAndroidClient, Context context, String clientId) {
         this.context=context;
         this.clientId=clientId;
@@ -70,19 +72,6 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     public void connectionLost(Throwable throwable) {
         Log.d("MqttCallbackHandler","MqttCallbackHandler/connectionLost");
         MqttConnect.connect();
-
-        client=new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
-
-        String s = MqttConnect.ClientID + " connectionLost " + new Date();
-        try {
-            client.publish("message.connect", s.getBytes("UTF-8"), 2, false, null, new PublishCallBackHandler(MainActivity.getContext()));
-        } catch (MqttException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     /**
@@ -156,9 +145,9 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
             });
             client=new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
 
-            String s = MqttConnect.ClientID + " connect " + new Date();
+            String s = MqttConnect.ClientID + " connect "+i+"  " + new Date();
             client.publish("message.connect", s.getBytes("UTF-8"), 2, false, null, new PublishCallBackHandler(MainActivity.getContext()));
-
+            i++;
         } catch (MqttException | UnsupportedEncodingException e) {
            // Log.e(TAG, "subscribeToTopic is error");
             e.printStackTrace();
