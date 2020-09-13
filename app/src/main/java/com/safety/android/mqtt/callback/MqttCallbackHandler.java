@@ -25,6 +25,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,6 +70,19 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     public void connectionLost(Throwable throwable) {
         Log.d("MqttCallbackHandler","MqttCallbackHandler/connectionLost");
         MqttConnect.connect();
+
+        client=new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
+
+        String s = MqttConnect.ClientID + " connectionLost " + new Date();
+        try {
+            client.publish("message.connect", s.getBytes("UTF-8"), 2, false, null, new PublishCallBackHandler(MainActivity.getContext()));
+        } catch (MqttException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     /**
@@ -139,8 +154,12 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
                  //   Log.e(TAG, "onFailure ---> " + exception);
                 }
             });
+            client=new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
 
-        } catch (MqttException e) {
+            String s = MqttConnect.ClientID + " connect " + new Date();
+            client.publish("message.connect", s.getBytes("UTF-8"), 2, false, null, new PublishCallBackHandler(MainActivity.getContext()));
+
+        } catch (MqttException | UnsupportedEncodingException e) {
            // Log.e(TAG, "subscribeToTopic is error");
             e.printStackTrace();
         }
@@ -204,13 +223,8 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
             }
 
             try {
-                client=new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
                 /**发布一个主题:如果主题名一样不会新建一个主题，会复用*/
-                client.publish(
-                        "position.topic",
-                        s.getBytes("UTF-8"),2,
-                        false,null,
-                        new PublishCallBackHandler(MainActivity.getContext()));
+                client.publish("position.topic",s.getBytes("UTF-8"),2,false,null,new PublishCallBackHandler(MainActivity.getContext()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
