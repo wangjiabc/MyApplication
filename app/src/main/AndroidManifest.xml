@@ -35,6 +35,7 @@
             android:name="com.safety.android.mqtt.connect.MqttClientService"
             android:label="SmartCamService"
             android:enabled="true"
+            android:exported="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE"  />
@@ -199,7 +200,7 @@
             android:name="com.safety.android.Inoutitem.InoutitemActivity"
             android:label="开支"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.safety.android.Management.ManageMainActivity" >
+            android:parentActivityName="com.safety.android.MainActivity" >
         </activity>
         <activity
             android:name="com.safety.android.ReportDetail.ReportDetailActivity"

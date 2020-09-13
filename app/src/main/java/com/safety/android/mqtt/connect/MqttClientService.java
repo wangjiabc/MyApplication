@@ -6,24 +6,24 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.safety.android.AssistService;
 import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
 import com.safety.android.http.AsynHttp;
+import com.safety.android.mqtt.callback.MqttCallbackHandler;
 import com.safety.android.mqtt.callback.PublishCallBackHandler;
 import com.safety.android.tools.RSAUtils;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,7 +54,6 @@ public class MqttClientService extends Service {
     private final static String passWord = "admin";
 
     private final static int NOTIFICATION_ID = android.os.Process.myPid();
-    private AssistServiceConnection mServiceConnection;
 
     private Date date=new Date();
 
@@ -76,31 +75,12 @@ public class MqttClientService extends Service {
         }
         // 测试线程，判断Service是否在工作
         new Thread(mRunnable).start();
-        // 设置为前台进程，降低oom_adj，提高进程优先级，提高存活机率
-        setForeground();
 
         return START_STICKY;
 
     }
 
-    // 要注意的是android4.3之后Service.startForeground() 会强制弹出通知栏，解决办法是再
-    // 启动一个service和推送共用一个通知栏，然后stop这个service使得通知栏消失。
-    private void setForeground() {
-        if (Build.VERSION.SDK_INT < 18)
-        {
-            startForeground(NOTIFICATION_ID, getNotification());
-            return;
-        }
 
-        if (mServiceConnection == null)
-        {
-            mServiceConnection = new AssistServiceConnection();
-        }
-        // 绑定另外一条Service，目的是再启动一个通知，然后马上关闭。以达到通知栏没有相关通知
-        // 的效果
-        bindService(new Intent(this, AssistService.class), mServiceConnection,
-                Service.BIND_AUTO_CREATE);
-    }
 
 
     public void onCreate() {
@@ -108,7 +88,6 @@ public class MqttClientService extends Service {
 
         //拿到电源锁
         acquireWakeLock();
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MqttClientService.class), 0);
 
        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -158,6 +137,35 @@ public class MqttClientService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        client.close();
+        String[] split = {MqttCallbackHandler.Topic,MqttCallbackHandler.POSITION};
+        /**一共有多少个主题*/
+        int length = split.length;
+        String [] topics=new String[length];//订阅的主题
+        int [] qos =new int [length];// 服务器的质量
+        for(int i=0;i<length;i++){
+            topics[i]=split[i];
+            qos[i]=1;
+        }
+        try {
+            client.unsubscribe(topics);
+        }  catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (MqttException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
+            client.disconnect();
+        } catch (MqttPersistenceException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+        //释放电源锁
+        releaseWakeLock();
         stopForeground(true);
     }
 
@@ -166,26 +174,6 @@ public class MqttClientService extends Service {
 
     }
 
-
-    private class AssistServiceConnection implements ServiceConnection
-    {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Service assistService = ((AssistService.LocalBinder)service)
-                    .getService();
-            MqttClientService.this.startForeground(NOTIFICATION_ID, getNotification());
-            assistService.startForeground(NOTIFICATION_ID, getNotification());
-            assistService.stopForeground(true);
-
-            MqttClientService.this.unbindService(mServiceConnection);
-            mServiceConnection = null;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-    }
 
     private Notification getNotification()
     {
@@ -212,7 +200,6 @@ public class MqttClientService extends Service {
         public void run() {
 
             System.out.println("start message service");
-           // client = startConnect(MainActivity.getContext(), ClientID, ServerIP, PORT);
             client=new MqttConnect().getMqttAndroidClientInstace(getApplicationContext());
             while (true)
             {

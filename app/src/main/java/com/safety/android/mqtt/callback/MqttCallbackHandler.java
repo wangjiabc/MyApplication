@@ -50,8 +50,6 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     public static final String Topic="topic";
     public static final String POSITION="position";
 
-    private NotificationManager manager;
-
     private MqttAndroidClient client;
 
     public MqttCallbackHandler(MqttAndroidClient mqttAndroidClient, Context context, String clientId) {
@@ -69,6 +67,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
     @Override
     public void connectionLost(Throwable throwable) {
         Log.d("MqttCallbackHandler","MqttCallbackHandler/connectionLost");
+        MqttConnect.connect();
     }
 
     /**
@@ -140,7 +139,7 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
                  //   Log.e(TAG, "onFailure ---> " + exception);
                 }
             });
-            client= new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
+
         } catch (MqttException e) {
            // Log.e(TAG, "subscribeToTopic is error");
             e.printStackTrace();
@@ -205,8 +204,13 @@ public class MqttCallbackHandler implements MqttCallbackExtended {
             }
 
             try {
+                client=new MqttConnect().getMqttAndroidClientInstace(MainActivity.getContext());
                 /**发布一个主题:如果主题名一样不会新建一个主题，会复用*/
-                client.publish("position.topic",s.getBytes("UTF-8"),2,false,null,new PublishCallBackHandler(MainActivity.getContext()));
+                client.publish(
+                        "position.topic",
+                        s.getBytes("UTF-8"),2,
+                        false,null,
+                        new PublishCallBackHandler(MainActivity.getContext()));
             } catch (Exception e) {
                 e.printStackTrace();
             }

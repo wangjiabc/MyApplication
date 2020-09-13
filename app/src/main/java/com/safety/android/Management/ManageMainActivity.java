@@ -1,6 +1,5 @@
 package com.safety.android.Management;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -18,7 +17,6 @@ import com.safety.android.SQLite3.UserLab;
 import com.safety.android.http.FlickrFetch;
 import com.safety.android.http.OKHttpFetch;
 import com.safety.android.http.login;
-import com.safety.android.mqtt.connect.MqttClientService;
 import com.safety.android.mqtt.event.MessageEvent;
 import com.safety.android.tools.SwipeBackController;
 
@@ -34,12 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
 
 public class ManageMainActivity extends AppCompatActivity {
-
-    private NotificationManager notificationManager ;
-    private NotificationCompat.Builder notificationBuilder ;
 
     public static String token="";
 
@@ -58,9 +52,6 @@ public class ManageMainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()              //添加fragment
                 .add(R.id.activity_container_main, BoxFragment.newInstance())
                 .commit();
-
-        notificationManager = (NotificationManager) getSystemService(getBaseContext().NOTIFICATION_SERVICE);
-        notificationBuilder = new NotificationCompat.Builder(this,"default");
 
         List<UserInfo> list= UserLab.get(getApplication()).getUserInfo();
 
@@ -88,14 +79,6 @@ public class ManageMainActivity extends AppCompatActivity {
             }
         }
 
-
-        Intent intent = new Intent(this, MqttClientService.class);
-        //开启服务兼容
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        } else {
-            startService(intent);
-        }
         swipeBackController = new SwipeBackController(this);
     }
 
