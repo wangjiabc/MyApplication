@@ -80,7 +80,8 @@
             android:name="com.safety.android.AccountheadList.AccountheadListActivity"
             android:label="销售记录"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.safety.android.MainActivity" >
+            android:parentActivityName="com.safety.android.MainActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
         <activity
             android:name="com.safety.android.Food.FoodListActivity"

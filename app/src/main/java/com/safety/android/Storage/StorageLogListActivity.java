@@ -575,7 +575,7 @@ public class StorageLogListActivity extends AppCompatActivity {
             }
 
         String code=jsonObject1.getString("code");
-        if(code!=null&&!code.equals("")){
+        if(code!=null&&!code.equals("null")){
             jsonObject2.put("5",code);
             jsonObject2.put("code",code);
         }

@@ -1,6 +1,8 @@
 package com.safety.android.mqtt.connect;
 
 import android.content.Context;
+import android.os.Build;
+import android.provider.Settings;
 
 import com.safety.android.LunchActivity;
 import com.safety.android.MainActivity;
@@ -15,7 +17,7 @@ import java.util.Date;
 
 public class MqttConnect {
 
-    public final static String ClientID= LunchActivity.username+"_"+ (int)(Math.random() * 100);
+    public final static String ClientID= LunchActivity.username+"_"+ Build.ID.length()%10+Build.BOARD.length()%10+Build.DISPLAY.length()%10+Build.DEVICE.length()%10;
     private final static String ServerIP="223.86.150.188";
     private final static String PORT="61616";
     private final static String userName = "admin";

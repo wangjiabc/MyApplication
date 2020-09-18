@@ -569,7 +569,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                             Map<String, Object> sMap = new HashMap();
 
-                            List list = new ArrayList();
+                            final List list = new ArrayList();
 
                             try {
                                 String name = jsonObject.getString("materialName");
@@ -579,28 +579,32 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                 list.add(sMap);
                                 String billno = jsonObject.getString("billno");
                                 sMap = new HashMap();
-                                sMap.put("订单号:", billno);
-                                list.add(sMap);
-                                sMap = new HashMap();
-                                sMap.put("商品名称:", name);
+                                sMap.put("收款金额:", 0);
                                 list.add(sMap);
                                 Double totalprice = jsonObject.getDouble("totalprice");
                                 sMap = new HashMap();
                                 sMap.put("销售金额:", totalprice);
                                 list.add(sMap);
                                 sMap = new HashMap();
-                                String count = jsonObject.getString("count");
+                                sMap.put("订单号:", billno);
+                                list.add(sMap);
+                                sMap = new HashMap();
+                                sMap.put("商品名称:", name);
+                                list.add(sMap);
+
+                                sMap = new HashMap();
+                             /*   String count = jsonObject.getString("count");
                                 sMap = new HashMap();
                                 sMap.put("数量:", count);
-                                list.add(sMap);
+                                list.add(sMap);*/
                            /* String detail=jsonObject.getString("detail");
                             sMap=new HashMap();
                             sMap.put("详情",detail);
                             list.add(sMap);*/
-                                String createTime = jsonObject.getString("createTime");
+                             /*   String createTime = jsonObject.getString("createTime");
                                 sMap = new HashMap();
                                 sMap.put("时间:", createTime);
-                                list.add(sMap);
+                                list.add(sMap);*/
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -608,6 +612,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                             int i = 0;
                             Iterator iterator = list.iterator();
+                            final Map map0=new HashMap();
                             while (iterator.hasNext()) {
                                 Map<String, Object> cMap = (Map) iterator.next();
                                 for (Map.Entry<String, Object> map : cMap.entrySet()) {
@@ -618,13 +623,23 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                     TextView tv_validateName = (TextView) validateItem.findViewById(R.id.tv_validateName);
                                     EditText et_validate = (EditText) validateItem.findViewById(R.id.et_validate);
                                     TextView et_validateText = validateItem.findViewById(R.id.et_validate_text);
-                                    et_validate.setVisibility(View.GONE);
+                                    if(i==1){
+                                        et_validateText.setVisibility(View.GONE);
+                                        ImageView ivLogo = validateItem.findViewById(R.id.ivLogo);
+                                        ivLogo.setVisibility(View.GONE);
 
-                                    ImageView ivLogo = validateItem.findViewById(R.id.ivLogo);
-                                    ivLogo.setVisibility(View.GONE);
+                                        tv_validateName.setText(map.getKey());
+                                        et_validate.setText(map.getValue().toString());
+                                        map0.put("et",et_validate);
+                                    }else {
+                                        et_validate.setVisibility(View.GONE);
+                                        ImageView ivLogo = validateItem.findViewById(R.id.ivLogo);
+                                        ivLogo.setVisibility(View.GONE);
 
-                                    tv_validateName.setText(map.getKey());
-                                    et_validateText.setText(map.getValue().toString());
+                                        tv_validateName.setText(map.getKey());
+                                        et_validateText.setText(map.getValue().toString());
+                                    }
+
 
                                     i++;
                                 }
@@ -668,6 +683,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                             try {
                                                 String billno = finaljsonObject.getString("billno");
                                                 map.put("billno", billno);
+                                                EditText e= (EditText) map0.get("et");
+                                                String received=e.getText().toString();
+                                                map.put("received",received);
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
@@ -1175,9 +1193,11 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             String billno= (String) map.get("billno");
 
-            System.out.println("type="+type);
+            String received= (String) map.get("received");
 
-            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno+"&type="+type);
+            System.out.println("received="+received);
+
+            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno+"&type="+type+"&received="+received);
         }
 
 
