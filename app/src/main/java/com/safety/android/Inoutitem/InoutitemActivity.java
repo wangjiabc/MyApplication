@@ -1042,15 +1042,17 @@ public class InoutitemActivity extends AppCompatActivity implements OnLoginInfor
         jsonObject2.put("totalprice",price);
         String startTime=jsonObject.getString("startTime");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");//注意月份是MM
-        Date date = simpleDateFormat.parse(startTime);
-        jsonObject2.put("2",simpleDateFormat.format(date));
-        jsonObject2.put("startTime",startTime+"至");
-        jsonObject2.put("3","金额:"+price+"元");
-        String endTime=jsonObject.getString("endTime");
-        date=simpleDateFormat.parse(endTime);
-        jsonObject2.put("4",simpleDateFormat.format(date));
-        jsonObject2.put("endTime",endTime);
-
+        System.out.println("startTime="+startTime);
+        if(startTime!=null&&!startTime.equals("null")) {
+            Date date = simpleDateFormat.parse(startTime);
+            jsonObject2.put("2", simpleDateFormat.format(date));
+            jsonObject2.put("startTime", startTime + "至");
+            jsonObject2.put("3", "金额:" + price + "元");
+            String endTime = jsonObject.getString("endTime");
+            date = simpleDateFormat.parse(endTime);
+            jsonObject2.put("4", simpleDateFormat.format(date));
+            jsonObject2.put("endTime", endTime);
+        }
 
         return jsonObject2;
 

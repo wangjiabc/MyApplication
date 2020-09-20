@@ -17,6 +17,7 @@ import com.example.myapplication.R;
 import com.safety.android.AccountheadList.AccountheadListActivity;
 import com.safety.android.Camera.QR;
 import com.safety.android.Food.FoodClassifyActivity;
+import com.safety.android.Food.FoodDetailActivity;
 import com.safety.android.Inoutitem.InoutitemActivity;
 import com.safety.android.Management.ManageMainActivity;
 import com.safety.android.ReportDetail.ReportDetailActivity;
@@ -29,6 +30,7 @@ import com.safety.android.Storage.StorageLogListActivity;
 import com.safety.android.util.phone;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,13 +57,13 @@ public class SafeBoxFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        List<PermissionInfo> list= PermissionLab.get(getContext()).getPermissionInfo();
+        List<PermissionInfo> list = PermissionLab.get(getContext()).getPermissionInfo();
 
-        Iterator<PermissionInfo> iterator=list.iterator();
+        Iterator<PermissionInfo> iterator = list.iterator();
 /*
         String name0="name"+0;
         SafeInfo mSafeInfo0 = new SafeInfo();
@@ -70,23 +72,31 @@ public class SafeBoxFragment extends Fragment {
         mSafeInfos.add(mSafeInfo0);
 */
 
-        boolean isSale=false;
+        boolean isSale = false;
 
-        while (iterator.hasNext()){
+        List list1 = new ArrayList();
 
-            PermissionInfo permissionInfo=iterator.next();
+        while (iterator.hasNext()) {
 
-            String action=permissionInfo.getAction();
-            String component=permissionInfo.getComponent();
+            PermissionInfo permissionInfo = iterator.next();
 
-            if(component!=null) {
-                System.out.println("component==="+component);
+            String component = permissionInfo.getComponent();
+
+            if (component != null) {
+                System.out.println("component===" + component);
                 if (component.equals("food/MaterialList")) {
-                    String name = "商品管理";
+                    String name = "进货";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(0);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
+
+                    String name2 = "新增商品";
+                    SafeInfo mSafeInfo2 = new SafeInfo();
+                    mSafeInfo2.setmName(name2);
+                    mSafeInfo2.setId(9);
+                    list1.add(mSafeInfo2);
+
                 }
 
                 if (component.equals("sale/SaleList")) {
@@ -94,9 +104,9 @@ public class SafeBoxFragment extends Fragment {
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(1);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
 
-                    isSale=true;
+                    isSale = true;
                 }
 
                 if (component.equals("accounthead/AccountheadList")) {
@@ -104,15 +114,15 @@ public class SafeBoxFragment extends Fragment {
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(2);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
                 }
 
                 if (component.equals("storage/StorageList")) {
-                    String name = "实库";
+                    String name = "盘库";
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(3);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
                 }
 
                 if (component.equals("storageLog/StorageLogList")) {
@@ -120,7 +130,7 @@ public class SafeBoxFragment extends Fragment {
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(4);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
                 }
 
                 if (component.equals("inoutitem/InoutitemList")) {
@@ -128,7 +138,7 @@ public class SafeBoxFragment extends Fragment {
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(5);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
                 }
 
                 if (component.equals("reportDetail/reportDetail")) {
@@ -136,25 +146,119 @@ public class SafeBoxFragment extends Fragment {
                     SafeInfo mSafeInfo = new SafeInfo();
                     mSafeInfo.setmName(name);
                     mSafeInfo.setId(6);
-                    mSafeInfos.add(mSafeInfo);
+                    list1.add(mSafeInfo);
                 }
 
             }
         }
 
-      //  if(LunchActivity.username.equals("lubo")||LunchActivity.username.equals("admin")) {
+        if (LunchActivity.username.equals("lubo") || LunchActivity.username.equals("admin")) {
             SafeInfo mSafeInfo = new SafeInfo();
             mSafeInfo.setmName("管理后台");
             mSafeInfo.setId(7);
-            mSafeInfos.add(mSafeInfo);
-      // }
-
-        if(isSale) {
-            SafeInfo mSafeInfo2 = new SafeInfo();
-            mSafeInfo2.setmName("快速开单");
-            mSafeInfo2.setId(8);
-            mSafeInfos.add(mSafeInfo2);
+            list1.add(mSafeInfo);
         }
+
+        if (isSale) {
+            SafeInfo mSafeInfo2 = new SafeInfo();
+            mSafeInfo2.setmName("扫码开单");
+            mSafeInfo2.setId(8);
+            list1.add(mSafeInfo2);
+        }
+
+        for (int i = 0; i < list1.size(); i++) {
+            mSafeInfos.add(new SafeInfo());
+        }
+
+        Map<Integer, Integer> map = new HashMap();
+
+
+        String name;
+
+        int i=0;
+
+        boolean b=false;
+
+            name = "新增商品";
+
+            b=add(name,i,list1,map);
+
+            if(b)
+                i++;
+
+        name = "进货";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+
+        name = "盘库";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+        name = "进货记录";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+        name = "销售/开单";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+
+        name = "扫码开单";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+
+        name = "销售记录";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+
+
+
+
+
+        name = "开支";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+        name = "统计";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+        name = "管理后台";
+
+        b=add(name,i,list1,map);
+
+        if(b)
+            i++;
+
+
+
 
         /*
         for (int i=0;i<9;i++){
@@ -168,6 +272,21 @@ public class SafeBoxFragment extends Fragment {
         */
     }
 
+    boolean add(String name,int i,List list1,Map<Integer,Integer> map){
+        boolean b=false;
+        for (int j = 0; j < list1.size(); j++) {
+
+            SafeInfo mSafeInfo = (SafeInfo) list1.get(j);
+
+            if (name.equals(mSafeInfo.getmName())) {
+                mSafeInfos.set(i, mSafeInfo);
+                b=true;
+                break;
+            }
+        }
+        return b;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -175,7 +294,7 @@ public class SafeBoxFragment extends Fragment {
 
         RecyclerView recycleListView= (RecyclerView) view
                 .findViewById(R.id.fragment_safe_box_recycler_view);
-        recycleListView.setLayoutManager(new GridLayoutManager(null,3));
+        recycleListView.setLayoutManager(new GridLayoutManager(null,4));
         recycleListView.setAdapter(new SafeAdapter(mSafeInfos));
 
         return view;
@@ -284,7 +403,7 @@ public class SafeBoxFragment extends Fragment {
                 };
             }else
             if(i==7) {
-                mButton.setBackground(getResources().getDrawable(R.drawable.button_box7));
+                mButton.setBackground(getResources().getDrawable(R.drawable.button_box8));
                 onClickListener=new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -294,7 +413,7 @@ public class SafeBoxFragment extends Fragment {
                 };
             }else
             if(i==8) {
-                mButton.setBackground(getResources().getDrawable(R.drawable.button_box9));
+                mButton.setBackground(getResources().getDrawable(R.drawable.button_box7));
 
                 onClickListener = new View.OnClickListener() {
                     @Override
@@ -313,6 +432,19 @@ public class SafeBoxFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent intent=new Intent(getActivity(), QR.class);
+                        startActivity(intent);
+
+                    }
+
+                };
+            }
+            if(i==10) {
+                mButton.setBackground(getResources().getDrawable(R.drawable.button_box9));
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent=new Intent(getActivity(), FoodDetailActivity.class);
+                        startActivityForResult(intent,1);
                         startActivity(intent);
 
                     }
@@ -345,36 +477,38 @@ public class SafeBoxFragment extends Fragment {
                     ContactsContract.Contacts.DISPLAY_NAME
             };
 
-            Cursor cursor=getActivity().getContentResolver()
-                    .query(contactUri,queryFields,null,null,null);
+            if(contactUri!=null) {
+                Cursor cursor = getActivity().getContentResolver()
+                        .query(contactUri, queryFields, null, null, null);
 
-            try {
-                if (cursor.getCount() == 0) {
-                    return;
-                }
-
-                cursor.moveToFirst();
-                String suspect = cursor.getString(0);
-
-
-                Map a= phone.getContacts(this.getActivity());
-
-                String phoneNumber=null;
-                for(Object key:a.keySet()){
-                    if(suspect.equals(key)) {
-                        phoneNumber=((String) a.get(key));
+                try {
+                    if (cursor.getCount() == 0) {
+                        return;
                     }
+
+                    cursor.moveToFirst();
+                    String suspect = cursor.getString(0);
+
+
+                    Map a = phone.getContacts(this.getActivity());
+
+                    String phoneNumber = null;
+                    for (Object key : a.keySet()) {
+                        if (suspect.equals(key)) {
+                            phoneNumber = ((String) a.get(key));
+                        }
+                    }
+
+                    if (phoneNumber != null) {
+                        Uri number = Uri.parse("tel:" + phoneNumber);
+                        Intent i = new Intent(Intent.ACTION_DIAL, number);
+                        startActivity(i);
+                    }
+
+
+                } finally {
+                    cursor.close();
                 }
-
-                if(phoneNumber!=null) {
-                    Uri number = Uri.parse("tel:" + phoneNumber);
-                    Intent i=new Intent(Intent.ACTION_DIAL,number);
-                    startActivity(i);
-                }
-
-
-            }finally {
-                cursor.close();
             }
         }
     }

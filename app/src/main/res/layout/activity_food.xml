@@ -41,7 +41,7 @@
                 android:paddingLeft="?attr/qmui_content_padding_horizontal"
                 android:paddingRight="?attr/qmui_content_padding_horizontal"
                 android:paddingTop="@dimen/qmui_group_list_section_header_footer_padding_vertical"
-                android:text="注册账号"
+                android:text="新增商品"
                 android:textColor="?attr/qmui_config_color_gray_3"
                 android:textSize="17sp" />
             <!--边框分割细线-->

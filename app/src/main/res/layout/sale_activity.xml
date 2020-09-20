@@ -52,10 +52,40 @@
                 android:layout_height="1dp"
                 android:background="@drawable/qmui_s_list_item_bg_with_border_bottom" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/qmui_list_item_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/qmui_divider_bottom_bitmap"
+                android:gravity="center_vertical"
+                android:text="日期 : "
+                android:textColor="?attr/qmui_config_color_gray_1"
+                android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/qmui_list_item_height"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/qmui_divider_bottom_bitmap"
+                android:gravity="center_vertical"
+                android:text=""
+                android:textColor="?attr/qmui_config_color_gray_1"
+                android:textSize="?attr/qmui_common_list_item_title_h_text_size" />
+
+        </LinearLayout>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
 
                 <TextView
                     android:layout_width="wrap_content"

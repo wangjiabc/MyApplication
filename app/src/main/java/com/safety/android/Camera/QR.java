@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -26,12 +29,17 @@ import androidx.core.content.ContextCompat;
 
 public class QR extends AppCompatActivity {
 
+    private Button button;
+
+    private View view;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_qr);
+        view= LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_qr, null);
+        setContentView(view);
 
                 int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
                         Manifest.permission.CAMERA);
@@ -49,6 +57,32 @@ public class QR extends AppCompatActivity {
                 }else{
                     startActivityForResult(intent,1001);
                 }
+
+
+                button=view.findViewById(R.id.button);
+
+
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int hasCameraPermission = ContextCompat.checkSelfPermission(getApplication(),
+                                Manifest.permission.CAMERA);
+                        if (hasCameraPermission == PackageManager.PERMISSION_GRANTED) {
+                            //有权限。
+                        } else {
+                            //没有权限，申请权限。
+                            requestPermissions(new String[]{Manifest.permission.CAMERA},100);
+                        }
+                        TakePictures takePictures=new TakePictures(getApplication());
+                        Intent intent=new Intent(getApplicationContext(), CaptureActivity.class);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
+                            startActivityForResult(intent,1001);
+                        }else{
+                            startActivityForResult(intent,1001);
+                        }
+                    }
+                });
 
     }
 

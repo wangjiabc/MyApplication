@@ -65,6 +65,7 @@ public class SaleActivity extends AppCompatActivity {
     //private Spinner spinner2;
     private ArrayAdapter<String> adapter;
 
+    private TextView sale_date;
     private TextView sale_title;
     private TextView saleall2;
     private TextView saleall3;
@@ -108,6 +109,13 @@ public class SaleActivity extends AppCompatActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.sale_activity, null);
+
+        sale_date=view.findViewById(R.id.date);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+        String mDate=sdf.format(new Date());
+
+        sale_date.setText(mDate);
 
         sale_title=view.findViewById(R.id.sale_title);
         saleall2=view.findViewById(R.id.saleall2);

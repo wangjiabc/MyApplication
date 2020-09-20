@@ -7,4 +7,11 @@
     android:layout_height="match_parent"
     tools:context="com.safety.android.Camera.QR">
 
+    <Button
+        android:id="@+id/button"
+        android:layout_marginTop="500dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="点击扫码" />
+
 </FrameLayout>

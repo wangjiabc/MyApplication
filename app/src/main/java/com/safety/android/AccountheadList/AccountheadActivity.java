@@ -29,7 +29,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +69,8 @@ public class AccountheadActivity extends AppCompatActivity {
 
     private SwipeBackController swipeBackController;
 
+    private TextView sale_date;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -75,6 +79,8 @@ public class AccountheadActivity extends AppCompatActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.accounthead_activity, null);
+
+        sale_date=view.findViewById(R.id.date);
 
         sale_title=view.findViewById(R.id.sale_title);
         saleall2=view.findViewById(R.id.saleall2);
@@ -243,6 +249,7 @@ public class AccountheadActivity extends AppCompatActivity {
 
                             }
 
+                            MyTestUtil.print(jsonObject0);
 
                             saleall3.setText(String.valueOf(allCount));
                             saleall4.setText(jsonObject0.getString("allTotalprice"));
@@ -252,6 +259,14 @@ public class AccountheadActivity extends AppCompatActivity {
                             sale_title.setText(jsonObject0.getString("email") + "销售单");
 
                             billNo=jsonObject0.getString("billno");
+
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");//注意月份是MM
+                            Date date = simpleDateFormat.parse(jsonObject0.getString("date"));
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+                            String mDate=sdf.format(date);
+
+                            sale_date.setText(mDate);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

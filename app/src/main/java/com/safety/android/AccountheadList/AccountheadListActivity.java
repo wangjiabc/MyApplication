@@ -583,7 +583,11 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                 list.add(sMap);
                                 Double totalprice = jsonObject.getDouble("totalprice");
                                 sMap = new HashMap();
-                                sMap.put("销售金额:", totalprice);
+                                sMap.put("应收金额:", totalprice);
+                                list.add(sMap);
+                                Double received = jsonObject.getDouble("received");
+                                sMap = new HashMap();
+                                sMap.put("已收金额:", received);
                                 list.add(sMap);
                                 sMap = new HashMap();
                                 sMap.put("订单号:", billno);
@@ -680,16 +684,23 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                         public void onClick(DialogInterface dialog, int which) {
 
                                             Map map = new HashMap();
+                                            float f=0;
                                             try {
                                                 String billno = finaljsonObject.getString("billno");
                                                 map.put("billno", billno);
                                                 EditText e= (EditText) map0.get("et");
                                                 String received=e.getText().toString();
                                                 map.put("received",received);
+                                                f=Float.parseFloat(received);
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
-                                            new FetchItemsTaskIncome().execute(map);
+                                            if(f<=0){
+                                                Toast.makeText(AccountheadListActivity.this, "你点击了cbTest1的第" + position + "张图片", Toast.LENGTH_SHORT).show();
+
+                                            }else {
+                                                new FetchItemsTaskIncome().execute(map);
+                                            }
                                             dialog.dismiss();
                                         }
 
@@ -1155,6 +1166,13 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
         }catch (Exception e){
 
         }
+        String received="0";
+        try{
+            received=jsonObject.getString("received");
+        }catch (Exception e){
+
+        }
+        jsonObject2.put("received",received);
         jsonObject2.put("detail",detail);
 
         return jsonObject2;
@@ -1197,7 +1215,17 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
             System.out.println("received="+received);
 
-            return new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno+"&type="+type+"&received="+received);
+            String  s=new OKHttpFetch(getApplication()).get(FlickrFetch.base+"/accounthead/accounthead/income?income="+1+"&billno="+billno+"&type="+type+"&received="+received);
+
+            try {
+                JSONObject jsonObject=new JSONObject(s);
+                jsonObject.put("received",received);
+                s=jsonObject.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return s;
         }
 
 
@@ -1217,7 +1245,18 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         int n = viewHolder.getAdapterPosition();
 
                         JSONObject jsonObject2 = itemMap.get(n);
-                        jsonObject2.put("income", 1);
+                        float totalprice=Float.parseFloat(jsonObject2.getString("totalprice"));
+                        float received=Float.parseFloat(jsonObject2.getString("received"));
+                        float received1= (float) jsonObject.getDouble("received");
+                        if(totalprice<=(received+received1)) {
+                            jsonObject2.put("income", 1);
+                        }
+
+                        BigDecimal bigDecimal = new BigDecimal(received+received1);
+                        double f1 = bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();//2.转换后的数字四舍五入保留小数点;
+                        String rs = String.valueOf(f1);
+
+                        jsonObject2.put("received",rs);
 
                         itemMap.put(n, jsonObject2);
 
