@@ -53,10 +53,7 @@
         </provider>
         <activity android:name="com.safety.android.LunchActivity"
                   android:theme="@style/LunchTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
         </activity>
         <activity
             android:name="com.safety.android.MainActivity"
@@ -220,6 +217,16 @@
             android:label=""
             android:screenOrientation="portrait"
             android:parentActivityName="com.safety.android.Camera.QR" >
+        </activity>
+        <activity
+            android:name="com.safety.android.ReportDetail.AnotherBarActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.safety.android.MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 
