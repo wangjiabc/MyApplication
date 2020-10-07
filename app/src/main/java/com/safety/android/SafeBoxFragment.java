@@ -444,7 +444,6 @@ public class SafeBoxFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent intent=new Intent(getActivity(), FoodDetailActivity.class);
-                        startActivityForResult(intent,1);
                         startActivity(intent);
 
                     }

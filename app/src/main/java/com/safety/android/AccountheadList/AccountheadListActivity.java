@@ -1248,8 +1248,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                         float totalprice=Float.parseFloat(jsonObject2.getString("totalprice"));
                         float received=Float.parseFloat(jsonObject2.getString("received"));
                         float received1= (float) jsonObject.getDouble("received");
+
+                        System.out.println("totalprice="+totalprice+"  received="+received+"  received1="+received1);
+
+                        int cincome=0;
+
                         if(totalprice<=(received+received1)) {
                             jsonObject2.put("income", 1);
+                            cincome=1;
                         }
 
                         BigDecimal bigDecimal = new BigDecimal(received+received1);
@@ -1260,7 +1266,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                         itemMap.put(n, jsonObject2);
 
-                        if(income!=null&&income==0) {
+                        System.out.println("cincome=="+cincome);
+
+                        if(cincome==1) {
                             itemMap.remove(n);
                             total--;
                             System.out.println("itemMap==========");
@@ -1268,8 +1276,14 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                             Map<Integer,JSONObject> iMap=new HashMap<>();
                             int i=0;
                             for(int key:itemMap.keySet()) {
-                                JSONObject jsonObject3=itemMap.get(key);
-                                iMap.put(i,jsonObject3);
+                                System.out.println("i="+i+"  n="+n+"  key="+key);
+                                if(key<n){
+                                    JSONObject jsonObject3 = itemMap.get(key);
+                                    iMap.put(key, jsonObject3);
+                                }else {
+                                    JSONObject jsonObject3 = itemMap.get(key);
+                                    iMap.put(key-1, jsonObject3);
+                                }
                                 i++;
                             }
                             System.out.println("iMap===========");
