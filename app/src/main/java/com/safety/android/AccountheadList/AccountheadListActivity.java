@@ -3,9 +3,11 @@ package com.safety.android.AccountheadList;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -585,7 +587,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                 sMap = new HashMap();
                                 sMap.put("应收金额:", totalprice);
                                 list.add(sMap);
-                                Double received = jsonObject.getDouble("received");
+                                Double received =0.0;
+                                if(jsonObject.get("received")!=null&&!jsonObject.get("received").equals("null"))
+                                    received=jsonObject.getDouble("received");
                                 sMap = new HashMap();
                                 sMap.put("已收金额:", received);
                                 list.add(sMap);
@@ -635,6 +639,8 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                         tv_validateName.setText(map.getKey());
                                         et_validate.setText(map.getValue().toString());
                                         map0.put("et",et_validate);
+                                        et_validate.setTextColor(Color.RED);
+                                        et_validate.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                                     }else {
                                         et_validate.setVisibility(View.GONE);
                                         ImageView ivLogo = validateItem.findViewById(R.id.ivLogo);
@@ -642,6 +648,9 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
 
                                         tv_validateName.setText(map.getKey());
                                         et_validateText.setText(map.getValue().toString());
+                                        if(i==3){
+                                            et_validateText.setTextColor(Color.parseColor("#6b8e23"));
+                                        }
                                     }
 
 
@@ -696,7 +705,7 @@ public class AccountheadListActivity extends AppCompatActivity implements OnLogi
                                                 e.printStackTrace();
                                             }
                                             if(f<=0){
-                                                Toast.makeText(AccountheadListActivity.this, "你点击了cbTest1的第" + position + "张图片", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(AccountheadListActivity.this, "收款金额不能为零", Toast.LENGTH_SHORT).show();
 
                                             }else {
                                                 new FetchItemsTaskIncome().execute(map);

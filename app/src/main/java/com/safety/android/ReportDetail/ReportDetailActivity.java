@@ -197,7 +197,7 @@ public class ReportDetailActivity extends AppCompatActivity implements View.OnCl
             }else if(arg2==6){
                 start=6;
                 end=9;
-            }else if(arg2==6){
+            }else if(arg2==7){
                 start=9;
                 end=12;
             }
